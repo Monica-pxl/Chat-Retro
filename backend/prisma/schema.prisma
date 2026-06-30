@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -10,4 +5,196 @@ generator client {
 datasource db {
   provider = "mysql"
   url      = env("DATABASE_URL")
+}
+
+//
+// ENUMS
+//
+
+enum EstadoUsuario {
+  en_linea
+  desconectado
+}
+
+enum RolUsuario {
+  user
+  admin
+}
+
+enum EstadoCuenta {
+  activa
+  suspendida
+  baneada
+}
+
+enum TipoMensaje {
+  texto
+  imagen
+  sticker
+  audio
+}
+
+enum EstadoAmistad {
+  pendiente
+  aceptado
+  rechazado
+}
+
+enum TipoSala {
+  general_anual
+  epoca_estilo
+}
+
+//
+// USUARIOS
+//
+
+model User {
+  id              Int           @id @default(autoincrement())
+  email           String        @unique
+  password        String
+  nickname        String        @unique
+  avatar          String?
+
+  estado          EstadoUsuario
+  rol             RolUsuario
+  estado_cuenta   EstadoCuenta
+
+  fecha_creacion  DateTime      @default(now())
+  ultima_conexion DateTime?
+
+  mensajesSala     MensajeSala[]
+  mensajesPrivados MensajePrivado[]
+
+  amistadesEnviadas  Amistad[] @relation("AmistadEmisor")
+  amistadesRecibidas Amistad[] @relation("AmistadReceptor")
+
+  chats1 ChatPrivado[] @relation("Usuario1")
+  chats2 ChatPrivado[] @relation("Usuario2")
+}
+
+//
+// SALAS
+//
+
+model Sala {
+  id            Int      @id @default(autoincrement())
+
+  tipo          TipoSala
+
+  ano           Int?     // SOLO si es general_anual
+
+  epocaId       Int?     // SOLO si es epoca_estilo
+  tematicaId    Int?     // SOLO si es epoca_estilo
+
+  nombre        String
+  descripcion   String?
+
+  cerrada       Boolean  @default(false)
+
+  fecha_creacion DateTime @default(now())
+
+  epoca     Epoca?     @relation(fields: [epocaId], references: [id])
+  tematica  Tematica?  @relation(fields: [tematicaId], references: [id])
+
+  mensajes MensajeSala[]
+}
+
+//
+// ÉPOCAS
+//
+
+model Epoca {
+  id     Int    @id @default(autoincrement())
+  nombre String
+
+  salas Sala[]
+  tematicas Tematica[]
+}
+
+//
+// TEMÁTICAS
+//
+
+model Tematica {
+  id          Int     @id @default(autoincrement())
+  nombre      String
+  descripcion String?
+
+  epocaId     Int
+  epoca       Epoca   @relation(fields: [epocaId], references: [id])
+
+  salas Sala[]
+}
+
+//
+// MENSAJES SALA
+//
+
+model MensajeSala {
+  id        Int      @id @default(autoincrement())
+  contenido String
+  tipo      TipoMensaje
+
+  fecha_creacion DateTime @default(now())
+
+  userId Int
+  salaId Int
+
+  user User @relation(fields: [userId], references: [id])
+  sala Sala @relation(fields: [salaId], references: [id])
+}
+
+//
+// CHATS PRIVADOS
+//
+
+model ChatPrivado {
+  id Int @id @default(autoincrement())
+
+  usuario1Id Int
+  usuario2Id Int
+
+  fecha_creacion DateTime @default(now())
+
+  usuario1 User @relation("Usuario1", fields: [usuario1Id], references: [id])
+  usuario2 User @relation("Usuario2", fields: [usuario2Id], references: [id])
+
+  mensajes MensajePrivado[]
+}
+
+//
+// MENSAJES PRIVADOS
+//
+
+model MensajePrivado {
+  id        Int      @id @default(autoincrement())
+  contenido String
+  tipo      TipoMensaje
+
+  fecha_creacion DateTime @default(now())
+
+  chatId   Int
+  emisorId Int
+
+  chat   ChatPrivado @relation(fields: [chatId], references: [id])
+  emisor User        @relation(fields: [emisorId], references: [id])
+}
+
+//
+// AMISTADES
+//
+
+model Amistad {
+  id Int @id @default(autoincrement())
+
+  emisorId   Int
+  receptorId Int
+
+  estado EstadoAmistad
+
+  fecha_creacion DateTime @default(now())
+
+  emisor   User @relation("AmistadEmisor", fields: [emisorId], references: [id])
+  receptor User @relation("AmistadReceptor", fields: [receptorId], references: [id])
 }
