@@ -30,7 +30,7 @@ enum EstadoCuenta {
 enum TipoMensaje {
   texto
   imagen
-  sticker
+  gif
   audio
 }
 

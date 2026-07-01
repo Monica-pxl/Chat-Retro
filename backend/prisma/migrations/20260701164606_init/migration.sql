@@ -53,7 +53,7 @@ CREATE TABLE `Tematica` (
 CREATE TABLE `MensajeSala` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `contenido` VARCHAR(191) NOT NULL,
-    `tipo` ENUM('texto', 'imagen', 'sticker', 'audio') NOT NULL,
+    `tipo` ENUM('texto', 'imagen', 'gif', 'audio') NOT NULL,
     `fecha_creacion` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `userId` INTEGER NOT NULL,
     `salaId` INTEGER NOT NULL,
@@ -75,7 +75,7 @@ CREATE TABLE `ChatPrivado` (
 CREATE TABLE `MensajePrivado` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `contenido` VARCHAR(191) NOT NULL,
-    `tipo` ENUM('texto', 'imagen', 'sticker', 'audio') NOT NULL,
+    `tipo` ENUM('texto', 'imagen', 'gif', 'audio') NOT NULL,
     `fecha_creacion` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `chatId` INTEGER NOT NULL,
     `emisorId` INTEGER NOT NULL,
