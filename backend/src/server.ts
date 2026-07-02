@@ -5,6 +5,9 @@ import http from "http";
 import { Server } from "socket.io";
 
 import authRoutes from "./routes/auth.routes";
+import salaRoutes from "./routes/sala.routes";
+import chatRoutes from "./routes/chat.routes";
+import amistadRoutes from "./routes/amistad.routes";
 import { socketHandler } from "./sockets";
 
 dotenv.config();
@@ -15,6 +18,9 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/auth", authRoutes);
+app.use("/salas", salaRoutes);
+app.use("/chats", chatRoutes);
+app.use("/amigos", amistadRoutes);
 
 // HTTP server
 const server = http.createServer(app);
