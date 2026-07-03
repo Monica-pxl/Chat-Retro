@@ -8,6 +8,7 @@ import authRoutes from "./routes/auth.routes";
 import salaRoutes from "./routes/sala.routes";
 import chatRoutes from "./routes/chat.routes";
 import amistadRoutes from "./routes/amistad.routes";
+import adminRoutes from "./routes/admin.routes";
 import { socketHandler } from "./sockets";
 
 dotenv.config();
@@ -21,6 +22,7 @@ app.use("/auth", authRoutes);
 app.use("/salas", salaRoutes);
 app.use("/chats", chatRoutes);
 app.use("/amigos", amistadRoutes);
+app.use("/admin", adminRoutes);
 
 // HTTP server
 const server = http.createServer(app);

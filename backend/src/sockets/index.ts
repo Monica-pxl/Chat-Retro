@@ -85,6 +85,13 @@ export const socketHandler = (io: Server) => {
           return;
         }
 
+        if (sala.cerrada) {
+          socket.emit("room-error", {
+            message: "Esta sala está cerrada",
+          });
+          return;
+        }
+
         if (!canJoinRoom(sala)) {
           socket.emit("room-error", {
             message: "La sala no está disponible ahora mismo",
@@ -155,12 +162,21 @@ export const socketHandler = (io: Server) => {
             },
           });
 
+          const emisor = await prisma.user.findUnique({
+            where: { id: emisorId },
+            select: {
+              id: true,
+              nickname: true,
+              avatar: true,
+            },
+          });
+
           // Emitir solo al destinatario si está conectado
           const destinatarioSocketId = onlineUsers.get(destinatarioId);
           if (destinatarioSocketId) {
             io.to(destinatarioSocketId).emit("receive-private-message", {
               chatId: chat.id,
-              emisorId,
+              user: emisor,
               contenido: mensaje.contenido,
               fecha: mensaje.fecha_creacion.toISOString(),
             });
@@ -221,13 +237,21 @@ export const socketHandler = (io: Server) => {
           return;
         }
 
+        const usuario = await prisma.user.findUnique({
+          where: { id: senderUserId },
+          select: {
+            id: true,
+            nickname: true,
+            avatar: true,
+          },
+        });
+
         io.to(roomName).emit("receive-message", {
           roomId,
-          userId: senderUserId,
+          user: usuario,
           contenido: contenido.trim(),
           fecha: new Date().toISOString(),
         });
-
       }
     );
   });

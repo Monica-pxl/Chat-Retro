@@ -59,9 +59,25 @@ export const enviarSolicitud = async (req: Request, res: Response) => {
     });
 
     if (existente) {
-      return res.status(409).json({
-        error: "Ya existe una relación o solicitud con este usuario"
-      });
+      if (existente.estado === "pendiente") {
+        return res.status(409).json({
+          error: "Ya existe una solicitud pendiente"
+        });
+      }
+
+      if (existente.estado === "aceptado") {
+        return res.status(409).json({
+          error: "Este usuario ya es tu amigo"
+        });
+      }
+
+      if (existente.estado === "rechazado") {
+        await prisma.amistad.delete({
+          where: {
+            id: existente.id
+          }
+        });
+      }
     }
 
     const solicitud = await prisma.amistad.create({
