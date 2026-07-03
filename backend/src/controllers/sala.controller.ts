@@ -43,6 +43,20 @@ export const getMensajesSala = async (req: Request, res: Response) => {
       return res.status(404).json({ error: "Sala no encontrada" });
     }
 
+    if (sala.cerrada) {
+      const requesterId = (req as any).user?.userId;
+      const requester = requesterId
+        ? await prisma.user.findUnique({
+            where: { id: requesterId },
+            select: { rol: true },
+          })
+        : null;
+
+      if (requester?.rol !== "admin") {
+        return res.status(403).json({ error: "Esta sala está cerrada" });
+      }
+    }
+
     const mensajes = await prisma.mensajeSala.findMany({
       where: { salaId: id },
       orderBy: { fecha_creacion: "asc" },
