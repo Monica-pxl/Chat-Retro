@@ -1,0 +1,336 @@
+/* ════════════════════════════════════════════════════
+   RetroSocial — Auth Pages (Login + Registro)
+   Login:    Negro · Gris oscuro · Azul   #3B82F6
+   Registro: Negro · Gris oscuro · Morado #8B5CF6
+   ════════════════════════════════════════════════════ */
+
+/* Spinner para estado de carga */
+@keyframes rs-spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+.rs-spin {
+  display: inline-block;
+  animation: rs-spin 0.75s linear infinite;
+}
+
+/* ── Página base ─────────────────────────────────── */
+.rs-auth-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  background: var(--bg-primary);
+}
+
+/* Tinte azul — Login */
+.rs-auth-page--login {
+  background:
+    radial-gradient(ellipse at 20% 20%, rgba(59, 130, 246, 0.10) 0%, transparent 52%),
+    radial-gradient(ellipse at 80% 80%, rgba(37, 99, 235, 0.07) 0%, transparent 48%),
+    var(--bg-primary);
+}
+
+/* Tinte morado — Registro */
+.rs-auth-page--registro {
+  background:
+    radial-gradient(ellipse at 20% 20%, rgba(139, 92, 246, 0.10) 0%, transparent 52%),
+    radial-gradient(ellipse at 80% 80%, rgba(109, 40, 217, 0.07) 0%, transparent 48%),
+    var(--bg-primary);
+}
+
+/* Ruido sutil de fondo (igual al landing) */
+.rs-auth-page::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+  background-size: 256px 256px;
+}
+
+/* ── Zona principal (centra el card) ─────────────── */
+.rs-auth-main {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  position: relative;
+  z-index: 5;
+}
+
+/* ── Tarjeta - MÁS GRANDE ────────────────────────── */
+.rs-auth-card {
+  width: 100%;
+  max-width: 560px;  /* Antes: 460px */
+  background: rgba(255, 255, 255, 0.025);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.055);
+  border-radius: 24px;  /* Antes: 20px */
+  padding: 3rem 3.5rem;  /* Antes: 2.5rem */
+  position: relative;
+  overflow: hidden;
+}
+
+/* Franja de color en la parte superior */
+.rs-auth-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;  /* Antes: 2px */
+  border-radius: 24px 24px 0 0;
+}
+
+.rs-auth-card--login::before {
+  background: linear-gradient(90deg, transparent, #3b82f6, #93c5fd, #3b82f6, transparent);
+}
+
+.rs-auth-card--registro::before {
+  background: linear-gradient(90deg, transparent, #8b5cf6, #c4b5fd, #8b5cf6, transparent);
+}
+
+.rs-auth-card--login {
+  box-shadow:
+    0 0 0 1px rgba(59, 130, 246, 0.07),
+    0 40px 80px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(59, 130, 246, 0.06);
+}
+
+.rs-auth-card--registro {
+  box-shadow:
+    0 0 0 1px rgba(139, 92, 246, 0.07),
+    0 40px 80px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 rgba(139, 92, 246, 0.06);
+}
+
+/* ── Cabecera del card ───────────────────────────── */
+.rs-auth-card__header {
+  text-align: center;
+  margin-bottom: 2.5rem;  /* Antes: 2rem */
+}
+
+.rs-auth-card__icon {
+  font-size: 2.8rem;  /* Antes: 2.2rem */
+  display: block;
+  margin-bottom: 1rem;  /* Antes: 0.8rem */
+}
+
+.rs-auth-card--login .rs-auth-card__icon {
+  color: #3b82f6;
+  filter: drop-shadow(0 0 18px rgba(59, 130, 246, 0.55));
+}
+
+.rs-auth-card--registro .rs-auth-card__icon {
+  color: #8b5cf6;
+  filter: drop-shadow(0 0 18px rgba(139, 92, 246, 0.55));
+}
+
+.rs-auth-card__title {
+  font-size: 2rem;  /* Antes: 1.65rem */
+  font-weight: 700;
+  color: #fff;
+  margin: 0 0 0.4rem;
+  letter-spacing: -0.5px;
+}
+
+.rs-auth-card__subtitle {
+  font-size: 1rem;  /* Antes: 0.875rem */
+  color: var(--text-muted);
+}
+
+/* ── Error ───────────────────────────────────────── */
+.rs-auth-error {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.22);
+  border-radius: 12px;  /* Antes: 10px */
+  padding: 0.9rem 1.2rem;  /* Antes: 0.7rem 1rem */
+  font-size: 0.95rem;  /* Antes: 0.85rem */
+  color: #fca5a5;
+  margin-bottom: 1.5rem;  /* Antes: 1.25rem */
+}
+
+/* ── Formulario ──────────────────────────────────── */
+.rs-auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;  /* Antes: 1rem */
+}
+
+.rs-auth-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;  /* Antes: 0.35rem */
+}
+
+.rs-auth-label {
+  font-size: 0.8rem;  /* Antes: 0.72rem */
+  font-weight: 600;
+  letter-spacing: 0.6px;
+  color: rgba(255, 255, 255, 0.5);
+  text-transform: uppercase;
+}
+
+/* ── Inputs - MÁS GRANDES ────────────────────────── */
+.rs-auth-input {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;  /* Antes: 10px */
+  padding: 0.9rem 1.2rem;  /* Antes: 0.78rem 1rem */
+  color: var(--text-primary);
+  font-size: 1.05rem;  /* Antes: 0.94rem */
+  font-family: var(--font);
+  outline: none;
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+  width: 100%;
+}
+
+.rs-auth-input::placeholder {
+  color: rgba(255, 255, 255, 0.18);
+  font-size: 0.95rem;
+}
+
+.rs-auth-input--blue:focus {
+  border-color: rgba(59, 130, 246, 0.6);
+  background: rgba(59, 130, 246, 0.05);
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12);  /* Antes: 3px */
+}
+
+.rs-auth-input--purple:focus {
+  border-color: rgba(139, 92, 246, 0.6);
+  background: rgba(139, 92, 246, 0.05);
+  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.12);  /* Antes: 3px */
+}
+
+/* ── Botón submit - MÁS GRANDE ───────────────────── */
+.rs-auth-submit {
+  width: 100%;
+  padding: 1rem 1.5rem;  /* Antes: 0.88rem 1.5rem */
+  border: none;
+  border-radius: 12px;  /* Antes: 10px */
+  font-size: 1.05rem;  /* Antes: 0.95rem */
+  font-weight: 600;
+  cursor: pointer;
+  font-family: var(--font);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  margin-top: 0.6rem;  /* Antes: 0.4rem */
+  transition: filter 0.2s, box-shadow 0.2s, transform 0.15s;
+}
+
+.rs-auth-submit--blue {
+  background: #3b82f6;
+  color: #fff;
+  box-shadow: 0 0 35px rgba(59, 130, 246, 0.22);
+}
+
+.rs-auth-submit--blue:hover:not(:disabled) {
+  filter: brightness(1.12);
+  box-shadow: 0 0 60px rgba(59, 130, 246, 0.4);
+  transform: translateY(-2px);
+}
+
+.rs-auth-submit--purple {
+  background: #8b5cf6;
+  color: #fff;
+  box-shadow: 0 0 35px rgba(139, 92, 246, 0.22);
+}
+
+.rs-auth-submit--purple:hover:not(:disabled) {
+  filter: brightness(1.12);
+  box-shadow: 0 0 60px rgba(139, 92, 246, 0.4);
+  transform: translateY(-2px);
+}
+
+.rs-auth-submit:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* ── Enlace inferior ─────────────────────────────── */
+.rs-auth-footer-link {
+  text-align: center;
+  margin-top: 1.8rem;  /* Antes: 1.5rem */
+  font-size: 0.95rem;  /* Antes: 0.875rem */
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.rs-auth-footer-link a {
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.18s;
+}
+
+.rs-auth-footer-link--blue a  { color: #60a5fa; }
+.rs-auth-footer-link--blue a:hover  { color: #93c5fd; }
+.rs-auth-footer-link--purple a { color: #a78bfa; }
+.rs-auth-footer-link--purple a:hover { color: #c4b5fd; }
+
+/* ── Usuario en el header (cuando está logueado) ─── */
+.rs-header__user {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  padding: 0.45rem 0.8rem;
+  font-weight: 500;
+}
+
+/* ── Responsive ──────────────────────────────────── */
+@media (max-width: 600px) {
+  .rs-auth-card {
+    padding: 2rem 1.5rem;  /* Antes: 1.75rem 1.25rem */
+    border-radius: 18px;
+    max-width: 100%;
+  }
+
+  .rs-auth-card__title {
+    font-size: 1.6rem;
+  }
+
+  .rs-auth-card__icon {
+    font-size: 2.2rem;
+  }
+
+  .rs-auth-input {
+    font-size: 0.95rem;
+    padding: 0.8rem 1rem;
+  }
+
+  .rs-auth-submit {
+    font-size: 0.95rem;
+    padding: 0.85rem 1.2rem;
+  }
+
+  .rs-auth-main {
+    padding: 2rem 1rem;
+  }
+}
+
+@media (max-width: 400px) {
+  .rs-auth-card {
+    padding: 1.5rem 1rem;
+  }
+
+  .rs-auth-card__title {
+    font-size: 1.3rem;
+  }
+
+  .rs-auth-input {
+    font-size: 0.85rem;
+    padding: 0.7rem 0.8rem;
+  }
+
+  .rs-auth-submit {
+    font-size: 0.85rem;
+    padding: 0.7rem 1rem;
+  }
+}

@@ -1,9 +1,10 @@
-function App() {
-  return (
-    <div>
-      <h1>Retro Chat funcionando 🚀</h1>
-    </div>
-  )
-}
+import { AuthProvider } from './context/AuthContext';
+import AppRouter from './routes/AppRouter';
 
-export default App
+export default function App() {
+  return (
+    <AuthProvider>
+      <AppRouter />
+    </AuthProvider>
+  );
+}

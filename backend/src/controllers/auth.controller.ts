@@ -41,7 +41,7 @@ export const register = async (req: Request, res: Response) => {
         email,
         password: hashedPassword,
         nickname,
-        estado: "desconectado",
+        estado: "en_linea",
         rol: "user",
         estado_cuenta: "activa"
       }
