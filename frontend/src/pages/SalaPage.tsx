@@ -11,6 +11,7 @@ interface MensajeUI {
   nickname: string;
   avatar: string | null;
   contenido: string;
+  tipo?: 'texto' | 'imagen' | 'gif' | 'audio'; // Añadido para futuros archivos
   fecha: string;
 }
 
@@ -47,6 +48,8 @@ function getIconoPorAnio(ano: number): string {
   return iconos[ano] || 'bi-stars';
 }
 
+type FiltroNavegador = '90s' | '2000s' | 'tematicas90s' | 'tematicas2000s';
+
 export default function SalaPage() {
   const { id } = useParams<{ id: string }>();
   const { isAuthenticated, token, user } = useAuth();
@@ -62,6 +65,7 @@ export default function SalaPage() {
   const [roomError, setRoomError] = useState('');
   const [musicOn, setMusicOn] = useState(true);
   const [salasList, setSalasList] = useState<Sala[]>([]);
+  const [filtroNavegador, setFiltroNavegador] = useState<FiltroNavegador>('90s');
 
   const socketRef = useRef<Socket | null>(null);
   const messagesEnd = useRef<HTMLDivElement>(null);
@@ -94,6 +98,7 @@ export default function SalaPage() {
             nickname: m.user.nickname,
             avatar: m.user.avatar,
             contenido: m.contenido,
+            tipo: m.tipo || 'texto', // Por si llegan mensajes antiguos sin tipo
             fecha: m.fecha_creacion,
           }))
         );
@@ -112,10 +117,16 @@ export default function SalaPage() {
     const socket = io('http://localhost:3000', { auth: { token }, forceNew: true });
     socketRef.current = socket;
 
-    socket.on('receive-message', (msg: { user: { nickname: string; avatar: string | null }; contenido: string; fecha: string }) => {
+    socket.on('receive-message', (msg: { user: { nickname: string; avatar: string | null }; contenido: string; tipo: string; fecha: string }) => {
       setMensajes(prev => [
         ...prev,
-        { nickname: msg.user.nickname, avatar: msg.user.avatar, contenido: msg.contenido, fecha: msg.fecha },
+        { 
+          nickname: msg.user.nickname, 
+          avatar: msg.user.avatar, 
+          contenido: msg.contenido, 
+          tipo: msg.tipo as 'texto' | 'imagen' | 'gif' | 'audio',
+          fecha: msg.fecha 
+        },
       ]);
     });
 
@@ -151,7 +162,11 @@ export default function SalaPage() {
   const sendMessage = () => {
     const trimmed = texto.trim();
     if (!trimmed || !socketRef.current) return;
-    socketRef.current.emit('send-message', { roomId: salaId, contenido: trimmed });
+    socketRef.current.emit('send-message', { 
+      roomId: salaId, 
+      contenido: trimmed,
+      tipo: 'texto' // <-- Importante: enviamos el tipo para que el backend lo sepa
+    });
     setTexto('');
     textareaRef.current?.focus();
   };
@@ -163,12 +178,54 @@ export default function SalaPage() {
     }
   };
 
-  const formatTime = (fecha: string) =>
-    new Date(fecha).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+  /* 🔥 NUEVA FUNCIÓN DE FECHA INTELIGENTE 🔥 */
+  const formatFecha = (fechaStr: string) => {
+    const fecha = new Date(fechaStr);
+    const hoy = new Date();
+    const ayer = new Date();
+    ayer.setDate(hoy.getDate() - 1);
+
+    const hora = fecha.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+
+    if (fecha.toDateString() === hoy.toDateString()) {
+      return `Hoy, ${hora}`;
+    }
+    if (fecha.toDateString() === ayer.toDateString()) {
+      return `Ayer, ${hora}`;
+    }
+
+    const opciones: Intl.DateTimeFormatOptions = {
+      weekday: 'long',
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    };
+    return fecha.toLocaleDateString('es-ES', opciones);
+  };
 
   const toggleMusic = () => {
     setMusicOn(!musicOn);
   };
+
+  /* ── Filtrar salas para el navegador ── */
+  const salasFiltradas = salasList.filter(s => {
+    if (s.id === salaId) return false; // Excluir sala actual
+
+    switch (filtroNavegador) {
+      case '90s':
+        return s.tipo === 'general_anual' && s.ano && s.ano >= 1990 && s.ano <= 1999;
+      case '2000s':
+        return s.tipo === 'general_anual' && s.ano && s.ano >= 2000 && s.ano <= 2009;
+      case 'tematicas90s':
+        return s.tipo === 'epoca_estilo' && s.epoca?.id === 1;
+      case 'tematicas2000s':
+        return s.tipo === 'epoca_estilo' && s.epoca?.id === 2;
+      default:
+        return true;
+    }
+  });
 
   /* ── Loading ── */
   if (loading) {
@@ -200,9 +257,6 @@ export default function SalaPage() {
       </div>
     );
   }
-
-  // Filtrar salas para el navegador (excluir la actual)
-  const otrasSalas = salasList.filter(s => s.id !== salaId);
 
   return (
     <div className="rs-sala-page" data-tema={sala.ano?.toString() || 'especial'}>
@@ -327,24 +381,44 @@ export default function SalaPage() {
                 <span>¡Sé el primero en escribir!</span>
               </div>
             ) : (
-              mensajes.map((msg, idx) => {
+                mensajes.map((msg, idx) => {
                 const isOwn = isAuthenticated && user?.nickname === msg.nickname;
                 return (
                   <div
                     key={idx}
                     className={`rs-msg${isOwn ? ' rs-msg--own' : ' rs-msg--other'}`}
                   >
-                    {!isOwn && (
-                      <div className="rs-msg__avatar" title={msg.nickname}>
-                        {msg.nickname.charAt(0).toUpperCase()}
-                      </div>
-                    )}
+                    {/* 🔥 AVATAR Y NOMBRE SIEMPRE VISIBLES PARA TODOS 🔥 */}
+                    <div className="rs-msg__avatar" title={msg.nickname}>
+                      {msg.nickname.charAt(0).toUpperCase()}
+                    </div>
+
                     <div className="rs-msg__content">
-                      {!isOwn && (
+                      <div className="rs-msg__header">
                         <span className="rs-msg__nick">{msg.nickname}</span>
-                      )}
+                      </div>
+
+                      {/* 
+                        ⚠️ RENDERIZADO DE IMÁGENES (COMENTADO HASTA QUE TENGAS EL BACKEND LISTO)
+                        Cuando hagas el backend para subir archivos, descomenta esto y borra el div de abajo:
+                      
+                      {msg.tipo === 'imagen' || msg.tipo === 'gif' ? (
+                        <div className="rs-msg__bubble rs-msg__bubble--media">
+                          <img 
+                            src={msg.contenido} 
+                            alt="Contenido multimedia" 
+                            style={{ maxWidth: '100%', maxHeight: '300px', borderRadius: '4px', display: 'block' }} 
+                          />
+                        </div>
+                      ) : (
+                        <div className="rs-msg__bubble">{msg.contenido}</div>
+                      )} */}
+
+                      {/* 🔥 POR AHORA SOLO TEXTO FUNCIONANDO 🔥 */}
                       <div className="rs-msg__bubble">{msg.contenido}</div>
-                      <span className="rs-msg__time">{formatTime(msg.fecha)}</span>
+
+                      {/* 🔥 FECHA INTELIGENTE 🔥 */}
+                      <span className="rs-msg__time">{formatFecha(msg.fecha)}</span>
                     </div>
                   </div>
                 );
@@ -362,6 +436,11 @@ export default function SalaPage() {
                 </div>
               )}
               <div className="rs-sala-input-row">
+                {/* 🔥 BOTÓN DE ADJUNTAR (YA PREPARADO PARA EL FUTURO) 🔥 */}
+                <button className="rs-sala-attach-btn" title="Subir imagen o GIF">
+                  <i className="bi bi-paperclip" />
+                </button>
+
                 <textarea
                   ref={textareaRef}
                   className="rs-sala-input"
@@ -405,13 +484,43 @@ export default function SalaPage() {
             <i className="bi bi-grid-3x3-gap-fill" />
             <span>Cambiar sala</span>
           </div>
+
+          {/* ── Filtros del navegador ── */}
+          <div className="rs-sala-navegador__filtros">
+            <button
+              className={`rs-sala-navegador__filtro ${filtroNavegador === '90s' ? 'rs-sala-navegador__filtro--active' : ''}`}
+              onClick={() => setFiltroNavegador('90s')}
+            >
+              <i className="bi bi-calendar3" /> 90s
+            </button>
+            <button
+              className={`rs-sala-navegador__filtro ${filtroNavegador === '2000s' ? 'rs-sala-navegador__filtro--active' : ''}`}
+              onClick={() => setFiltroNavegador('2000s')}
+            >
+              <i className="bi bi-calendar3" /> 2000s
+            </button>
+            <button
+              className={`rs-sala-navegador__filtro ${filtroNavegador === 'tematicas90s' ? 'rs-sala-navegador__filtro--active' : ''}`}
+              onClick={() => setFiltroNavegador('tematicas90s')}
+            >
+              <i className="bi bi-stars" /> Temáticas 90s
+            </button>
+            <button
+              className={`rs-sala-navegador__filtro ${filtroNavegador === 'tematicas2000s' ? 'rs-sala-navegador__filtro--active' : ''}`}
+              onClick={() => setFiltroNavegador('tematicas2000s')}
+            >
+              <i className="bi bi-stars" /> Temáticas 2000s
+            </button>
+          </div>
+
+          {/* ── Lista de salas filtradas ── */}
           <div className="rs-sala-navegador__list">
-            {otrasSalas.length === 0 ? (
+            {salasFiltradas.length === 0 ? (
               <div className="rs-sala-navegador__empty">
-                <span>No hay otras salas</span>
+                <span>No hay salas en esta categoría</span>
               </div>
             ) : (
-              otrasSalas.map((s) => (
+              salasFiltradas.map((s) => (
                 <button
                   key={s.id}
                   className={`rs-sala-navegador__item${s.cerrada ? ' rs-sala-navegador__item--cerrada' : ''}`}

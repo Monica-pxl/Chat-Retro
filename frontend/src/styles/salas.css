@@ -357,27 +357,28 @@
 }
 
 
+
 /* ══════════════════════════════════════════════════
-   SALA PAGE — Chat individual
+   SALA PAGE — Chat individual (REVISIÓN VISUAL TOTAL)
    ══════════════════════════════════════════════════ */
 
 /* ── Variables base (se sobrescriben por año) ── */
 .rs-sala-page {
   --sala-primary: #00e5ff;
   --sala-secondary: #b388ff;
-  --sala-glow: rgba(0, 229, 255, 0.10);
+  --sala-glow: rgba(0, 229, 255, 0.25);
   --sala-bg-start: #060608;
   --sala-bg-end: #080c10;
   --sala-accent: #44ddff;
-  --sala-bubble-own: rgba(0, 229, 255, 0.12);
-  --sala-bubble-other: rgba(255, 255, 255, 0.04);
-  --sala-border: rgba(0, 229, 255, 0.15);
+  --sala-border: rgba(0, 229, 255, 0.25);
   --sala-year-color: #00e5ff;
   --sala-font: 'Inter', sans-serif;
-  --sala-letter-spacing: 0px;
-  --sala-decoration: none;
   --sala-bg-pattern: none;
-  --sala-brightness: 1;
+  
+  /* Variables para los paneles (izquierda/derecha) */
+  --sala-panel-bg: rgba(255, 255, 255, 0.02);
+  --sala-panel-border: rgba(255, 255, 255, 0.05);
+  --sala-panel-header-bg: rgba(255, 255, 255, 0.03);
 }
 
 .rs-sala-page {
@@ -386,20 +387,18 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background:
-    radial-gradient(ellipse at 20% 30%, var(--sala-glow) 0%, transparent 55%),
-    radial-gradient(ellipse at 80% 70%, var(--sala-glow) 0%, transparent 50%),
-    var(--sala-bg-start);
+  background: var(--sala-bg-start); /* Fondo base sólido */
   transition: background 0.6s ease;
 }
 
+/* ── Fondo con ruido (se mantiene sutil) ── */
 .rs-sala-page::before {
   content: '';
   position: fixed;
   inset: 0;
   pointer-events: none;
   z-index: 0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.015'/%3E%3C/svg%3E");
   background-size: 256px 256px;
 }
 
@@ -412,7 +411,7 @@
   z-index: 0;
   background-image: var(--sala-bg-pattern);
   background-size: 120px 120px;
-  opacity: 0.06;
+  opacity: 0.15;
   background-repeat: repeat;
 }
 
@@ -420,7 +419,6 @@
 .rs-sala-page--loading {
   overflow: auto;
 }
-
 .rs-sala-center-msg {
   flex: 1;
   display: flex;
@@ -428,218 +426,93 @@
   align-items: center;
   justify-content: center;
   gap: 1rem;
-  color: var(--text-muted);
+  color: #888;
   font-size: 1rem;
   position: relative;
   z-index: 5;
 }
+.rs-sala-center-msg--error { color: rgba(239, 68, 68, 0.8); gap: 1.2rem; }
+.rs-sala-center-msg .bi { font-size: 2.5rem; }
 
-.rs-sala-center-msg--error {
-  color: rgba(239, 68, 68, 0.8);
-  gap: 1.2rem;
-}
 
-.rs-sala-center-msg .bi {
-  font-size: 2.5rem;
-}
 
-/* ── Topbar de la sala ── */
+
+/* ══════════════════════════════════════════════════
+   TOPBAR (Estilo limpio para no recargar)
+   ══════════════════════════════════════════════════ */
 .rs-sala-topbar {
   position: relative;
   z-index: 10;
   display: flex;
   align-items: center;
-  gap: 1.2rem;
-  padding: 0.7rem 1.5rem;
-  background: rgba(6, 6, 14, 0.85);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid var(--sala-border);
+  gap: 1rem;
+  padding: 0.5rem 1.5rem;
+  background: rgba(0, 0, 0, 0.9);
+  border-bottom: 2px solid var(--sala-border);
   min-height: 56px;
   flex-shrink: 0;
 }
-
 .rs-sala-back {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  color: var(--text-secondary);
-  border-radius: 10px;
-  padding: 0.4rem 0.8rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--sala-border);
+  color: #aaa;
+  border-radius: 8px;
+  padding: 0.3rem 0.8rem;
   font-size: 0.85rem;
   font-weight: 600;
-  font-family: var(--font);
   cursor: pointer;
   transition: all 0.2s;
-  white-space: nowrap;
-  flex-shrink: 0;
 }
-
-.rs-sala-back:hover {
-  background: var(--sala-glow);
-  border-color: var(--sala-border);
-  color: var(--sala-primary);
-}
-
-.rs-sala-topbar__info {
-  flex: 1;
-  min-width: 0;
-}
-
-.rs-sala-topbar__name {
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.rs-sala-topbar__meta {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  margin-top: 0.1rem;
-  flex-wrap: wrap;
-}
-
+.rs-sala-back:hover { background: var(--sala-primary); color: #000; border-color: var(--sala-primary); }
+.rs-sala-topbar__info { flex: 1; min-width: 0; }
+.rs-sala-topbar__name { font-size: 1rem; font-weight: 700; color: #fff; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rs-sala-topbar__meta { display: flex; align-items: center; gap: 0.4rem; margin-top: 0.1rem; flex-wrap: wrap; }
 .rs-sala-topbar__badge {
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
   font-size: 0.65rem;
   font-weight: 700;
-  background: var(--sala-glow);
+  background: rgba(255, 255, 255, 0.05);
   border: 1px solid var(--sala-border);
   color: var(--sala-primary);
   padding: 0.1rem 0.5rem;
-  border-radius: 6px;
-  letter-spacing: 0.3px;
+  border-radius: 4px;
 }
-
-.rs-sala-topbar__badge--sub {
-  background: rgba(179, 136, 255, 0.08);
-  border-color: rgba(179, 136, 255, 0.18);
-  color: var(--accent-purple);
-}
-
-.rs-sala-topbar__desc {
-  font-size: 0.7rem;
-  color: var(--text-muted);
-}
-
-/* Contador de usuarios */
+.rs-sala-topbar__desc { font-size: 0.7rem; color: #666; }
 .rs-sala-topbar__users {
   display: flex;
   align-items: center;
   gap: 0.3rem;
-  background: var(--sala-glow);
+  background: rgba(255, 255, 255, 0.05);
   border: 1px solid var(--sala-border);
-  border-radius: 12px;
-  padding: 0.3rem 0.8rem;
+  border-radius: 8px;
+  padding: 0.2rem 0.8rem;
   flex-shrink: 0;
   color: var(--sala-primary);
 }
+.rs-sala-topbar__user-count { font-size: 1rem; font-weight: 700; line-height: 1; }
+.rs-sala-topbar__user-label { font-size: 0.65rem; color: #666; }
 
-.rs-sala-topbar__users .bi {
-  font-size: 0.85rem;
-}
-
-.rs-sala-topbar__user-count {
-  font-size: 1rem;
-  font-weight: 700;
-  line-height: 1;
-}
-
-.rs-sala-topbar__user-label {
-  font-size: 0.65rem;
-  color: var(--text-muted);
-}
-
-/* ══════════════════════════════════════════════════
-   BOTÓN DE MÚSICA
-   ══════════════════════════════════════════════════ */
-
+/* ── Botón de música ── */
 .rs-sala-music-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: var(--text-secondary);
-  font-size: 1.1rem;
-  cursor: pointer;
-  transition: all 0.25s;
-  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  width: 36px; height: 36px; border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #aaa; font-size: 1rem; cursor: pointer; transition: all 0.25s; flex-shrink: 0;
 }
+.rs-sala-music-btn:hover { background: var(--sala-glow); border-color: var(--sala-primary); color: var(--sala-primary); transform: scale(1.05); }
+.rs-sala-music-btn--active { background: var(--sala-glow); border-color: var(--sala-primary); color: var(--sala-primary); }
 
-.rs-sala-music-btn:hover {
-  background: var(--sala-glow);
-  border-color: var(--sala-border);
-  color: var(--sala-primary);
-  transform: scale(1.05);
-}
 
-.rs-sala-music-btn--active {
-  background: var(--sala-glow);
-  border-color: var(--sala-border);
-  color: var(--sala-primary);
-  box-shadow: 0 0 25px var(--sala-glow);
-}
+
 
 /* ══════════════════════════════════════════════════
-   AÑO GRANDE CON ICONO DE BOOTSTRAP
+   LAYOUT: 3 COLUMNAS
    ══════════════════════════════════════════════════ */
-
-.rs-sala-year {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 1.5rem 2rem 1rem 2rem;
-  flex-shrink: 0;
-  border-bottom: 2px solid var(--sala-border);
-  min-height: 100px;
-  background: rgba(255, 255, 255, 0.01);
-  position: relative;
-  overflow: hidden;
-  transition: all 0.5s ease;
-}
-
-.rs-sala-year__number {
-  font-size: 5rem;
-  font-weight: 900;
-  color: var(--sala-year-color);
-  opacity: 0.3;
-  letter-spacing: var(--sala-letter-spacing, -3px);
-  line-height: 1;
-  font-family: var(--sala-font, 'Inter');
-  user-select: none;
-  text-shadow: 0 0 80px var(--sala-glow);
-  transition: all 0.5s ease;
-}
-
-.rs-sala-year__icon {
-  font-size: 3.5rem;
-  color: var(--sala-year-color);
-  opacity: 0.15;
-  pointer-events: none;
-  flex-shrink: 0;
-  margin-left: 1rem;
-}
-
-.rs-sala-year__icon i {
-  display: block;
-}
-
-/* ══════════════════════════════════════════════════
-   LAYOUT: USUARIOS (IZQ) + CHAT (CENTRO)
-   ══════════════════════════════════════════════════ */
-
 .rs-sala-layout {
   position: relative;
   z-index: 5;
@@ -656,416 +529,264 @@
   flex-direction: column;
   overflow: hidden;
   min-width: 0;
+  background: rgba(0, 0, 0, 0.3); /* Fondo sutil para el área central */
 }
 
-/* ── Área de mensajes ── */
+/* ── AÑO GRANDE ── */
+.rs-sala-year {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.2rem 2rem 0.8rem 2rem;
+  flex-shrink: 0;
+  border-bottom: 3px solid var(--sala-border);
+  min-height: 80px;
+  background: rgba(0, 0, 0, 0.5);
+  position: relative;
+  overflow: hidden;
+}
+.rs-sala-year__number {
+  font-size: 4.5rem;
+  font-weight: 900;
+  color: var(--sala-year-color);
+  opacity: 0.4;
+  letter-spacing: -3px;
+  line-height: 1;
+  font-family: var(--sala-font, 'Inter');
+  user-select: none;
+  text-shadow: 0 0 60px var(--sala-glow);
+}
+.rs-sala-year__icon {
+  font-size: 3.5rem;
+  color: var(--sala-year-color);
+  opacity: 0.2;
+  pointer-events: none;
+  flex-shrink: 0;
+  margin-left: 1rem;
+}
+
+/* ── Área de mensajes (Formato 100% uniforme) ── */
 .rs-sala-messages {
   flex: 1;
   overflow-y: auto;
-  padding: 0.8rem 2rem 0.6rem 2rem;
+  padding: 0.5rem 1.5rem;
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
+  gap: 0.6rem;
   scrollbar-width: thin;
   scrollbar-color: var(--sala-border) transparent;
 }
-
-.rs-sala-messages::-webkit-scrollbar {
-  width: 4px;
-}
-
-.rs-sala-messages::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.rs-sala-messages::-webkit-scrollbar-thumb {
-  background: var(--sala-border);
-  border-radius: 99px;
-}
+.rs-sala-messages::-webkit-scrollbar { width: 4px; }
+.rs-sala-messages::-webkit-scrollbar-thumb { background: var(--sala-border); border-radius: 99px; }
 
 /* Estado vacío */
 .rs-sala-empty {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.4rem;
-  color: var(--text-muted);
-  text-align: center;
-  padding: 2rem;
+  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 0.4rem; color: #555; text-align: center; padding: 2rem;
 }
+.rs-sala-empty__icon { font-size: 3rem; opacity: 0.25; }
 
-.rs-sala-empty__icon {
-  font-size: 2.2rem;
-  opacity: 0.25;
+/* ── Contenedor del mensaje (Todos a la izquierda) ── */
+.rs-msg { 
+  display: flex; 
+  flex-direction: row; 
+  align-items: flex-start; 
+  gap: 0.8rem; 
+  width: 100%;
+  max-width: 100%;
+  animation: msgIn 0.18s ease-out; 
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
 }
+@keyframes msgIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 
-.rs-sala-empty p {
-  font-size: 0.9rem;
-  font-weight: 600;
-}
+/* 🔥 TODOS los mensajes se alinean a la izquierda, da igual quién sea */
+.rs-msg--other { align-self: flex-start; }
+.rs-msg--own { align-self: flex-start; }
 
-.rs-sala-empty span {
-  font-size: 0.75rem;
-  opacity: 0.6;
-}
-
-/* ── Mensajes ── */
-.rs-msg {
-  display: flex;
-  align-items: flex-end;
-  gap: 0.5rem;
-  max-width: 65%;
-  animation: msgIn 0.18s ease-out;
-}
-
-@keyframes msgIn {
-  from { opacity: 0; transform: translateY(6px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-
-.rs-msg--other {
-  align-self: flex-start;
-}
-
-.rs-msg--own {
-  align-self: flex-end;
-  flex-direction: row-reverse;
-}
-
+/* ── Avatar (Siempre a la izquierda) ── */
 .rs-msg__avatar {
-  width: 28px;
-  height: 28px;
+  width: 36px; height: 36px; min-width: 36px;
   border-radius: 50%;
-  background: var(--sala-glow);
-  border: 1.5px solid var(--sala-border);
-  color: var(--sala-primary);
-  font-size: 0.7rem;
-  font-weight: 700;
+  background: var(--sala-glow); border: 2px solid var(--sala-border);
+  color: var(--sala-primary); font-size: 0.85rem; font-weight: 700;
+  display: flex; align-items: center; justify-content: center; text-transform: uppercase;
+  margin-top: 2px;
+}
+
+/* ── Columna de contenido ── */
+.rs-msg__content { 
+  display: flex; 
+  flex-direction: column; 
+  flex: 1; 
+  min-width: 0; 
+}
+
+/* ── Fila superior: Nombre (Siempre visible) ── */
+.rs-msg__header {
   display: flex;
   align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  text-transform: uppercase;
+  margin-bottom: 0.15rem;
+}
+.rs-msg__nick { 
+  font-size: 0.9rem; 
+  font-weight: 700; 
+  color: var(--sala-primary); 
 }
 
-.rs-msg__content {
-  display: flex;
-  flex-direction: column;
-  gap: 0.1rem;
-}
-
-.rs-msg--own .rs-msg__content {
-  align-items: flex-end;
-}
-
-.rs-msg__nick {
-  font-size: 0.65rem;
-  font-weight: 600;
-  color: var(--sala-primary);
-  padding: 0 0.2rem;
-}
-
+/* ── Burbuja (Ocupa todo el ancho, línea rosa a la izquierda) ── */
 .rs-msg__bubble {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 12px;
-  padding: 0.4rem 0.9rem;
-  font-size: 0.85rem;
-  color: var(--text-primary);
+  background: rgba(0, 0, 0, 0.35);
+  padding: 0.6rem 1rem; 
+  font-size: 1rem; 
+  color: #fff;
   line-height: 1.5;
   word-break: break-word;
   white-space: pre-wrap;
+  
+  width: 100%; 
+  box-sizing: border-box;
+  border-radius: 4px;
+  
+  /* 🔥 Línea rosa a la izquierda para TODOS */
+  border-left: 3px solid var(--sala-border); 
+  border-top: 1px solid rgba(255,255,255,0.03);
+  border-right: 1px solid rgba(255,255,255,0.03);
+  border-bottom: 1px solid rgba(255,255,255,0.03);
 }
 
+/* ── Hora (Debajo de la burbuja, a la izquierda) ── */
+.rs-msg__time { 
+  font-size: 0.7rem; 
+  color: #666; 
+  margin-top: 0.2rem;
+  align-self: flex-start; 
+}
+
+/* 🔥 ELIMINAMOS CUALQUIER ESTILO DIFERENTE PARA MENSAJES PROPIOS */
 .rs-msg--own .rs-msg__bubble {
-  background: var(--sala-bubble-own);
-  border-color: var(--sala-border);
-  border-radius: 12px 12px 4px 12px;
-}
-
-.rs-msg--other .rs-msg__bubble {
-  border-radius: 4px 12px 12px 12px;
-}
-
-.rs-msg__time {
-  font-size: 0.6rem;
-  color: var(--text-muted);
-  padding: 0 0.2rem;
+  background: rgba(0, 0, 0, 0.35); /* Mismo fondo */
+  border-left: 3px solid var(--sala-border); /* Misma línea a la izquierda */
+  /* Ya no tiene borde a la derecha ni fondo distinto */
 }
 
 /* ── Input área ── */
 .rs-sala-input-area {
   padding: 0.5rem 2rem 0.7rem;
-  background: rgba(6, 6, 14, 0.8);
-  backdrop-filter: blur(10px);
-  border-top: 1px solid var(--sala-border);
+  background: rgba(0, 0, 0, 0.8);
+  border-top: 2px solid var(--sala-border);
   flex-shrink: 0;
 }
-
-.rs-sala-room-err {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  background: rgba(239, 68, 68, 0.08);
-  border: 1px solid rgba(239, 68, 68, 0.2);
-  border-radius: 8px;
-  padding: 0.4rem 0.8rem;
-  font-size: 0.75rem;
-  color: rgba(239, 68, 68, 0.9);
-  margin-bottom: 0.4rem;
-}
-
-.rs-sala-input-row {
-  display: flex;
-  align-items: flex-end;
-  gap: 0.5rem;
-}
-
+.rs-sala-room-err { display: flex; align-items: center; gap: 0.5rem; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); border-radius: 8px; padding: 0.4rem 0.8rem; font-size: 0.75rem; color: rgba(239, 68, 68, 0.9); margin-bottom: 0.4rem; }
+.rs-sala-input-row { display: flex; align-items: flex-end; gap: 0.5rem; }
 .rs-sala-input {
-  flex: 1;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 12px;
-  padding: 0.55rem 0.9rem;
-  font-size: 0.85rem;
-  font-family: var(--font);
-  color: var(--text-primary);
-  resize: none;
-  line-height: 1.5;
-  min-height: 38px;
-  max-height: 110px;
-  transition: border-color 0.2s;
-  scrollbar-width: thin;
+  flex: 1; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px; padding: 0.5rem 0.9rem; font-size: 0.85rem; color: #fff;
+  resize: none; line-height: 1.5; min-height: 38px; max-height: 110px; transition: border-color 0.2s;
 }
-
-.rs-sala-input::placeholder {
-  color: var(--text-muted);
-}
-
-.rs-sala-input:focus {
-  outline: none;
-  border-color: var(--sala-primary);
-  background: var(--sala-glow);
-}
-
+.rs-sala-input::placeholder { color: #666; }
+.rs-sala-input:focus { outline: none; border-color: var(--sala-primary); background: rgba(255, 255, 255, 0.08); }
 .rs-sala-send-btn {
+  width: 38px; height: 38px; flex-shrink: 0; background: var(--sala-primary);
+  border: none; border-radius: 8px; color: #06060e; font-size: 0.9rem; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; transition: all 0.2s;
+}
+.rs-sala-send-btn:hover:not(:disabled) { transform: scale(1.05); }
+.rs-sala-send-btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+.rs-sala-input-hint { margin-top: 0.2rem; font-size: 0.6rem; color: #666; }
+.rs-sala-input-hint kbd { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 4px; padding: 0.05rem 0.25rem; font-size: 0.6rem; color: #aaa; }
+
+/* ── Banner para NO autenticados ── */
+.rs-sala-auth-banner {
+  display: flex; align-items: center; gap: 0.8rem; padding: 0.6rem 2rem;
+  background: rgba(0, 0, 0, 0.8); border-top: 2px solid var(--sala-border); flex-wrap: wrap; flex-shrink: 0;
+}
+.rs-sala-auth-banner__icon { font-size: 1.3rem; color: var(--sala-primary); opacity: 0.7; flex-shrink: 0; }
+.rs-sala-auth-banner__text { flex: 1; display: flex; flex-direction: column; gap: 0.1rem; min-width: 160px; }
+.rs-sala-auth-banner__text strong { font-size: 0.85rem; color: #fff; }
+.rs-sala-auth-banner__text span { font-size: 0.75rem; color: #666; }
+.rs-sala-auth-banner__cta { flex-shrink: 0; padding: 0.4rem 1.2rem; font-size: 0.8rem; background: var(--sala-primary); color: #000; border: none; border-radius: 6px; cursor: pointer; }
+
+
+/* ── Botón de adjuntar archivos (clip) ── */
+.rs-sala-attach-btn {
   width: 38px;
   height: 38px;
   flex-shrink: 0;
-  background: var(--sala-primary);
-  border: none;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--sala-border);
   border-radius: 12px;
-  color: #06060e;
-  font-size: 0.9rem;
+  color: var(--sala-primary);
+  font-size: 1.1rem;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.2s;
-  box-shadow: 0 0 20px var(--sala-glow);
+  margin-right: 0.3rem;
 }
 
-.rs-sala-send-btn:hover:not(:disabled) {
-  box-shadow: 0 0 35px var(--sala-glow);
+.rs-sala-attach-btn:hover:not(:disabled) {
+  background: var(--sala-glow);
+  border-color: var(--sala-primary);
   transform: scale(1.04);
 }
 
-.rs-sala-send-btn:disabled {
+.rs-sala-attach-btn:disabled {
   opacity: 0.35;
   cursor: not-allowed;
   transform: none;
 }
 
-.rs-sala-input-hint {
-  margin-top: 0.2rem;
-  font-size: 0.6rem;
-  color: var(--text-muted);
-}
 
-.rs-sala-input-hint kbd {
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 4px;
-  padding: 0.05rem 0.25rem;
-  font-size: 0.6rem;
-  font-family: var(--font);
-  color: var(--text-secondary);
-}
-
-/* ── Banner para NO autenticados ── */
-.rs-sala-auth-banner {
-  display: flex;
-  align-items: center;
-  gap: 0.8rem;
-  padding: 0.6rem 2rem;
-  background: var(--sala-glow);
-  border-top: 1px solid var(--sala-border);
-  backdrop-filter: blur(10px);
-  flex-wrap: wrap;
-  flex-shrink: 0;
-}
-
-.rs-sala-auth-banner__icon {
-  font-size: 1.3rem;
-  color: var(--sala-primary);
-  opacity: 0.7;
-  flex-shrink: 0;
-}
-
-.rs-sala-auth-banner__text {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 0.1rem;
-  min-width: 160px;
-}
-
-.rs-sala-auth-banner__text strong {
-  font-size: 0.85rem;
-  color: var(--text-primary);
-}
-
-.rs-sala-auth-banner__text span {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-}
-
-.rs-sala-auth-banner__cta {
-  flex-shrink: 0;
-  padding: 0.4rem 1.2rem;
-  font-size: 0.8rem;
-}
 
 /* ══════════════════════════════════════════════════
-   LISTA DE USUARIOS (IZQUIERDA)
+   LISTA DE USUARIOS (IZQUIERDA) - ESTILO SÓLIDO
    ══════════════════════════════════════════════════ */
-
 .rs-sala-users {
   width: 240px;
   min-width: 200px;
   max-width: 280px;
-  background: rgba(255, 255, 255, 0.015);
-  border-right: 1px solid rgba(255, 255, 255, 0.04);
+  background: var(--sala-panel-bg); /* Fondo del panel */
+  border-right: 2px solid var(--sala-panel-border); /* Borde del panel */
   display: flex;
   flex-direction: column;
   overflow: hidden;
   flex-shrink: 0;
 }
-
 .rs-sala-users__header {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.7rem 1rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-  background: rgba(255, 255, 255, 0.015);
-  flex-shrink: 0;
+  display: flex; align-items: center; gap: 0.6rem; padding: 0.7rem 1rem;
+  font-size: 0.75rem; font-weight: 700; color: #aaa;
+  border-bottom: 1px solid var(--sala-panel-border);
+  background: var(--sala-panel-header-bg);
+  flex-shrink: 0; text-transform: uppercase; letter-spacing: 1px;
 }
+.rs-sala-users__header i { font-size: 0.95rem; color: var(--sala-primary); }
+.rs-sala-users__list { flex: 1; overflow-y: auto; padding: 0.5rem 0.6rem 0.8rem; }
+.rs-sala-users__list::-webkit-scrollbar { width: 3px; }
+.rs-sala-users__list::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 99px; }
+.rs-sala-users__empty { display: flex; align-items: center; justify-content: center; height: 100%; color: #666; font-size: 0.75rem; padding: 2rem 0; }
+.rs-sala-users__item { display: flex; align-items: center; gap: 0.6rem; padding: 0.35rem 0.6rem; border-radius: 6px; transition: background 0.15s; }
+.rs-sala-users__item:hover { background: rgba(255, 255, 255, 0.05); }
+.rs-sala-users__avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--sala-glow); border: 1px solid var(--sala-border); display: flex; align-items: center; justify-content: center; font-size: 0.6rem; font-weight: 700; color: var(--sala-primary); flex-shrink: 0; text-transform: uppercase; overflow: hidden; }
+.rs-sala-users__avatar img { width: 100%; height: 100%; object-fit: cover; }
+.rs-sala-users__name { font-size: 0.8rem; color: #ccc; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rs-sala-users__dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent-green); flex-shrink: 0; box-shadow: 0 0 8px rgba(105, 240, 174, 0.3); }
 
-.rs-sala-users__header i {
-  font-size: 0.95rem;
-  color: var(--sala-primary);
-}
-
-.rs-sala-users__list {
-  flex: 1;
-  overflow-y: auto;
-  padding: 0.5rem 0.6rem 0.8rem;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.05) transparent;
-}
-
-.rs-sala-users__list::-webkit-scrollbar {
-  width: 3px;
-}
-
-.rs-sala-users__list::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.06);
-  border-radius: 99px;
-}
-
-.rs-sala-users__empty {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  color: var(--text-muted);
-  font-size: 0.75rem;
-  padding: 2rem 0;
-}
-
-.rs-sala-users__item {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.35rem 0.6rem;
-  border-radius: 8px;
-  transition: background 0.15s;
-}
-
-.rs-sala-users__item:hover {
-  background: rgba(255, 255, 255, 0.03);
-}
-
-.rs-sala-users__avatar {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: var(--sala-glow);
-  border: 1px solid var(--sala-border);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.6rem;
-  font-weight: 700;
-  color: var(--sala-primary);
-  flex-shrink: 0;
-  text-transform: uppercase;
-  overflow: hidden;
-}
-
-.rs-sala-users__avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.rs-sala-users__name {
-  font-size: 0.8rem;
-  color: var(--text-secondary);
-  flex: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.rs-sala-users__dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--accent-green);
-  flex-shrink: 0;
-  box-shadow: 0 0 8px rgba(105, 240, 174, 0.3);
-}
 
 
 
 
 /* ══════════════════════════════════════════════════
-   NAVEGADOR DE SALAS (COLUMNA DERECHA) - CORREGIDO
+   NAVEGADOR DE SALAS (DERECHA) - MÁS ANCHO
    ══════════════════════════════════════════════════ */
 
 .rs-sala-navegador {
-  width: 220px;
-  min-width: 170px;
-  max-width: 260px;
-  background: rgba(255, 255, 255, 0.015);
-  border-left: 1px solid rgba(255, 255, 255, 0.04);
+  width: 280px; /* 🔥 ANTES: 240px */
+  min-width: 220px; /* 🔥 ANTES: 190px */
+  max-width: 320px; /* 🔥 ANTES: 280px */
+  background: var(--sala-panel-bg);
+  border-left: 2px solid var(--sala-panel-border);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -1078,11 +799,13 @@
   gap: 0.6rem;
   padding: 0.7rem 1rem;
   font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-  background: rgba(255, 255, 255, 0.015);
+  font-weight: 700;
+  color: #aaa;
+  border-bottom: 1px solid var(--sala-panel-border);
+  background: var(--sala-panel-header-bg);
   flex-shrink: 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .rs-sala-navegador__header i {
@@ -1090,20 +813,64 @@
   color: var(--sala-primary);
 }
 
+/* ── Filtros ── */
+.rs-sala-navegador__filtros {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.4rem;
+  padding: 0.6rem 0.6rem 0.5rem 0.6rem;
+  border-bottom: 1px solid var(--sala-panel-border);
+  flex-shrink: 0;
+}
+
+.rs-sala-navegador__filtro {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  padding: 0.35rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.03);
+  color: #888;
+  font-size: 0.6rem;
+  font-weight: 700;
+  font-family: var(--font);
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.rs-sala-navegador__filtro i {
+  font-size: 0.7rem;
+}
+
+.rs-sala-navegador__filtro:hover {
+  border-color: var(--sala-border);
+  color: #fff;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.rs-sala-navegador__filtro--active {
+  border-color: var(--sala-primary);
+  color: var(--sala-primary);
+  background: var(--sala-glow);
+  box-shadow: 0 0 20px var(--sala-glow);
+}
+
+/* ── Lista de salas ── */
 .rs-sala-navegador__list {
   flex: 1;
   overflow-y: auto;
-  padding: 0.4rem 0.4rem 0.6rem;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.05) transparent;
+  padding: 0.5rem 0.6rem 0.6rem 0.6rem;
 }
 
 .rs-sala-navegador__list::-webkit-scrollbar {
   width: 3px;
 }
-
 .rs-sala-navegador__list::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 99px;
 }
 
@@ -1112,7 +879,7 @@
   align-items: center;
   justify-content: center;
   height: 100%;
-  color: var(--text-muted);
+  color: #666;
   font-size: 0.75rem;
   padding: 2rem 0;
 }
@@ -1121,28 +888,24 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 0.1rem;
+  gap: 0.15rem;
   width: 100%;
-  padding: 0.45rem 0.6rem;
+  padding: 0.6rem 0.8rem; /* 🔥 MÁS PADDING */
   border-radius: 8px;
   background: transparent;
   border: 1px solid transparent;
-  color: var(--text-secondary);
+  color: #aaa;
   font-family: var(--font);
   cursor: pointer;
   transition: all 0.2s;
   text-align: left;
-  margin-bottom: 0.15rem;
+  margin-bottom: 0.4rem;
 }
 
 .rs-sala-navegador__item:hover:not(:disabled) {
-  background: var(--sala-glow);
+  background: rgba(255, 255, 255, 0.05);
   border-color: var(--sala-border);
-  color: var(--text-primary);
-}
-
-.rs-sala-navegador__item:active:not(:disabled) {
-  transform: scale(0.97);
+  color: #fff;
 }
 
 .rs-sala-navegador__item:disabled {
@@ -1155,7 +918,7 @@
 }
 
 .rs-sala-navegador__item--cerrada .rs-sala-navegador__nombre {
-  color: var(--text-muted);
+  color: #666;
 }
 
 .rs-sala-navegador__fila {
@@ -1167,16 +930,16 @@
 }
 
 .rs-sala-navegador__nombre {
-  font-size: 0.8rem;
+  font-size: 0.85rem; /* 🔥 MÁS GRANDE */
   font-weight: 600;
-  color: var(--text-primary);
+  color: #fff;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .rs-sala-navegador__estado {
-  font-size: 0.5rem;
+  font-size: 0.55rem;
   flex-shrink: 0;
 }
 
@@ -1185,7 +948,7 @@
 }
 
 .rs-sala-navegador__estado--cerrada {
-  color: var(--text-muted);
+  color: #666;
 }
 
 .rs-sala-navegador__sub {
@@ -1196,28 +959,28 @@
 }
 
 .rs-sala-navegador__ano {
-  font-size: 0.6rem;
+  font-size: 0.65rem; /* 🔥 MÁS GRANDE */
   font-weight: 700;
   color: var(--sala-primary);
   opacity: 0.6;
-  background: var(--sala-glow);
+  background: rgba(255, 255, 255, 0.05);
   padding: 0.05rem 0.5rem;
   border-radius: 4px;
 }
 
 .rs-sala-navegador__tag {
-  font-size: 0.55rem;
+  font-size: 0.6rem; /* 🔥 MÁS GRANDE */
   font-weight: 500;
-  color: var(--text-muted);
+  color: #666;
   opacity: 0.6;
   text-transform: uppercase;
   letter-spacing: 0.3px;
 }
 
 .rs-sala-navegador__cerrada {
-  font-size: 0.55rem;
+  font-size: 0.6rem; /* 🔥 MÁS GRANDE */
   font-weight: 700;
-  color: var(--text-muted);
+  color: #666;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   background: rgba(255, 255, 255, 0.05);
@@ -1227,7 +990,7 @@
 
 /* ── Responsive del navegador ── */
 @media (max-width: 1024px) {
-  .rs-sala-navegador { width: 170px; min-width: 130px; }
+  .rs-sala-navegador { width: 220px; min-width: 180px; }
 }
 @media (max-width: 820px) {
   .rs-sala-navegador { display: none; }
@@ -1238,612 +1001,1156 @@
 
 
 
+
 /* ══════════════════════════════════════════════════
-   PANTALLA DE TV (para salas TV Shows) - CORREGIDA
+   PANTALLA DE TV (para salas TV Shows)
    ══════════════════════════════════════════════════ */
-
 .rs-sala-tv {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-  padding: 0.6rem 2rem 0.4rem 2rem;
-  flex-shrink: 0;
-  background: rgba(0, 0, 0, 0.3);
-  border-bottom: 1px solid var(--sala-border);
+  display: flex; flex-direction: column; gap: 0.3rem; padding: 0.6rem 2rem 0.4rem 2rem;
+  flex-shrink: 0; background: rgba(0, 0, 0, 0.5); border-bottom: 2px solid var(--sala-border);
 }
-
 .rs-sala-tv__screen {
-  position: relative;
-  aspect-ratio: 16/9;
-  width: 100%;
-  max-height: 380px; /* 🔥 ANTES: 280px, AHORA MÁS ALTA */
-  min-height: 200px;
+  position: relative; aspect-ratio: 16/9; width: 100%; max-height: 380px; min-height: 200px;
   background: radial-gradient(ellipse at center, #0a0a14 0%, #000000 100%);
-  border-radius: 14px;
-  border: 3px solid var(--sala-border);
-  box-shadow:
-    0 0 40px var(--sala-glow),
-    inset 0 0 80px rgba(0, 0, 0, 0.8);
+  border-radius: 12px; border: 3px solid var(--sala-border);
+  box-shadow: 0 0 40px var(--sala-glow), inset 0 0 80px rgba(0, 0, 0, 0.8);
   overflow: hidden;
 }
+.rs-sala-tv__content { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; padding: 1.5rem; position: relative; z-index: 2; }
+.rs-sala-tv__icon { font-size: 5rem; color: var(--sala-primary); opacity: 0.6; margin-bottom: 0.5rem; animation: tvPulse 3s ease-in-out infinite; }
+@keyframes tvPulse { 0%, 100% { opacity: 0.4; transform: scale(1); } 50% { opacity: 0.8; transform: scale(1.05); } }
+.rs-sala-tv__label { font-size: 1.4rem; font-weight: 700; color: #fff; letter-spacing: 1px; }
+.rs-sala-tv__sub { font-size: 0.9rem; color: #666; margin-top: 0.2rem; }
+.rs-sala-tv__scanlines { position: absolute; inset: 0; z-index: 3; pointer-events: none; background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 0, 0, 0.03) 2px, rgba(0, 0, 0, 0.03) 4px); animation: scanlinesMove 8s linear infinite; }
+@keyframes scanlinesMove { 0% { transform: translateY(0); } 100% { transform: translateY(4px); } }
+.rs-sala-tv__info { display: flex; align-items: center; justify-content: space-between; padding: 0.2rem 0.2rem 0; gap: 0.5rem; }
+.rs-sala-tv__badge { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.65rem; font-weight: 700; color: var(--accent-green); background: rgba(105, 240, 174, 0.1); padding: 0.15rem 0.6rem; border-radius: 4px; border: 1px solid rgba(105, 240, 174, 0.2); text-transform: uppercase; letter-spacing: 0.5px; }
+.rs-sala-tv__badge i { font-size: 0.55rem; }
+.rs-sala-tv__time { font-size: 0.7rem; color: #666; display: inline-flex; align-items: center; gap: 0.3rem; }
 
-.rs-sala-tv__content {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  padding: 1.5rem;
-  position: relative;
-  z-index: 2;
-}
-
-.rs-sala-tv__icon {
-  font-size: 5rem; /* 🔥 ANTES: 4rem */
-  color: var(--sala-primary);
-  opacity: 0.6;
-  margin-bottom: 0.5rem;
-  animation: tvPulse 3s ease-in-out infinite;
-}
-
-@keyframes tvPulse {
-  0%, 100% { opacity: 0.4; transform: scale(1); }
-  50% { opacity: 0.8; transform: scale(1.05); }
-}
-
-.rs-sala-tv__label {
-  font-size: 1.4rem; /* 🔥 ANTES: 1.2rem */
-  font-weight: 700;
-  color: var(--text-primary);
-  letter-spacing: 1px;
-}
-
-.rs-sala-tv__sub {
-  font-size: 0.9rem; /* 🔥 ANTES: 0.8rem */
-  color: var(--text-muted);
-  margin-top: 0.2rem;
-}
-
-/* ── Líneas de escaneo (efecto CRT) ── */
-.rs-sala-tv__scanlines {
-  position: absolute;
-  inset: 0;
-  z-index: 3;
-  pointer-events: none;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 2px,
-    rgba(0, 0, 0, 0.03) 2px,
-    rgba(0, 0, 0, 0.03) 4px
-  );
-  animation: scanlinesMove 8s linear infinite;
-}
-
-@keyframes scanlinesMove {
-  0% { transform: translateY(0); }
-  100% { transform: translateY(4px); }
-}
-
-/* ── Info de la TV ── */
-.rs-sala-tv__info {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.2rem 0.2rem 0;
-  gap: 0.5rem;
-}
-
-.rs-sala-tv__badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-  font-size: 0.65rem; /* 🔥 ANTES: 0.6rem */
-  font-weight: 700;
-  color: var(--accent-green);
-  background: rgba(105, 240, 174, 0.1);
-  padding: 0.15rem 0.6rem;
-  border-radius: 4px;
-  border: 1px solid rgba(105, 240, 174, 0.2);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.rs-sala-tv__badge i {
-  font-size: 0.55rem;
-}
-
-.rs-sala-tv__time {
-  font-size: 0.7rem; /* 🔥 ANTES: 0.65rem */
-  color: var(--text-muted);
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-}
-
-/* ── Área de mensajes con TV (se ajusta al espacio restante) ── */
-.rs-sala-messages--with-tv {
-  flex: 1;
-  min-height: 100px;
-  padding: 0.5rem 2rem 0.3rem 2rem;
-  overflow-y: auto;
-}
-
-.rs-sala-messages--with-tv .rs-msg {
-  max-width: 80%;
-}
-
-.rs-sala-messages--with-tv .rs-msg__bubble {
-  font-size: 0.82rem;
-  padding: 0.35rem 0.8rem;
-}
-
-/* ── Ajuste del chat cuando hay TV ── */
-.rs-sala-chat:has(.rs-sala-tv) {
-  display: flex;
-  flex-direction: column;
-}
-
-.rs-sala-chat:has(.rs-sala-tv) .rs-sala-messages {
-  flex: 1;
-  min-height: 80px;
-}
-
-/* ── Responsive ── */
-@media (max-width: 1024px) {
-  .rs-sala-tv__screen {
-    max-height: 320px;
-    min-height: 160px;
-  }
-  .rs-sala-tv__icon {
-    font-size: 4rem;
-  }
-}
-
-@media (max-width: 820px) {
-  .rs-sala-tv {
-    padding: 0.5rem 1.5rem 0.3rem 1.5rem;
-  }
-  .rs-sala-tv__screen {
-    max-height: 260px;
-    min-height: 140px;
-  }
-  .rs-sala-tv__icon {
-    font-size: 3.2rem;
-  }
-  .rs-sala-tv__label {
-    font-size: 1.1rem;
-  }
-  .rs-sala-messages--with-tv {
-    padding: 0.4rem 1.5rem 0.2rem 1.5rem;
-    min-height: 60px;
-  }
-}
-
-@media (max-width: 700px) {
-  .rs-sala-tv {
-    padding: 0.4rem 1rem 0.2rem 1rem;
-  }
-  .rs-sala-tv__screen {
-    max-height: 200px;
-    min-height: 100px;
-    border-radius: 10px;
-  }
-  .rs-sala-tv__icon {
-    font-size: 2.5rem;
-  }
-  .rs-sala-tv__label {
-    font-size: 0.95rem;
-  }
-  .rs-sala-tv__sub {
-    font-size: 0.7rem;
-  }
-  .rs-sala-messages--with-tv {
-    padding: 0.3rem 1rem 0.2rem 1rem;
-    min-height: 50px;
-  }
-  .rs-sala-messages--with-tv .rs-msg {
-    max-width: 92%;
-  }
-}
-
-@media (max-width: 500px) {
-  .rs-sala-tv__screen {
-    max-height: 150px;
-    min-height: 80px;
-  }
-  .rs-sala-tv__icon {
-    font-size: 2rem;
-  }
-  .rs-sala-tv__label {
-    font-size: 0.8rem;
-  }
-  .rs-sala-tv__sub {
-    display: none;
-  }
-  .rs-sala-messages--with-tv .rs-msg__bubble {
-    font-size: 0.75rem;
-    padding: 0.25rem 0.6rem;
-  }
-}
 
 
 
 
 /* ══════════════════════════════════════════════════
-   TEMAS POR AÑO — CON ICONOS DE BOOTSTRAP
+   TEMAS POR AÑO — COLORES Y FONDOS DE PANELES
    ══════════════════════════════════════════════════ */
 
-/* ── 1990: Flores marchitas y tonos sépia ── */
+/* ── 1990: Vintage papel ── */
 .rs-sala-page[data-tema="1990"] {
   --sala-primary: #b8860b;
-  --sala-secondary: #8b6914;
-  --sala-glow: rgba(184, 134, 11, 0.15);
-  --sala-bg-start: #1a1208;
-  --sala-bg-end: #0d0a06;
-  --sala-accent: #d4a54a;
-  --sala-bubble-own: rgba(184, 134, 11, 0.15);
-  --sala-border: rgba(184, 134, 11, 0.20);
+  --sala-secondary: #d4a54a;
+  --sala-glow: rgba(184, 134, 11, 0.3);
+  --sala-bg-start: #2a1f10;
+  --sala-bg-end: #140e08;
+  --sala-border: rgba(184, 134, 11, 0.4);
   --sala-year-color: #d4a54a;
   --sala-font: 'Courier New', monospace;
-  --sala-letter-spacing: 2px;
-  --sala-decoration: '\f4b5'; /* bi-file-earmark-text */
-  --sala-bg-pattern: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 5 L35 20 L50 20 L38 30 L42 45 L30 35 L18 45 L22 30 L10 20 L25 20 Z' fill='rgba(184,134,11,0.05)'/%3E%3C/svg%3E");
+  --sala-bg-pattern: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.2'/%3E%3C/svg%3E");
+  --sala-panel-bg: #1a1208;
+  --sala-panel-border: #b8860b;
+  --sala-panel-header-bg: #221a0e;
 }
+.rs-sala-page[data-tema="1990"] .rs-sala-border { border-style: dotted !important; }
 
-/* ── 1991: Neón urbano (rosa + azul) ── */
+/* ── 1991: Neón urbano (Rosa + Azul) ── */
 .rs-sala-page[data-tema="1991"] {
   --sala-primary: #ff0080;
   --sala-secondary: #00d4ff;
-  --sala-glow: rgba(255, 0, 128, 0.15);
-  --sala-bg-start: #0a0612;
-  --sala-bg-end: #06040a;
-  --sala-accent: #ff4da6;
-  --sala-bubble-own: rgba(255, 0, 128, 0.15);
-  --sala-border: rgba(255, 0, 128, 0.20);
+  --sala-glow: rgba(255, 0, 128, 0.4);
+  --sala-bg-start: #0a0014;
+  --sala-border: rgba(255, 0, 128, 0.5);
   --sala-year-color: #ff0080;
   --sala-font: 'Inter', sans-serif;
-  --sala-letter-spacing: 0px;
-  --sala-decoration: '\f1c4'; /* bi-building */
-  --sala-bg-pattern: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='20' cy='20' r='2' fill='rgba(255,0,128,0.06)'/%3E%3Ccircle cx='60' cy='40' r='2' fill='rgba(0,212,255,0.06)'/%3E%3Ccircle cx='40' cy='70' r='2' fill='rgba(255,0,128,0.06)'/%3E%3C/svg%3E");
+  --sala-bg-pattern: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='10' y='10' width='60' height='60' fill='none' stroke='rgba(255,0,128,0.1)' stroke-width='2'/%3E%3Crect x='30' y='30' width='20' height='20' fill='none' stroke='rgba(0,212,255,0.1)' stroke-width='2'/%3E%3C/svg%3E");
+  --sala-panel-bg: #12001a;
+  --sala-panel-border: #ff0080;
+  --sala-panel-header-bg: #1a0028;
 }
 
-/* ── 1992: Rave analógico (verde flúor + amarillo) ── */
+/* ── 1992: Rave (Verde + Amarillo) ── */
 .rs-sala-page[data-tema="1992"] {
   --sala-primary: #00ff88;
   --sala-secondary: #ffdd00;
-  --sala-glow: rgba(0, 255, 136, 0.18);
-  --sala-bg-start: #080a06;
-  --sala-bg-end: #040604;
-  --sala-accent: #44ffaa;
-  --sala-bubble-own: rgba(0, 255, 136, 0.18);
-  --sala-border: rgba(0, 255, 136, 0.25);
+  --sala-glow: rgba(0, 255, 136, 0.35);
+  --sala-bg-start: #0a0f08;
+  --sala-border: rgba(0, 255, 136, 0.4);
   --sala-year-color: #00ff88;
   --sala-font: 'Inter', sans-serif;
-  --sala-letter-spacing: 0px;
-  --sala-decoration: '\f5a9'; /* bi-emoji-smile */
-  --sala-bg-pattern: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='30' cy='30' r='8' fill='rgba(0,255,136,0.03)'/%3E%3Ccircle cx='30' cy='30' r='4' fill='rgba(255,221,0,0.03)'/%3E%3C/svg%3E");
+  --sala-bg-pattern: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='30' cy='30' r='10' fill='none' stroke='rgba(0,255,136,0.15)' stroke-width='2'/%3E%3Ccircle cx='30' cy='30' r='20' fill='none' stroke='rgba(255,221,0,0.15)' stroke-width='2'/%3E%3C/svg%3E");
+  --sala-panel-bg: #0e1209;
+  --sala-panel-border: #00ff88;
+  --sala-panel-header-bg: #141c0c;
 }
 
-/* ── 1993: Darkwave (morado oscuro + humo) ── */
+/* ── 1993: Darkwave (Morado) ── */
 .rs-sala-page[data-tema="1993"] {
   --sala-primary: #7c3aed;
-  --sala-secondary: #4a1a6b;
-  --sala-glow: rgba(124, 58, 237, 0.12);
+  --sala-secondary: #a78bfa;
+  --sala-glow: rgba(124, 58, 237, 0.3);
   --sala-bg-start: #0a0410;
-  --sala-bg-end: #040208;
-  --sala-accent: #a78bfa;
-  --sala-bubble-own: rgba(124, 58, 237, 0.12);
-  --sala-border: rgba(124, 58, 237, 0.15);
+  --sala-border: rgba(124, 58, 237, 0.4);
   --sala-year-color: #a78bfa;
   --sala-font: 'Georgia', serif;
-  --sala-letter-spacing: -2px;
-  --sala-decoration: '\f522'; /* bi-candle */
-  --sala-bg-pattern: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M50 10 Q60 30 50 50 Q40 70 50 90' stroke='rgba(124,58,237,0.03)' fill='none' stroke-width='1'/%3E%3C/svg%3E");
+  --sala-bg-pattern: url("data:image/svg+xml,%3Csvg width='200' height='200' viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.15'/%3E%3C/svg%3E");
+  --sala-panel-bg: #0e041a;
+  --sala-panel-border: #7c3aed;
+  --sala-panel-header-bg: #160626;
 }
 
-/* ── 1994: Pop maximalista (rojo + amarillo + azul) ── */
+/* ── 1994: Pop (Rojo + Amarillo) ── */
 .rs-sala-page[data-tema="1994"] {
   --sala-primary: #e63946;
   --sala-secondary: #ffb703;
-  --sala-glow: rgba(230, 57, 70, 0.15);
-  --sala-bg-start: #120808;
-  --sala-bg-end: #080404;
-  --sala-accent: #ff5a66;
-  --sala-bubble-own: rgba(230, 57, 70, 0.15);
-  --sala-border: rgba(230, 57, 70, 0.20);
+  --sala-glow: rgba(230, 57, 70, 0.4);
+  --sala-bg-start: #1a0a0a;
+  --sala-border: rgba(230, 57, 70, 0.6);
   --sala-year-color: #e63946;
   --sala-font: 'Inter', sans-serif;
-  --sala-letter-spacing: 0px;
-  --sala-decoration: '\f383'; /* bi-tv */
-  --sala-bg-pattern: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='10' y='10' width='40' height='40' fill='none' stroke='rgba(230,57,70,0.03)' stroke-width='1'/%3E%3Crect x='20' y='20' width='20' height='20' fill='none' stroke='rgba(255,183,3,0.03)' stroke-width='1'/%3E%3C/svg%3E");
+  --sala-bg-pattern: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='10' y='10' width='20' height='20' fill='none' stroke='rgba(230,57,70,0.2)' stroke-width='4'/%3E%3C/svg%3E");
+  --sala-panel-bg: #1a0a0a;
+  --sala-panel-border: #e63946;
+  --sala-panel-header-bg: #221212;
 }
 
-/* ── 1995: Eurodance galáctico (plateado + morado) ── */
+/* ── 1995: Eurodance (Plateado) ── */
 .rs-sala-page[data-tema="1995"] {
   --sala-primary: #c0c0c0;
   --sala-secondary: #9b59b6;
-  --sala-glow: rgba(192, 192, 192, 0.12);
+  --sala-glow: rgba(192, 192, 192, 0.3);
   --sala-bg-start: #0a0812;
-  --sala-bg-end: #06040a;
-  --sala-accent: #e0e0e0;
-  --sala-bubble-own: rgba(192, 192, 192, 0.12);
-  --sala-border: rgba(192, 192, 192, 0.15);
+  --sala-border: rgba(192, 192, 192, 0.4);
   --sala-year-color: #e0e0e0;
   --sala-font: 'Inter', sans-serif;
-  --sala-letter-spacing: 1px;
-  --sala-decoration: '\f51b'; /* bi-star-fill */
-  --sala-bg-pattern: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='20' cy='20' r='1.5' fill='rgba(192,192,192,0.04)'/%3E%3Ccircle cx='60' cy='40' r='1.5' fill='rgba(192,192,192,0.04)'/%3E%3Ccircle cx='40' cy='60' r='1.5' fill='rgba(192,192,192,0.04)'/%3E%3C/svg%3E");
+  --sala-bg-pattern: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='50' cy='50' r='2' fill='rgba(192,192,192,0.2)'/%3E%3Ccircle cx='20' cy='80' r='1.5' fill='rgba(192,192,192,0.2)'/%3E%3Ccircle cx='80' cy='20' r='1.5' fill='rgba(192,192,192,0.2)'/%3E%3C/svg%3E");
+  --sala-panel-bg: #0e0c1a;
+  --sala-panel-border: #c0c0c0;
+  --sala-panel-header-bg: #18162a;
 }
 
-/* ── 1996: MTV Golden Age (rojo + naranja) ── */
+/* ── 1996: MTV (Rojo + Naranja) ── */
 .rs-sala-page[data-tema="1996"] {
   --sala-primary: #ff3b30;
   --sala-secondary: #ff9500;
-  --sala-glow: rgba(255, 59, 48, 0.15);
-  --sala-bg-start: #120808;
-  --sala-bg-end: #080404;
-  --sala-accent: #ff6b60;
-  --sala-bubble-own: rgba(255, 59, 48, 0.15);
-  --sala-border: rgba(255, 59, 48, 0.20);
+  --sala-glow: rgba(255, 59, 48, 0.4);
+  --sala-bg-start: #1a0a0a;
+  --sala-border: rgba(255, 59, 48, 0.5);
   --sala-year-color: #ff3b30;
   --sala-font: 'Inter', sans-serif;
-  --sala-letter-spacing: 0px;
-  --sala-decoration: '\f344'; /* bi-guitar */
-  --sala-bg-pattern: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='40' height='40' fill='none'/%3E%3Cline x1='0' y1='20' x2='40' y2='20' stroke='rgba(255,59,48,0.03)' stroke-width='1'/%3E%3Cline x1='20' y1='0' x2='20' y2='40' stroke='rgba(255,149,0,0.03)' stroke-width='1'/%3E%3C/svg%3E");
+  --sala-bg-pattern: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cline x1='0' y1='20' x2='40' y2='20' stroke='rgba(255,59,48,0.1)' stroke-width='2'/%3E%3C/svg%3E");
+  --sala-panel-bg: #1a0a0a;
+  --sala-panel-border: #ff3b30;
+  --sala-panel-header-bg: #221212;
 }
 
-/* ── 1997: Televisión, sitcoms (marrón + naranja) ── */
+/* ── 1997: Sitcoms (Marrón) ── */
 .rs-sala-page[data-tema="1997"] {
   --sala-primary: #d4a373;
   --sala-secondary: #cc8e5a;
-  --sala-glow: rgba(212, 163, 115, 0.12);
-  --sala-bg-start: #0e0806;
-  --sala-bg-end: #060402;
-  --sala-accent: #e8c39e;
-  --sala-bubble-own: rgba(212, 163, 115, 0.12);
-  --sala-border: rgba(212, 163, 115, 0.15);
+  --sala-glow: rgba(212, 163, 115, 0.3);
+  --sala-bg-start: #1a1410;
+  --sala-border: rgba(212, 163, 115, 0.4);
   --sala-year-color: #e8c39e;
   --sala-font: 'Georgia', serif;
-  --sala-letter-spacing: 0px;
-  --sala-decoration: '\f3eb'; /* bi-cup-straw */
-  --sala-bg-pattern: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='30' cy='30' r='12' fill='none' stroke='rgba(212,163,115,0.03)' stroke-width='1'/%3E%3C/svg%3E");
+  --sala-bg-pattern: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='30' cy='30' r='15' fill='none' stroke='rgba(212,163,115,0.1)' stroke-width='2'/%3E%3C/svg%3E");
+  --sala-panel-bg: #1a1410;
+  --sala-panel-border: #d4a373;
+  --sala-panel-header-bg: #221e1a;
 }
 
-/* ── 1998: Matrix (verde neón + negro) ── */
+/* ── 1998: Matrix (Verde) ── */
 .rs-sala-page[data-tema="1998"] {
   --sala-primary: #00ff41;
   --sala-secondary: #003300;
-  --sala-glow: rgba(0, 255, 65, 0.12);
+  --sala-glow: rgba(0, 255, 65, 0.4);
   --sala-bg-start: #050805;
-  --sala-bg-end: #020402;
-  --sala-accent: #44ff77;
-  --sala-bubble-own: rgba(0, 255, 65, 0.12);
-  --sala-border: rgba(0, 255, 65, 0.15);
+  --sala-border: rgba(0, 255, 65, 0.6);
   --sala-year-color: #00ff41;
   --sala-font: 'Courier New', monospace;
-  --sala-letter-spacing: -1px;
-  --sala-decoration: '\f5b2'; /* bi-code-square */
-  --sala-bg-pattern: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='2' y='20' font-size='8' fill='rgba(0,255,65,0.03)' font-family='monospace'%3E010%3C/text%3E%3C/svg%3E");
+  --sala-bg-pattern: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='5' y='20' font-size='8' fill='rgba(0,255,65,0.1)' font-family='monospace'%3E010101%3C/text%3E%3Ctext x='5' y='40' font-size='8' fill='rgba(0,255,65,0.1)' font-family='monospace'%3E101010%3C/text%3E%3C/svg%3E");
+  --sala-panel-bg: #080a08;
+  --sala-panel-border: #00ff41;
+  --sala-panel-header-bg: #0c120c;
 }
 
-/* ── 1999: Boyband Mania (azul plateado + blanco) ── */
+/* ── 1999: Boyband (Azul) ── */
 .rs-sala-page[data-tema="1999"] {
   --sala-primary: #b8c6db;
-  --sala-secondary: #8ba3c7;
-  --sala-glow: rgba(184, 198, 219, 0.12);
-  --sala-bg-start: #080810;
-  --sala-bg-end: #04040a;
-  --sala-accent: #d4def0;
-  --sala-bubble-own: rgba(184, 198, 219, 0.12);
-  --sala-border: rgba(184, 198, 219, 0.15);
+  --sala-secondary: #ffffff;
+  --sala-glow: rgba(184, 198, 219, 0.3);
+  --sala-bg-start: #0a0a18;
+  --sala-border: rgba(184, 198, 219, 0.4);
   --sala-year-color: #d4def0;
   --sala-font: 'Inter', sans-serif;
-  --sala-letter-spacing: 1px;
-  --sala-decoration: '\f51b'; /* bi-star-fill */
-  --sala-bg-pattern: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='30' cy='30' r='2' fill='rgba(184,198,219,0.04)'/%3E%3Ccircle cx='15' cy='15' r='1' fill='rgba(184,198,219,0.04)'/%3E%3Ccircle cx='45' cy='45' r='1' fill='rgba(184,198,219,0.04)'/%3E%3C/svg%3E");
+  --sala-bg-pattern: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='50' cy='50' r='30' fill='none' stroke='rgba(184,198,219,0.05)' stroke-width='1'/%3E%3C/svg%3E");
+  --sala-panel-bg: #0e0e20;
+  --sala-panel-border: #b8c6db;
+  --sala-panel-header-bg: #161632;
 }
 
-/* ── 2000: Bubblegum Pop (rosa + azul cielo) ── */
+/* ── 2000: Bubblegum (Rosa) ── */
 .rs-sala-page[data-tema="2000"] {
   --sala-primary: #ff6bcd;
   --sala-secondary: #87ceeb;
-  --sala-glow: rgba(255, 107, 205, 0.15);
-  --sala-bg-start: #0e0610;
-  --sala-bg-end: #06040a;
-  --sala-accent: #ff8fd9;
-  --sala-bubble-own: rgba(255, 107, 205, 0.15);
-  --sala-border: rgba(255, 107, 205, 0.20);
+  --sala-glow: rgba(255, 107, 205, 0.4);
+  --sala-bg-start: #1a0a1a;
+  --sala-border: rgba(255, 107, 205, 0.5);
   --sala-year-color: #ff6bcd;
   --sala-font: 'Inter', sans-serif;
-  --sala-letter-spacing: 0px;
-  --sala-decoration: '\f401'; /* bi-heart-fill */
-  --sala-bg-pattern: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='20' cy='20' r='6' fill='none' stroke='rgba(255,107,205,0.04)'/%3E%3C/svg%3E");
+  --sala-bg-pattern: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='30' cy='30' r='8' fill='rgba(255,107,205,0.1)'/%3E%3Ccircle cx='20' cy='20' r='5' fill='rgba(135,206,235,0.1)'/%3E%3C/svg%3E");
+  --sala-panel-bg: #1a0a1a;
+  --sala-panel-border: #ff6bcd;
+  --sala-panel-header-bg: #221222;
 }
 
-/* ── 2001: Nu-Metal (naranja quemado + gris) ── */
+/* ── 2001: Nu-Metal (Naranja) ── */
 .rs-sala-page[data-tema="2001"] {
   --sala-primary: #cc7722;
   --sala-secondary: #888888;
-  --sala-glow: rgba(204, 119, 34, 0.12);
-  --sala-bg-start: #0e0804;
-  --sala-bg-end: #060402;
-  --sala-accent: #ee9944;
-  --sala-bubble-own: rgba(204, 119, 34, 0.12);
-  --sala-border: rgba(204, 119, 34, 0.15);
+  --sala-glow: rgba(204, 119, 34, 0.3);
+  --sala-bg-start: #1a1008;
+  --sala-border: rgba(204, 119, 34, 0.4);
   --sala-year-color: #ee9944;
   --sala-font: 'Inter', sans-serif;
-  --sala-letter-spacing: 0px;
-  --sala-decoration: '\f42c'; /* bi-hand-index-thumb */
-  --sala-bg-pattern: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cline x1='0' y1='30' x2='60' y2='30' stroke='rgba(204,119,34,0.03)' stroke-width='1'/%3E%3Cline x1='30' y1='0' x2='30' y2='60' stroke='rgba(136,136,136,0.03)' stroke-width='1'/%3E%3C/svg%3E");
+  --sala-bg-pattern: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='20' y='20' width='40' height='40' fill='none' stroke='rgba(204,119,34,0.1)' stroke-width='4'/%3E%3C/svg%3E");
+  --sala-panel-bg: #1a1008;
+  --sala-panel-border: #cc7722;
+  --sala-panel-header-bg: #221a12;
 }
 
-/* ── 2002: Hip-Hop Bling Bling (dorado + negro) ── */
+/* ── 2002: Bling (Dorado) ── */
 .rs-sala-page[data-tema="2002"] {
   --sala-primary: #ffd700;
   --sala-secondary: #1a1a1a;
-  --sala-glow: rgba(255, 215, 0, 0.12);
+  --sala-glow: rgba(255, 215, 0, 0.3);
   --sala-bg-start: #0a0804;
-  --sala-bg-end: #040402;
-  --sala-accent: #ffe44d;
-  --sala-bubble-own: rgba(255, 215, 0, 0.12);
-  --sala-border: rgba(255, 215, 0, 0.15);
+  --sala-border: rgba(255, 215, 0, 0.4);
   --sala-year-color: #ffd700;
   --sala-font: 'Inter', sans-serif;
-  --sala-letter-spacing: 0px;
-  --sala-decoration: '\f4e7'; /* bi-gem */
-  --sala-bg-pattern: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolygon points='20,5 35,20 20,35 5,20' fill='none' stroke='rgba(255,215,0,0.04)' stroke-width='1'/%3E%3C/svg%3E");
+  --sala-bg-pattern: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolygon points='20,5 35,20 20,35 5,20' fill='none' stroke='rgba(255,215,0,0.1)' stroke-width='2'/%3E%3C/svg%3E");
+  --sala-panel-bg: #0e0a06;
+  --sala-panel-border: #ffd700;
+  --sala-panel-header-bg: #16120e;
 }
 
-/* ── 2003: Emo Clásico (rojo oscuro + negro) ── */
+/* ── 2003: Emo (Rojo oscuro) ── */
 .rs-sala-page[data-tema="2003"] {
   --sala-primary: #8b0000;
   --sala-secondary: #1a1a1a;
-  --sala-glow: rgba(139, 0, 0, 0.10);
+  --sala-glow: rgba(139, 0, 0, 0.3);
   --sala-bg-start: #0a0404;
-  --sala-bg-end: #040202;
-  --sala-accent: #cc2222;
-  --sala-bubble-own: rgba(139, 0, 0, 0.10);
-  --sala-border: rgba(139, 0, 0, 0.12);
+  --sala-border: rgba(139, 0, 0, 0.4);
   --sala-year-color: #cc2222;
   --sala-font: 'Georgia', serif;
-  --sala-letter-spacing: -2px;
-  --sala-decoration: '\f401'; /* bi-heart-fill */
-  --sala-bg-pattern: url("data:image/svg+xml,%3Csvg width='30' height='30' viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M15 8 Q18 5 21 8 Q24 11 21 15 L15 22 L9 15 Q6 11 9 8 Q12 5 15 8' fill='rgba(139,0,0,0.03)'/%3E%3C/svg%3E");
+  --sala-bg-pattern: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M20 10 Q25 5 30 10 Q35 15 30 22 L20 30 L10 22 Q5 15 10 10 Q15 5 20 10' fill='rgba(139,0,0,0.05)'/%3E%3C/svg%3E");
+  --sala-panel-bg: #0a0404;
+  --sala-panel-border: #8b0000;
+  --sala-panel-header-bg: #120a0a;
 }
 
-/* ── 2004: MSN Messenger (azul + burbujas) ── */
+/* ── 2004: MSN (Azul) ── */
 .rs-sala-page[data-tema="2004"] {
   --sala-primary: #00a8e8;
   --sala-secondary: #00b4d8;
-  --sala-glow: rgba(0, 168, 232, 0.15);
-  --sala-bg-start: #080a0e;
-  --sala-bg-end: #040608;
-  --sala-accent: #4ac0f0;
-  --sala-bubble-own: rgba(0, 168, 232, 0.15);
-  --sala-border: rgba(0, 168, 232, 0.20);
+  --sala-glow: rgba(0, 168, 232, 0.4);
+  --sala-bg-start: #0a0e14;
+  --sala-border: rgba(0, 168, 232, 0.5);
   --sala-year-color: #4ac0f0;
   --sala-font: 'Inter', sans-serif;
-  --sala-letter-spacing: 0px;
-  --sala-decoration: '\f5b2'; /* bi-chat-dots-fill */
-  --sala-bg-pattern: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cellipse cx='20' cy='30' rx='8' ry='6' fill='rgba(0,168,232,0.03)'/%3E%3C/svg%3E");
+  --sala-bg-pattern: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cellipse cx='20' cy='40' rx='10' ry='8' fill='none' stroke='rgba(0,168,232,0.1)' stroke-width='2'/%3E%3C/svg%3E");
+  --sala-panel-bg: #0a0e14;
+  --sala-panel-border: #00a8e8;
+  --sala-panel-header-bg: #121a22;
 }
 
-/* ── 2005: MySpace Scene (neón rosa + neón verde) ── */
+/* ── 2005: MySpace (Rosa neón) ── */
 .rs-sala-page[data-tema="2005"] {
   --sala-primary: #ff00cc;
   --sala-secondary: #00ffcc;
-  --sala-glow: rgba(255, 0, 204, 0.15);
+  --sala-glow: rgba(255, 0, 204, 0.4);
   --sala-bg-start: #0a060a;
-  --sala-bg-end: #040204;
-  --sala-accent: #ff44dd;
-  --sala-bubble-own: rgba(255, 0, 204, 0.15);
-  --sala-border: rgba(255, 0, 204, 0.20);
+  --sala-border: rgba(255, 0, 204, 0.5);
   --sala-year-color: #ff00cc;
   --sala-font: 'Inter', sans-serif;
-  --sala-letter-spacing: 0px;
-  --sala-decoration: '\f4a9'; /* bi-ribbon */
-  --sala-bg-pattern: url("data:image/svg+xml,%3Csvg width='30' height='30' viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M15 5 L18 12 L25 12 L19 17 L21 25 L15 20 L9 25 L11 17 L5 12 L12 12 Z' fill='rgba(255,0,204,0.03)'/%3E%3C/svg%3E");
+  --sala-bg-pattern: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolygon points='20,5 25,15 35,15 27,22 30,32 20,27 10,32 13,22 5,15 15,15' fill='rgba(255,0,204,0.1)'/%3E%3C/svg%3E");
+  --sala-panel-bg: #0a060a;
+  --sala-panel-border: #ff00cc;
+  --sala-panel-header-bg: #120a12;
 }
 
-/* ── 2006: Scene Extrema Kawaii (arcoíris) ── */
+/* ── 2006: Kawaii (Rosa + Amarillo) ── */
 .rs-sala-page[data-tema="2006"] {
   --sala-primary: #ff1493;
   --sala-secondary: #ffd700;
-  --sala-glow: rgba(255, 20, 147, 0.15);
-  --sala-bg-start: #0e060a;
-  --sala-bg-end: #060204;
-  --sala-accent: #ff4dab;
-  --sala-bubble-own: rgba(255, 20, 147, 0.15);
-  --sala-border: rgba(255, 20, 147, 0.20);
+  --sala-glow: rgba(255, 20, 147, 0.4);
+  --sala-bg-start: #1a0a10;
+  --sala-border: rgba(255, 20, 147, 0.5);
   --sala-year-color: #ff1493;
   --sala-font: 'Inter', sans-serif;
-  --sala-letter-spacing: 0px;
-  --sala-decoration: '\f468'; /* bi-rainbow */
-  --sala-bg-pattern: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='40' height='40' fill='none'/%3E%3Cline x1='0' y1='20' x2='40' y2='20' stroke='rgba(255,20,147,0.03)' stroke-width='1'/%3E%3Cline x1='10' y1='0' x2='30' y2='40' stroke='rgba(255,215,0,0.03)' stroke-width='1'/%3E%3Cline x1='30' y1='0' x2='10' y2='40' stroke='rgba(0,255,255,0.03)' stroke-width='1'/%3E%3C/svg%3E");
+  --sala-bg-pattern: url("data:image/svg+xml,%3Csvg width='50' height='50' viewBox='0 0 50 50' xmlns='http://www.w3.org/2000/svg'%3E%3Cline x1='0' y1='25' x2='50' y2='25' stroke='rgba(255,20,147,0.1)' stroke-width='2'/%3E%3Cline x1='25' y1='0' x2='25' y2='50' stroke='rgba(255,215,0,0.1)' stroke-width='2'/%3E%3C/svg%3E");
+  --sala-panel-bg: #1a0a10;
+  --sala-panel-border: #ff1493;
+  --sala-panel-header-bg: #22121a;
 }
 
-/* ── 2007: Frutiger Aero (vidrio + burbujas) ── */
+/* ── 2007: Frutiger Aero (Cian) ── */
 .rs-sala-page[data-tema="2007"] {
   --sala-primary: #00ccff;
   --sala-secondary: #33ddff;
-  --sala-glow: rgba(0, 204, 255, 0.15);
-  --sala-bg-start: #080a10;
-  --sala-bg-end: #040608;
-  --sala-accent: #66ddff;
-  --sala-bubble-own: rgba(0, 204, 255, 0.15);
-  --sala-border: rgba(0, 204, 255, 0.20);
+  --sala-glow: rgba(0, 204, 255, 0.4);
+  --sala-bg-start: #0a1018;
+  --sala-border: rgba(0, 204, 255, 0.5);
   --sala-year-color: #66ddff;
   --sala-font: 'Inter', sans-serif;
-  --sala-letter-spacing: 0px;
-  --sala-decoration: '\f30b'; /* bi-droplet-fill */
-  --sala-bg-pattern: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='20' cy='20' r='5' fill='none' stroke='rgba(0,204,255,0.04)' stroke-width='1'/%3E%3Ccircle cx='40' cy='40' r='8' fill='none' stroke='rgba(51,221,255,0.04)' stroke-width='1'/%3E%3C/svg%3E");
+  --sala-bg-pattern: url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='40' cy='40' r='15' fill='none' stroke='rgba(0,204,255,0.1)' stroke-width='2'/%3E%3Ccircle cx='20' cy='20' r='8' fill='none' stroke='rgba(0,204,255,0.1)' stroke-width='2'/%3E%3C/svg%3E");
+  --sala-panel-bg: #0a1018;
+  --sala-panel-border: #00ccff;
+  --sala-panel-header-bg: #121e2a;
 }
 
-/* ── 2008: Electro House (verde neón + morado neón) ── */
+/* ── 2008: Electro (Verde + Morado) ── */
 .rs-sala-page[data-tema="2008"] {
   --sala-primary: #39ff14;
   --sala-secondary: #9b30ff;
-  --sala-glow: rgba(57, 255, 20, 0.12);
+  --sala-glow: rgba(57, 255, 20, 0.4);
   --sala-bg-start: #06080a;
-  --sala-bg-end: #040208;
-  --sala-accent: #66ff44;
-  --sala-bubble-own: rgba(57, 255, 20, 0.12);
-  --sala-border: rgba(57, 255, 20, 0.15);
+  --sala-border: rgba(57, 255, 20, 0.5);
   --sala-year-color: #39ff14;
   --sala-font: 'Inter', sans-serif;
-  --sala-letter-spacing: 0px;
-  --sala-decoration: '\f3bf'; /* bi-headphones */
-  --sala-bg-pattern: url("data:image/svg+xml,%3Csvg width='30' height='30' viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='10' y='10' width='10' height='10' fill='rgba(57,255,20,0.03)'/%3E%3C/svg%3E");
+  --sala-bg-pattern: url("data:image/svg+xml,%3Csvg width='30' height='30' viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='10' y='10' width='10' height='10' fill='rgba(57,255,20,0.1)'/%3E%3C/svg%3E");
+  --sala-panel-bg: #080a0c;
+  --sala-panel-border: #39ff14;
+  --sala-panel-header-bg: #0e1216;
 }
 
-/* ── 2009: Cyberpunk Revival (azul eléctrico + naranja) ── */
+/* ── 2009: Cyberpunk (Azul + Naranja) ── */
 .rs-sala-page[data-tema="2009"] {
   --sala-primary: #0077ff;
   --sala-secondary: #ff6b00;
-  --sala-glow: rgba(0, 119, 255, 0.15);
-  --sala-bg-start: #06080c;
-  --sala-bg-end: #020408;
-  --sala-accent: #4488ff;
-  --sala-bubble-own: rgba(0, 119, 255, 0.15);
-  --sala-border: rgba(0, 119, 255, 0.20);
+  --sala-glow: rgba(0, 119, 255, 0.4);
+  --sala-bg-start: #060a10;
+  --sala-border: rgba(0, 119, 255, 0.5);
   --sala-year-color: #4488ff;
   --sala-font: 'Inter', sans-serif;
-  --sala-letter-spacing: -2px;
-  --sala-decoration: '\f4b0'; /* bi-cpu */
-  --sala-bg-pattern: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cline x1='0' y1='20' x2='40' y2='20' stroke='rgba(0,119,255,0.03)' stroke-width='1'/%3E%3Cline x1='20' y1='0' x2='20' y2='40' stroke='rgba(255,107,0,0.03)' stroke-width='1'/%3E%3C/svg%3E");
+  --sala-bg-pattern: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cline x1='0' y1='30' x2='60' y2='30' stroke='rgba(0,119,255,0.1)' stroke-width='2'/%3E%3Cline x1='30' y1='0' x2='30' y2='60' stroke='rgba(255,107,0,0.1)' stroke-width='2'/%3E%3C/svg%3E");
+  --sala-panel-bg: #060a10;
+  --sala-panel-border: #0077ff;
+  --sala-panel-header-bg: #0e1622;
 }
 
 /* ── Salas especiales ── */
 .rs-sala-page[data-tema="especial"] {
   --sala-primary: #00e5ff;
   --sala-secondary: #b388ff;
-  --sala-glow: rgba(0, 229, 255, 0.10);
+  --sala-glow: rgba(0, 229, 255, 0.25);
   --sala-bg-start: #060608;
-  --sala-bg-end: #080c10;
-  --sala-accent: #44ddff;
-  --sala-bubble-own: rgba(0, 229, 255, 0.10);
-  --sala-border: rgba(0, 229, 255, 0.12);
+  --sala-border: rgba(0, 229, 255, 0.3);
   --sala-year-color: #00e5ff;
   --sala-font: 'Inter', sans-serif;
-  --sala-letter-spacing: 0px;
-  --sala-decoration: '\f21b'; /* bi-stars */
   --sala-bg-pattern: none;
+  --sala-panel-bg: #0a0a0e;
+  --sala-panel-border: #00e5ff;
+  --sala-panel-header-bg: #121216;
 }
-.rs-sala-page[data-tema="especial"] .rs-sala-year {
-  display: none;
+.rs-sala-page[data-tema="especial"] .rs-sala-year { display: none; }
+
+
+
+/* ══════════════════════════════════════════════════
+   PARCHE FINAL: DECORACIÓN EXTREMA Y TEXTURAS
+   ══════════════════════════════════════════════════ */
+
+/* ── 1990: Texto de máquina de escribir y borde de papel ── */
+.rs-sala-page[data-tema="1990"] .rs-sala-year__number {
+  font-family: 'Courier New', monospace !important;
+  text-shadow: 2px 2px 0 #000, 4px 4px 0 rgba(184, 134, 11, 0.3) !important;
+  opacity: 0.8 !important;
 }
+.rs-sala-page[data-tema="1990"] .rs-sala-layout {
+  border: 4px solid #3b2b15 !important;
+  box-shadow: inset 0 0 100px rgba(0,0,0,0.8) !important;
+}
+
+/* ── 1991: Líneas de neón en el borde ── */
+.rs-sala-page[data-tema="1991"] .rs-sala-layout {
+  border-left: 4px solid #ff0080 !important;
+  border-right: 4px solid #00d4ff !important;
+  box-shadow: 0 0 30px rgba(255, 0, 128, 0.3), 0 0 30px rgba(0, 212, 255, 0.3) !important;
+}
+.rs-sala-page[data-tema="1991"] .rs-sala-year__number {
+  text-shadow: 0 0 20px #ff0080, 0 0 40px #ff0080 !important;
+  opacity: 1 !important;
+}
+
+/* ── 1992: Brillo rave y texto amarillo ── */
+.rs-sala-page[data-tema="1992"] .rs-sala-year__number {
+  color: #ffdd00 !important;
+  text-shadow: 0 0 30px #00ff88, 0 0 60px #00ff88 !important;
+  opacity: 1 !important;
+}
+.rs-sala-page[data-tema="1992"] .rs-sala-layout {
+  border: 4px solid #ffdd00 !important;
+  box-shadow: 0 0 50px rgba(0, 255, 136, 0.4) !important;
+}
+
+/* ── 1993: Texto gótico y fondo de humo ── */
+.rs-sala-page[data-tema="1993"] .rs-sala-year__number {
+  font-family: 'Georgia', serif !important;
+  text-shadow: 0 0 15px #7c3aed, 0 0 30px #4a1a6b !important;
+  opacity: 0.6 !important;
+}
+
+/* ── 1994: Cómic pop, texto gordo y borde rojo grueso ── */
+.rs-sala-page[data-tema="1994"] .rs-sala-year__number {
+  font-weight: 900 !important;
+  text-shadow: 4px 4px 0 #000, 6px 6px 0 rgba(230, 57, 70, 0.5) !important;
+  opacity: 1 !important;
+}
+.rs-sala-page[data-tema="1994"] .rs-sala-layout {
+  border: 6px solid #e63946 !important;
+}
+
+/* ── 1995: Brillo plateado estrellado ── */
+.rs-sala-page[data-tema="1995"] .rs-sala-year__number {
+  text-shadow: 0 0 10px #fff, 0 0 20px #c0c0c0, 0 0 40px #9b59b6 !important;
+  opacity: 0.9 !important;
+}
+
+/* ── 1996: Texto rojo MTV ── */
+.rs-sala-page[data-tema="1996"] .rs-sala-year__number {
+  text-shadow: 0 0 20px #ff3b30, 0 0 40px #ff9500 !important;
+  opacity: 1 !important;
+}
+
+/* ── 1997: Fondo de café y texto serif ── */
+.rs-sala-page[data-tema="1997"] .rs-sala-year__number {
+  font-family: 'Georgia', serif !important;
+  color: #fff !important;
+  opacity: 0.7 !important;
+}
+
+/* ── 1998: Matrix puro, texto verde brillante y código de fondo ── */
+.rs-sala-page[data-tema="1998"] .rs-sala-year__number {
+  font-family: 'Courier New', monospace !important;
+  color: #00ff41 !important;
+  text-shadow: 0 0 10px #00ff41, 0 0 30px #00ff41, 0 0 60px #00ff41 !important;
+  opacity: 1 !important;
+}
+.rs-sala-page[data-tema="1998"] .rs-sala-layout {
+  border: 4px solid #00ff41 !important;
+  box-shadow: 0 0 40px rgba(0, 255, 65, 0.5) !important;
+}
+
+/* ── 1999: Texto azul hielo y borde plateado ── */
+.rs-sala-page[data-tema="1999"] .rs-sala-year__number {
+  text-shadow: 0 0 15px #b8c6db, 0 0 30px #8ba3c7 !important;
+  opacity: 0.9 !important;
+}
+.rs-sala-page[data-tema="1999"] .rs-sala-layout {
+  border: 3px solid #b8c6db !important;
+}
+
+/* ── 2000: Brillo rosa pastel y borde rosa ── */
+.rs-sala-page[data-tema="2000"] .rs-sala-year__number {
+  text-shadow: 0 0 20px #ff6bcd, 0 0 40px #ff6bcd !important;
+  opacity: 1 !important;
+}
+.rs-sala-page[data-tema="2000"] .rs-sala-layout {
+  border: 4px solid #ff6bcd !important;
+}
+
+/* ── 2001: Texto naranja quemado y gris ── */
+.rs-sala-page[data-tema="2001"] .rs-sala-year__number {
+  text-shadow: 0 0 15px #cc7722, 0 0 30px #888888 !important;
+  opacity: 0.8 !important;
+}
+
+/* ── 2002: Brillo dorado extremo (Bling Bling) ── */
+.rs-sala-page[data-tema="2002"] .rs-sala-year__number {
+  color: #ffd700 !important;
+  text-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700, 0 0 40px #fff !important;
+  opacity: 1 !important;
+}
+.rs-sala-page[data-tema="2002"] .rs-sala-layout {
+  border: 4px solid #ffd700 !important;
+  box-shadow: 0 0 40px rgba(255, 215, 0, 0.4) !important;
+}
+
+/* ── 2003: Texto rojo oscuro emo ── */
+.rs-sala-page[data-tema="2003"] .rs-sala-year__number {
+  font-family: 'Georgia', serif !important;
+  text-shadow: 0 0 10px #8b0000, 0 0 20px #cc2222 !important;
+  opacity: 0.6 !important;
+}
+
+/* ── 2004: Burbujas y texto azul MSN ── */
+.rs-sala-page[data-tema="2004"] .rs-sala-year__number {
+  text-shadow: 0 0 15px #00a8e8, 0 0 30px #00b4d8 !important;
+  opacity: 0.9 !important;
+}
+.rs-sala-page[data-tema="2004"] .rs-sala-layout {
+  border: 3px solid #00a8e8 !important;
+}
+
+/* ── 2005: Brillo rosa MySpace ── */
+.rs-sala-page[data-tema="2005"] .rs-sala-year__number {
+  text-shadow: 0 0 20px #ff00cc, 0 0 40px #ff00cc, 0 0 60px #00ffcc !important;
+  opacity: 1 !important;
+}
+.rs-sala-page[data-tema="2005"] .rs-sala-layout {
+  border: 4px solid #ff00cc !important;
+}
+
+/* ── 2006: Kawaii extremo (rosa y amarillo) ── */
+.rs-sala-page[data-tema="2006"] .rs-sala-year__number {
+  text-shadow: 0 0 15px #ff1493, 0 0 30px #ffd700 !important;
+  opacity: 1 !important;
+}
+
+/* ── 2007: Frutiger Aero (texto cian brillante y burbujas) ── */
+.rs-sala-page[data-tema="2007"] .rs-sala-year__number {
+  text-shadow: 0 0 15px #00ccff, 0 0 30px #33ddff, 0 0 60px #66ddff !important;
+  opacity: 1 !important;
+}
+.rs-sala-page[data-tema="2007"] .rs-sala-layout {
+  border: 3px solid #00ccff !important;
+  box-shadow: inset 0 0 50px rgba(0, 204, 255, 0.2) !important;
+}
+
+/* ── 2008: Electro House (verde y morado neón) ── */
+.rs-sala-page[data-tema="2008"] .rs-sala-year__number {
+  text-shadow: 0 0 15px #39ff14, 0 0 30px #9b30ff !important;
+  opacity: 1 !important;
+}
+.rs-sala-page[data-tema="2008"] .rs-sala-layout {
+  border: 4px solid #39ff14 !important;
+  box-shadow: 0 0 30px rgba(57, 255, 20, 0.4) !important;
+}
+
+/* ── 2009: Cyberpunk (azul y naranja) ── */
+.rs-sala-page[data-tema="2009"] .rs-sala-year__number {
+  text-shadow: 0 0 15px #0077ff, 0 0 30px #ff6b00 !important;
+  opacity: 1 !important;
+}
+.rs-sala-page[data-tema="2009"] .rs-sala-layout {
+  border: 3px solid #0077ff !important;
+}
+
+
+
+
+/* ══════════════════════════════════════════════════
+   BLOQUE FINAL: TEXTURAS, LÍNEAS Y DECORACIONES
+   ══════════════════════════════════════════════════ */
+
+/* ── 1. TEXTURAS DE FONDO PARA LOS PANELES LATERALES ── */
+/* Papel viejo para 1990 */
+.rs-sala-page[data-tema="1990"] .rs-sala-users,
+.rs-sala-page[data-tema="1990"] .rs-sala-navegador {
+  background-image: url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.3'/%3E%3C/svg%3E") !important;
+  background-size: 200px 200px !important;
+}
+
+/* Código binario para 1998 (Matrix) */
+.rs-sala-page[data-tema="1998"] .rs-sala-users,
+.rs-sala-page[data-tema="1998"] .rs-sala-navegador {
+  background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='5' y='15' font-size='12' fill='rgba(0,255,65,0.08)' font-family='monospace'%3E010101%3C/text%3E%3Ctext x='5' y='35' font-size='12' fill='rgba(0,255,65,0.08)' font-family='monospace'%3E101010%3C/text%3E%3Ctext x='5' y='55' font-size='12' fill='rgba(0,255,65,0.08)' font-family='monospace'%3E110011%3C/text%3E%3Ctext x='5' y='75' font-size='12' fill='rgba(0,255,65,0.08)' font-family='monospace'%3E001100%3C/text%3E%3Ctext x='5' y='95' font-size='12' fill='rgba(0,255,65,0.08)' font-family='monospace'%3E100001%3C/text%3E%3C/svg%3E") !important;
+  background-size: 100px 100px !important;
+}
+
+/* Corazones para 2000 y 2006 */
+.rs-sala-page[data-tema="2000"] .rs-sala-users,
+.rs-sala-page[data-tema="2000"] .rs-sala-navegador,
+.rs-sala-page[data-tema="2006"] .rs-sala-users,
+.rs-sala-page[data-tema="2006"] .rs-sala-navegador {
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M30 15 Q35 10 40 15 Q45 20 40 28 L30 40 L20 28 Q15 20 20 15 Q25 10 30 15' fill='rgba(255,107,205,0.06)'/%3E%3C/svg%3E") !important;
+  background-size: 60px 60px !important;
+}
+
+/* Burbujas para 2004 y 2007 */
+.rs-sala-page[data-tema="2004"] .rs-sala-users,
+.rs-sala-page[data-tema="2004"] .rs-sala-navegador,
+.rs-sala-page[data-tema="2007"] .rs-sala-users,
+.rs-sala-page[data-tema="2007"] .rs-sala-navegador {
+  background-image: url("data:image/svg+xml,%3Csvg width='80' height='80' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='20' cy='20' r='8' fill='none' stroke='rgba(0,168,232,0.06)' stroke-width='2'/%3E%3Ccircle cx='60' cy='50' r='12' fill='none' stroke='rgba(0,204,255,0.06)' stroke-width='2'/%3E%3C/svg%3E") !important;
+  background-size: 80px 80px !important;
+}
+
+/* Estrellas para 1995 y 1999 */
+.rs-sala-page[data-tema="1995"] .rs-sala-users,
+.rs-sala-page[data-tema="1995"] .rs-sala-navegador,
+.rs-sala-page[data-tema="1999"] .rs-sala-users,
+.rs-sala-page[data-tema="1999"] .rs-sala-navegador {
+  background-image: url("data:image/svg+xml,%3Csvg width='80' height='80' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolygon points='40,10 45,30 65,30 50,42 55,60 40,50 25,60 30,42 15,30 35,30' fill='rgba(192,192,192,0.05)'/%3E%3C/svg%3E") !important;
+  background-size: 80px 80px !important;
+}
+
+/* Líneas de neón para 1991 */
+.rs-sala-page[data-tema="1991"] .rs-sala-users,
+.rs-sala-page[data-tema="1991"] .rs-sala-navegador {
+  background-image: linear-gradient(90deg, transparent 50%, rgba(255,0,128,0.05) 50%, rgba(255,0,128,0.05) 51%, transparent 51%) !important;
+  background-size: 20px 100% !important;
+}
+
+/* ── 2. LÍNEAS DE BORDE DECORATIVAS (ANIMADAS) ── */
+
+/* Línea de neón parpadeante en la parte superior del chat (1998, 2008) */
+.rs-sala-page[data-tema="1998"] .rs-sala-chat::before,
+.rs-sala-page[data-tema="2008"] .rs-sala-chat::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: var(--sala-primary);
+  box-shadow: 0 0 20px var(--sala-primary), 0 0 40px var(--sala-primary);
+  animation: neonPulse 1.5s ease-in-out infinite;
+  z-index: 10;
+  pointer-events: none;
+}
+@keyframes neonPulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+
+/* Línea de cinta adhesiva (1990, 1993) */
+.rs-sala-page[data-tema="1990"] .rs-sala-topbar,
+.rs-sala-page[data-tema="1993"] .rs-sala-topbar {
+  border-bottom: 4px dashed rgba(255, 255, 255, 0.1) !important;
+  border-top: 4px dashed rgba(255, 255, 255, 0.1) !important;
+  background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.02) 10px, rgba(255,255,255,0.02) 12px) !important;
+}
+
+/* ── 3. SOMBRAS DE TEXTO EXAGERADAS (PARA EL AÑO) ── */
+.rs-sala-page[data-tema="1992"] .rs-sala-year__number {
+  text-shadow: 0 0 10px #ffdd00, 0 0 20px #ffdd00, 0 0 40px #00ff88, 0 0 80px #00ff88 !important;
+}
+.rs-sala-page[data-tema="2002"] .rs-sala-year__number {
+  text-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700, 0 0 40px #fff, 0 0 80px #ffd700 !important;
+}
+
+/* ── 4. EFECTO "SCANLINES" (LÍNEAS DE ESCANEO) EN TODA LA PANTALLA ── */
+/* Añadimos líneas de escaneo sutiles a todas las salas para efecto retro */
+.rs-sala-page::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 999;
+  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
+  animation: scanlinesMove 8s linear infinite;
+  opacity: 0.3;
+}
+@keyframes scanlinesMove {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(4px); }
+}
+
+/* ── 5. EFECTO DE VIGNETA (ESQUINAS OSCURAS) ── */
+.rs-sala-layout {
+  position: relative;
+}
+.rs-sala-layout::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 4;
+  background: radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.6) 100%);
+}
+
+/* ── 6. TAMAÑOS DE TEXTO Y FUENTES EXTREMAS ── */
+.rs-sala-page[data-tema="1994"] .rs-sala-year__number {
+  font-size: 6rem !important;
+  font-weight: 900 !important;
+  letter-spacing: 5px !important;
+}
+.rs-sala-page[data-tema="1998"] .rs-sala-year__number {
+  font-size: 4rem !important;
+  font-weight: 100 !important;
+  letter-spacing: -2px !important;
+}
+.rs-sala-page[data-tema="2000"] .rs-sala-year__number {
+  font-family: 'Impact', sans-serif !important;
+  letter-spacing: 2px !important;
+}
+
+
+
+
+
+/* ══════════════════════════════════════════════════
+   NIVEL DIOS: EFECTOS MULTICOLOR Y TEXTURAS EXTREMAS
+   ══════════════════════════════════════════════════ */
+
+/* ── 1991: NEÓN URBANO (ROSA + AZUL) ── */
+.rs-sala-page[data-tema="1991"] {
+  --sala-primary: #ff0080;
+  --sala-secondary: #00d4ff;
+}
+/* Líneas verticales de neón en el fondo del chat */
+.rs-sala-page[data-tema="1991"] .rs-sala-chat {
+  background: repeating-linear-gradient(90deg, 
+    rgba(0, 212, 255, 0.03) 0px, 
+    rgba(255, 0, 128, 0.03) 50px, 
+    transparent 100px
+  ) !important;
+}
+/* Texto del año con doble brillo */
+.rs-sala-page[data-tema="1991"] .rs-sala-year__number {
+  background: linear-gradient(135deg, #ff0080 0%, #00d4ff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 30px rgba(255,0,128,0.5), 0 0 30px rgba(0,212,255,0.5) !important;
+  opacity: 1 !important;
+}
+
+/* ── 1992: RAVE ANALÓGICO (VERDE + AMARILLO) ── */
+.rs-sala-page[data-tema="1992"] {
+  --sala-primary: #00ff88;
+  --sala-secondary: #ffdd00;
+}
+/* Patrón de ondas en el fondo del chat */
+.rs-sala-page[data-tema="1992"] .rs-sala-chat {
+  background: repeating-radial-gradient(circle at 50% 50%, 
+    rgba(0, 255, 136, 0.03) 0px, 
+    rgba(255, 221, 0, 0.03) 30px, 
+    transparent 60px
+  ) !important;
+}
+/* Texto del año con efecto de neón verde y amarillo */
+.rs-sala-page[data-tema="1992"] .rs-sala-year__number {
+  text-shadow: 0 0 20px #00ff88, 0 0 40px #ffdd00, 0 0 80px #00ff88 !important;
+  color: #ffdd00 !important;
+  opacity: 1 !important;
+}
+/* Bordes de los paneles laterales bicolor */
+.rs-sala-page[data-tema="1992"] .rs-sala-users {
+  border-right: 3px solid #00ff88 !important;
+}
+.rs-sala-page[data-tema="1992"] .rs-sala-navegador {
+  border-left: 3px solid #ffdd00 !important;
+}
+
+/* ── 1994: POP MAXIMALISTA (ROJO + AMARILLO) ── */
+.rs-sala-page[data-tema="1994"] {
+  --sala-primary: #e63946;
+  --sala-secondary: #ffb703;
+}
+/* Fondo del chat con cuadrícula de cómic */
+.rs-sala-page[data-tema="1994"] .rs-sala-chat {
+  background-image: 
+    linear-gradient(rgba(230, 57, 70, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 183, 3, 0.05) 1px, transparent 1px) !important;
+  background-size: 40px 40px !important;
+}
+/* Texto del año ENORME y cuadrado */
+.rs-sala-page[data-tema="1994"] .rs-sala-year__number {
+  font-size: 7rem !important;
+  font-weight: 900 !important;
+  letter-spacing: 10px !important;
+  color: #e63946 !important;
+  text-shadow: 6px 6px 0 #ffb703, 10px 10px 0 rgba(0,0,0,0.5) !important;
+  opacity: 1 !important;
+}
+
+/* ── 2000: BUBBLEGUM POP (ROSA + AZUL CIELO) ── */
+.rs-sala-page[data-tema="2000"] {
+  --sala-primary: #ff6bcd;
+  --sala-secondary: #87ceeb;
+}
+/* Fondo del chat con cuadrícula de lunares */
+.rs-sala-page[data-tema="2000"] .rs-sala-chat {
+  background-image: radial-gradient(#ff6bcd 1px, transparent 1px) !important;
+  background-size: 30px 30px !important;
+  background-position: 0 0 !important;
+}
+/* Texto con fuente de "título de película" */
+.rs-sala-page[data-tema="2000"] .rs-sala-year__number {
+  font-family: 'Impact', sans-serif !important;
+  letter-spacing: 2px !important;
+  color: #ff6bcd !important;
+  text-shadow: 4px 4px 0 #87ceeb, 6px 6px 0 rgba(255,255,255,0.3) !important;
+  opacity: 1 !important;
+}
+/* Bordes de paneles laterales con degradado */
+.rs-sala-page[data-tema="2000"] .rs-sala-users {
+  border-right: 3px solid #ff6bcd !important;
+}
+.rs-sala-page[data-tema="2000"] .rs-sala-navegador {
+  border-left: 3px solid #87ceeb !important;
+}
+
+/* ── 2006: SCENE EXTREMA (ROSA + AMARILLO + NEGRO) ── */
+.rs-sala-page[data-tema="2006"] {
+  --sala-primary: #ff1493;
+  --sala-secondary: #ffd700;
+}
+/* Patrón de rayas de cebra en el chat */
+.rs-sala-page[data-tema="2006"] .rs-sala-chat {
+  background: repeating-linear-gradient(
+    -45deg, 
+    rgba(255, 20, 147, 0.05) 0px, 
+    rgba(255, 20, 147, 0.05) 20px, 
+    rgba(255, 215, 0, 0.05) 20px, 
+    rgba(255, 215, 0, 0.05) 40px
+  ) !important;
+}
+/* Texto del año con efecto "kawaii" extremo */
+.rs-sala-page[data-tema="2006"] .rs-sala-year__number {
+  font-family: 'Comic Sans MS', cursive, sans-serif !important;
+  color: #ff1493 !important;
+  text-shadow: 4px 4px 0 #ffd700, 6px 6px 0 #000 !important;
+  opacity: 1 !important;
+}
+/* Bordes de paneles laterales gruesos bicolor */
+.rs-sala-page[data-tema="2006"] .rs-sala-users {
+  border-right: 4px solid #ff1493 !important;
+}
+.rs-sala-page[data-tema="2006"] .rs-sala-navegador {
+  border-left: 4px solid #ffd700 !important;
+}
+
+/* ── 2009: CYBERPUNK (AZUL + NARANJA) ── */
+.rs-sala-page[data-tema="2009"] {
+  --sala-primary: #0077ff;
+  --sala-secondary: #ff6b00;
+}
+/* Fondo con líneas de código futurista */
+.rs-sala-page[data-tema="2009"] .rs-sala-chat {
+  background: repeating-linear-gradient(0deg, 
+    rgba(0, 119, 255, 0.02) 0px, 
+    rgba(255, 107, 0, 0.02) 20px, 
+    transparent 40px
+  ) !important;
+}
+/* Texto del año con doble sombra de neón */
+.rs-sala-page[data-tema="2009"] .rs-sala-year__number {
+  text-shadow: 0 0 20px #0077ff, 0 0 40px #ff6b00, 0 0 80px #0077ff !important;
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+/* ── 2002: BLING BLING (DORADO) ── */
+/* Le damos un brillo dorado extremo al texto */
+.rs-sala-page[data-tema="2002"] .rs-sala-year__number {
+  background: linear-gradient(135deg, #ffd700 0%, #fff 50%, #ffd700 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 40px rgba(255, 215, 0, 0.8), 0 0 80px rgba(255, 215, 0, 0.6) !important;
+  opacity: 1 !important;
+}
+/* Borde dorado parpadeante en el chat */
+.rs-sala-page[data-tema="2002"] .rs-sala-chat {
+  border-left: 2px solid #ffd700 !important;
+  border-right: 2px solid #ffd700 !important;
+  box-shadow: inset 0 0 40px rgba(255, 215, 0, 0.1) !important;
+}
+
+/* ── 1995: EURODANCE GALÁCTICO (PLATEADO + MORADO) ── */
+/* Efecto de estrellas parpadeantes en el texto */
+.rs-sala-page[data-tema="1995"] .rs-sala-year__number {
+  background: linear-gradient(135deg, #c0c0c0 0%, #9b59b6 50%, #c0c0c0 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 0 30px rgba(192, 192, 192, 0.5) !important;
+  opacity: 1 !important;
+}
+
+/* ── 2008: ELECTRO HOUSE (VERDE + MORADO) ── */
+.rs-sala-page[data-tema="2008"] .rs-sala-year__number {
+  text-shadow: 0 0 20px #39ff14, 0 0 40px #9b30ff, 0 0 80px #39ff14 !important;
+  color: #ffffff !important;
+  opacity: 1 !important;
+}
+.rs-sala-page[data-tema="2008"] .rs-sala-users {
+  border-right: 3px solid #39ff14 !important;
+}
+.rs-sala-page[data-tema="2008"] .rs-sala-navegador {
+  border-left: 3px solid #9b30ff !important;
+}
+
+/* ══════════════════════════════════════════════════
+   AJUSTE FINAL: FUENTES Y TAMAÑOS EXTREMOS
+   ══════════════════════════════════════════════════ */
+
+/* Aseguramos que los textos de los años tengan el tamaño y peso adecuados */
+.rs-sala-year__number {
+  transition: all 0.5s ease !important;
+  line-height: 1 !important;
+  display: block !important;
+}
+
+/* Si alguna sala tiene el año muy pequeño, lo forzamos a grande */
+.rs-sala-page[data-tema="1991"] .rs-sala-year__number,
+.rs-sala-page[data-tema="1992"] .rs-sala-year__number,
+.rs-sala-page[data-tema="1993"] .rs-sala-year__number,
+.rs-sala-page[data-tema="1995"] .rs-sala-year__number,
+.rs-sala-page[data-tema="1996"] .rs-sala-year__number,
+.rs-sala-page[data-tema="1997"] .rs-sala-year__number,
+.rs-sala-page[data-tema="1998"] .rs-sala-year__number,
+.rs-sala-page[data-tema="1999"] .rs-sala-year__number,
+.rs-sala-page[data-tema="2001"] .rs-sala-year__number,
+.rs-sala-page[data-tema="2003"] .rs-sala-year__number,
+.rs-sala-page[data-tema="2005"] .rs-sala-year__number,
+.rs-sala-page[data-tema="2007"] .rs-sala-year__number,
+.rs-sala-page[data-tema="2009"] .rs-sala-year__number {
+  font-size: 5rem !important;
+}
+
+
+
+/* ══════════════════════════════════════════════════
+   MEGA PARCHE FINAL: CORRECCIÓN DE SALAS "MEH"
+   ══════════════════════════════════════════════════ */
+
+/* ── 1993: DARKWAVE (MORADO OSCURO + HUMO GÓTICO) ── */
+.rs-sala-page[data-tema="1993"] .rs-sala-chat {
+  background: radial-gradient(ellipse at center, rgba(80, 20, 120, 0.2) 0%, transparent 70%) !important;
+}
+.rs-sala-page[data-tema="1993"] .rs-sala-year__number {
+  font-family: 'Georgia', serif !important;
+  color: #a78bfa !important;
+  text-shadow: 0 0 15px #7c3aed, 0 0 40px #4a1a6b, 0 0 80px #000 !important;
+  opacity: 0.6 !important;
+  font-size: 4.5rem !important;
+}
+.rs-sala-page[data-tema="1993"] .rs-sala-layout {
+  border: 2px solid rgba(124, 58, 237, 0.3) !important;
+  box-shadow: inset 0 0 100px rgba(0,0,0,0.9) !important;
+}
+
+/* ── 1995: EURODANCE GALÁCTICO (PLATEADO + MORADO + ESTRELLAS) ── */
+.rs-sala-page[data-tema="1995"] .rs-sala-chat {
+  background-image: 
+    radial-gradient(circle at 20% 20%, rgba(255,255,255,0.05) 1px, transparent 1px),
+    radial-gradient(circle at 80% 80%, rgba(155, 89, 182, 0.05) 1px, transparent 1px) !important;
+  background-size: 100px 100px, 150px 150px !important;
+}
+.rs-sala-page[data-tema="1995"] .rs-sala-year__number {
+  color: #e0e0e0 !important;
+  text-shadow: 0 0 20px #fff, 0 0 40px #c0c0c0, 0 0 80px #9b59b6 !important;
+  opacity: 1 !important;
+  font-family: 'Inter', sans-serif !important;
+}
+
+/* ── 1996: MTV GOLDEN AGE (ROJO + NARANJA + ESTÁTICA) ── */
+.rs-sala-page[data-tema="1996"] .rs-sala-chat {
+  background: repeating-linear-gradient(
+    -45deg, 
+    rgba(255, 59, 48, 0.05) 0px, 
+    rgba(255, 59, 48, 0.05) 5px, 
+    rgba(255, 149, 0, 0.05) 5px, 
+    rgba(255, 149, 0, 0.05) 10px
+  ) !important;
+}
+.rs-sala-page[data-tema="1996"] .rs-sala-year__number {
+  color: #ff3b30 !important;
+  text-shadow: 0 0 20px #ff3b30, 0 0 60px #ff9500 !important;
+  opacity: 1 !important;
+  font-size: 6rem !important;
+  font-weight: 900 !important;
+}
+
+/* ── 2001: NU-METAL (NARANJA QUEMADO + GRIS METÁLICO) ── */
+.rs-sala-page[data-tema="2001"] .rs-sala-chat {
+  background: 
+    linear-gradient(135deg, rgba(204, 119, 34, 0.1) 0%, transparent 50%, rgba(136, 136, 136, 0.1) 100%),
+    url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cline x1='0' y1='0' x2='60' y2='60' stroke='rgba(136,136,136,0.05)' stroke-width='1'/%3E%3Cline x1='0' y1='30' x2='60' y2='90' stroke='rgba(204,119,34,0.05)' stroke-width='1'/%3E%3C/svg%3E") !important;
+  background-size: 100% 100%, 60px 60px !important;
+}
+.rs-sala-page[data-tema="2001"] .rs-sala-year__number {
+  color: #cc7722 !important;
+  text-shadow: 0 0 15px #cc7722, 0 0 30px #888888 !important;
+  opacity: 0.9 !important;
+  font-family: 'Arial Black', sans-serif !important;
+}
+
+/* ── 2005: MYSPACE SCENE (ROSA NEÓN + ESTRELLAS) ── */
+.rs-sala-page[data-tema="2005"] .rs-sala-chat {
+  background-image: 
+    radial-gradient(circle at 20% 50%, rgba(255, 0, 204, 0.1) 0%, transparent 60%),
+    radial-gradient(circle at 80% 50%, rgba(0, 255, 204, 0.05) 0%, transparent 60%),
+    url("data:image/svg+xml,%3Csvg width='60' height='60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolygon points='30,5 35,20 50,20 38,30 42,45 30,35 18,45 22,30 10,20 25,20' fill='rgba(255,0,204,0.05)'/%3E%3C/svg%3E") !important;
+  background-size: 100% 100%, 100% 100%, 60px 60px !important;
+}
+.rs-sala-page[data-tema="2005"] .rs-sala-year__number {
+  color: #ff00cc !important;
+  text-shadow: 0 0 20px #ff00cc, 0 0 40px #ff00cc, 0 0 80px #00ffcc !important;
+  opacity: 1 !important;
+}
+.rs-sala-page[data-tema="2005"] .rs-sala-users {
+  border-right: 4px solid #ff00cc !important;
+}
+.rs-sala-page[data-tema="2005"] .rs-sala-navegador {
+  border-left: 4px solid #00ffcc !important;
+}
+
+/* ── 2007: FRUTIGER AERO (CIAN BRILLANTE + BURBUJAS) ── */
+.rs-sala-page[data-tema="2007"] .rs-sala-chat {
+  background-image: 
+    radial-gradient(circle at 10% 10%, rgba(0, 204, 255, 0.1) 0%, transparent 40%),
+    radial-gradient(circle at 90% 90%, rgba(51, 221, 255, 0.05) 0%, transparent 40%),
+    url("data:image/svg+xml,%3Csvg width='120' height='120' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='30' cy='30' r='15' fill='none' stroke='rgba(0,204,255,0.1)' stroke-width='2'/%3E%3Ccircle cx='80' cy='80' r='10' fill='none' stroke='rgba(51,221,255,0.1)' stroke-width='2'/%3E%3C/svg%3E") !important;
+  background-size: 100% 100%, 100% 100%, 120px 120px !important;
+}
+.rs-sala-page[data-tema="2007"] .rs-sala-year__number {
+  color: #00ccff !important;
+  text-shadow: 0 0 20px #00ccff, 0 0 40px #33ddff, 0 0 80px #66ddff !important;
+  opacity: 1 !important;
+  font-family: 'Segoe UI', sans-serif !important;
+  font-weight: 300 !important;
+}
+.rs-sala-page[data-tema="2007"] .rs-sala-layout {
+  border: 3px solid #00ccff !important;
+  box-shadow: 0 0 40px rgba(0, 204, 255, 0.3), inset 0 0 50px rgba(0, 204, 255, 0.1) !important;
+}
+
+/* ── 1999: BOYBAND MANIA (AZUL HIELO + PLATEADO) ── */
+/* Forzamos que 1999 sea DIFERENTE a 1995 */
+.rs-sala-page[data-tema="1999"] .rs-sala-chat {
+  background: linear-gradient(180deg, rgba(184, 198, 219, 0.05) 0%, rgba(255, 255, 255, 0.02) 50%, rgba(184, 198, 219, 0.05) 100%) !important;
+  box-shadow: inset 0 0 100px rgba(184, 198, 219, 0.05) !important;
+}
+.rs-sala-page[data-tema="1999"] .rs-sala-year__number {
+  color: #b8c6db !important;
+  text-shadow: 0 0 10px #fff, 0 0 20px #b8c6db, 0 0 40px #8ba3c7 !important;
+  opacity: 0.9 !important;
+  font-family: 'Inter', sans-serif !important;
+  letter-spacing: 3px !important;
+}
+
+/* ── 2004: MSN MESSENGER (AZUL + BURBUJAS) ── */
+/* Diferenciamos 2004 de 2007 */
+.rs-sala-page[data-tema="2004"] .rs-sala-chat {
+  background: 
+    radial-gradient(circle at 50% 50%, rgba(0, 168, 232, 0.05) 0%, transparent 50%),
+    url("data:image/svg+xml,%3Csvg width='80' height='80' xmlns='http://www.w3.org/2000/svg'%3E%3Cellipse cx='20' cy='40' rx='8' ry='6' fill='rgba(0,168,232,0.05)'/%3E%3C/svg%3E") !important;
+  background-size: 100% 100%, 80px 80px !important;
+}
+.rs-sala-page[data-tema="2004"] .rs-sala-year__number {
+  color: #00a8e8 !important;
+  text-shadow: 0 0 15px #00a8e8, 0 0 30px #00b4d8 !important;
+  opacity: 0.9 !important;
+  font-family: 'Comic Sans MS', cursive, sans-serif !important;
+}
+
+/* ── 1997: SITCOMS (MARRÓN + CAFÉ) ── */
+/* Hacemos que 1997 tenga un toque más cálido y café */
+.rs-sala-page[data-tema="1997"] .rs-sala-chat {
+  background: radial-gradient(circle at 30% 30%, rgba(212, 163, 115, 0.05) 0%, transparent 60%) !important;
+}
+.rs-sala-page[data-tema="1997"] .rs-sala-year__number {
+  font-family: 'Georgia', serif !important;
+  color: #d4a373 !important;
+  text-shadow: 0 0 15px rgba(212, 163, 115, 0.5) !important;
+  opacity: 0.8 !important;
+}
+
+
+
+
+/* ══════════════════════════════════════════════════
+   PARCHE DE PRECISIÓN: 1993, 1997, 2003 (FINAL)
+   ══════════════════════════════════════════════════ */
+
+/* ── 1993: DARKWAVE (HUMO + ÁNGEL) ── */
+/* Creamos el efecto de humo en los bordes del chat */
+.rs-sala-page[data-tema="1993"] .rs-sala-chat {
+  box-shadow: 
+    inset 0 -50px 80px rgba(26, 4, 42, 0.9),  /* Humo abajo */
+    inset 0 50px 80px rgba(26, 4, 42, 0.9)    /* Humo arriba */
+  !important;
+  background: radial-gradient(ellipse at center, rgba(40, 10, 60, 0.1) 0%, rgba(10, 4, 16, 0.8) 100%) !important;
+}
+/* Brillo fantasmal en el texto del año */
+.rs-sala-page[data-tema="1993"] .rs-sala-year__number {
+  color: #9b6dff !important;
+  text-shadow: 
+    0 0 5px #7c3aed, 
+    0 0 15px #7c3aed, 
+    0 0 30px #4a1a6b, 
+    0 0 60px rgba(124, 58, 237, 0.4) 
+  !important;
+  font-size: 4.5rem !important;
+  opacity: 0.8 !important;
+}
+/* Hacemos que el panel lateral izquierdo tenga el humo */
+.rs-sala-page[data-tema="1993"] .rs-sala-users {
+  background: linear-gradient(to bottom, rgba(10, 4, 16, 1), rgba(26, 4, 42, 0.8)) !important;
+}
+
+/* ── 1997: SITCOMS (MADERA + CAFÉ) ── */
+/* Añadimos la textura de madera/café al fondo del chat */
+.rs-sala-page[data-tema="1997"] .rs-sala-chat {
+  background-image: 
+    url("data:image/svg+xml,%3Csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.5' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.15'/%3E%3C/svg%3E"),
+    radial-gradient(circle at 30% 30%, rgba(212, 163, 115, 0.1) 0%, transparent 60%) 
+  !important;
+  background-size: 200px 200px, 100% 100% !important;
+}
+/* Texto con efecto de "taza de café" */
+.rs-sala-page[data-tema="1997"] .rs-sala-year__number {
+  font-family: 'Georgia', serif !important;
+  color: #e8c39e !important;
+  text-shadow: 2px 2px 0 #5c3a21, 4px 4px 0 #000 !important;
+  opacity: 0.85 !important;
+}
+/* Borde con efecto de cinta adhesiva en el layout */
+.rs-sala-page[data-tema="1997"] .rs-sala-layout {
+  border: 4px solid #d4a373 !important;
+  border-style: dashed !important;
+  border-radius: 4px !important;
+  box-shadow: inset 0 0 80px rgba(0,0,0,0.6) !important;
+}
+
+/* ── 2003: EMO (TERCIOPELO MANCHADO + ROJO SANGRE) ── */
+/* Fondo con textura de "sangre/terciopelo" */
+.rs-sala-page[data-tema="2003"] .rs-sala-chat {
+  background: 
+    radial-gradient(ellipse at 20% 20%, rgba(139, 0, 0, 0.3) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 80%, rgba(100, 0, 0, 0.2) 0%, transparent 50%),
+    repeating-linear-gradient(45deg, rgba(20, 0, 0, 0.1) 0px, rgba(20, 0, 0, 0.1) 2px, transparent 2px, transparent 4px)
+  !important;
+}
+/* Texto con efecto "gótico/emo" extremo */
+.rs-sala-page[data-tema="2003"] .rs-sala-year__number {
+  font-family: 'Georgia', serif !important;
+  color: #cc2222 !important;
+  text-shadow: 
+    0 0 10px #8b0000, 
+    0 0 20px #8b0000, 
+    0 0 40px #ff0000,
+    4px 4px 0 #000 
+  !important;
+  opacity: 0.7 !important;
+  font-size: 4.5rem !important;
+}
+/* Panel izquierdo con tono más rojo */
+.rs-sala-page[data-tema="2003"] .rs-sala-users {
+  background: linear-gradient(to right, rgba(30, 0, 0, 1), rgba(10, 4, 4, 1)) !important;
+}
+/* Borde del layout rojo sangre */
+.rs-sala-page[data-tema="2003"] .rs-sala-layout {
+  border: 3px solid #8b0000 !important;
+  box-shadow: inset 0 0 80px rgba(139, 0, 0, 0.2) !important;
+}
+
+
+
 
 /* ══════════════════════════════════════════════════
    RESPONSIVE
    ══════════════════════════════════════════════════ */
-
 @media (max-width: 1024px) {
   .rs-sala-users { width: 200px; min-width: 160px; }
+  .rs-sala-navegador { width: 170px; min-width: 130px; }
   .rs-sala-year__number { font-size: 3.5rem; }
 }
 @media (max-width: 820px) {
   .rs-sala-users { width: 170px; min-width: 140px; }
+  .rs-sala-navegador { display: none; }
   .rs-sala-year__number { font-size: 3rem; }
   .rs-sala-year { padding: 1rem 1.5rem 0.8rem 1.5rem; min-height: 80px; }
 }
@@ -1857,11 +2164,9 @@
   .rs-sala-topbar { padding: 0.5rem 1rem; gap: 0.6rem; flex-wrap: wrap; }
   .rs-sala-topbar__desc { display: none; }
   .rs-sala-auth-banner { padding: 0.5rem 1rem; }
-  .rs-sala-year::after { font-size: 2rem; }
 }
 @media (max-width: 500px) {
   .rs-sala-year__number { font-size: 1.8rem; }
   .rs-sala-topbar__users .rs-sala-topbar__user-label { display: none; }
   .rs-sala-music-btn { width: 32px; height: 32px; font-size: 0.9rem; }
-  .rs-sala-year::after { display: none; }
 }
