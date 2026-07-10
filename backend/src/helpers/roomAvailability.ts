@@ -12,40 +12,24 @@ export const canJoinRoom = (sala: Sala): boolean => {
 
     // ========================
     // FIESTA
-    // Viernes y sábado
-    // 22:00 -> 05:30
+    // Viernes y sábados
+    // 22:00 -> 05:30 (del día siguiente)
     // ========================
 
     case "Fiesta 90s":
     case "Fiesta 2000s":
 
-      // Viernes desde las 22:00
+      // Viernes: de 22:00 a 23:59
       if (day === 5 && hour >= 22) return true;
 
-      // Sábado todo el día hasta las 23:59
-      if (day === 6) return true;
-
-      // Domingo hasta las 05:30
-      if (day === 0 && hour < 6) return true;
-
-      return false;
-
-
-    // ========================
-    // TROPICAL
-    // 21 junio -> 31 agosto
-    // ========================
-
-    case "Tropical 90s":
-    case "Tropical 2000s":
-
-      if (
-        (month === 6 && date >= 21) ||
-        month === 7 ||
-        month === 8
-      ) {
-        return true;
+      // Sábado: de 00:00 a 05:30 (madrugada del sábado, viene del viernes noche)
+      //          Y de 22:00 a 23:59 (sábado noche, va al domingo)
+      if (day === 6) {
+        if (hour < 6 || hour >= 22) return true;
       }
+
+      // Domingo: de 00:00 a 05:30 (madrugada del domingo, viene del sábado noche)
+      if (day === 0 && hour < 6) return true;
 
       return false;
 

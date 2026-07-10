@@ -52,7 +52,7 @@ const specialFeatures: Feature[] = [
   {
     icon: 'bi-star',
     title: 'Salas Especiales',
-    desc: 'Fiesta, Tropical, Navidad... Salas temáticas disponibles en fechas y horarios concretos.',
+    desc: 'Fiesta, Navidad... Salas temáticas disponibles en fechas y horarios concretos.',
     tag: 'Eventos · Temporales',
     accent: 'var(--accent-green)',
   },
@@ -100,7 +100,7 @@ export default function LandingPage(): JSX.Element {
             <span className="rs-stat__label">Salas por año</span>
           </div>
           <div className="rs-stat">
-            <span className="rs-stat__number">8</span>
+            <span className="rs-stat__number">6</span>
             <span className="rs-stat__label">Salas especiales</span>
           </div>
           <div className="rs-stat">

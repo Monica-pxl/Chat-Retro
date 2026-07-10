@@ -11,7 +11,7 @@ interface MensajeUI {
   nickname: string;
   avatar: string | null;
   contenido: string;
-  tipo?: 'texto' | 'imagen' | 'gif' | 'audio'; // Añadido para futuros archivos
+  tipo?: 'texto' | 'imagen' | 'gif' | 'audio';
   fecha: string;
 }
 
@@ -21,7 +21,6 @@ interface UsuarioSala {
   avatar: string | null;
 }
 
-// 🔥 Función para obtener el icono según el año
 function getIconoPorAnio(ano: number): string {
   const iconos: Record<number, string> = {
     1990: 'bi-file-earmark-text',
@@ -73,10 +72,8 @@ export default function SalaPage() {
 
   const salaId = Number(id);
 
-  // Detectar si es sala de TV Shows
   const esTvShow = sala?.tematica?.nombre?.toLowerCase().includes('tv shows') || false;
 
-  /* ── Cargar info + historial ── */
   useEffect(() => {
     const requests: Promise<unknown>[] = [
       salasService.getSalaById(salaId),
@@ -98,7 +95,7 @@ export default function SalaPage() {
             nickname: m.user.nickname,
             avatar: m.user.avatar,
             contenido: m.contenido,
-            tipo: m.tipo || 'texto', // Por si llegan mensajes antiguos sin tipo
+            tipo: m.tipo || 'texto',
             fecha: m.fecha_creacion,
           }))
         );
@@ -110,7 +107,36 @@ export default function SalaPage() {
       .finally(() => setLoading(false));
   }, [salaId, token, isAuthenticated]);
 
-  /* ── Socket ── */
+  /* 🔥 NUEVO: SINCRONIZACIÓN AUTOMÁTICA DEL FILTRO (AÑOS Y TEMÁTICAS) 🔥 */
+  useEffect(() => {
+    if (!sala) return;
+
+    let nuevoFiltro: FiltroNavegador = '90s'; // Por defecto
+
+    if (sala.tipo === 'general_anual' && sala.ano) {
+      // Salas de año (1990, 1991...)
+      if (sala.ano >= 2000 && sala.ano <= 2009) {
+        nuevoFiltro = '2000s';
+      } else if (sala.ano >= 1990 && sala.ano <= 1999) {
+        nuevoFiltro = '90s';
+      }
+    } else if (sala.tipo === 'epoca_estilo' && sala.epoca) {
+      // Salas temáticas (Fiesta, TV Shows...)
+      const epocaId = sala.epoca.id; // 1 = 90s, 2 = 2000s
+      
+      if (epocaId === 2) {
+        nuevoFiltro = 'tematicas2000s';
+      } else if (epocaId === 1) {
+        nuevoFiltro = 'tematicas90s';
+      } else {
+        // Fallback si no tiene época definida (por si acaso)
+        nuevoFiltro = '90s';
+      }
+    }
+
+    setFiltroNavegador(nuevoFiltro);
+  }, [sala]);
+
   useEffect(() => {
     if (!isAuthenticated || !token) return;
 
@@ -153,19 +179,17 @@ export default function SalaPage() {
     };
   }, [salaId, isAuthenticated, token]);
 
-  /* ── Auto-scroll ── */
   useEffect(() => {
     messagesEnd.current?.scrollIntoView({ behavior: 'smooth' });
   }, [mensajes]);
 
-  /* ── Enviar mensaje ── */
   const sendMessage = () => {
     const trimmed = texto.trim();
     if (!trimmed || !socketRef.current) return;
     socketRef.current.emit('send-message', { 
       roomId: salaId, 
       contenido: trimmed,
-      tipo: 'texto' // <-- Importante: enviamos el tipo para que el backend lo sepa
+      tipo: 'texto'
     });
     setTexto('');
     textareaRef.current?.focus();
@@ -178,7 +202,6 @@ export default function SalaPage() {
     }
   };
 
-  /* 🔥 NUEVA FUNCIÓN DE FECHA INTELIGENTE 🔥 */
   const formatFecha = (fechaStr: string) => {
     const fecha = new Date(fechaStr);
     const hoy = new Date();
@@ -209,9 +232,8 @@ export default function SalaPage() {
     setMusicOn(!musicOn);
   };
 
-  /* ── Filtrar salas para el navegador ── */
   const salasFiltradas = salasList.filter(s => {
-    if (s.id === salaId) return false; // Excluir sala actual
+    if (s.id === salaId) return false;
 
     switch (filtroNavegador) {
       case '90s':
@@ -227,7 +249,6 @@ export default function SalaPage() {
     }
   });
 
-  /* ── Loading ── */
   if (loading) {
     return (
       <div className="rs-sala-page rs-sala-page--loading">
@@ -241,7 +262,6 @@ export default function SalaPage() {
     );
   }
 
-  /* ── Error ── */
   if (error || !sala) {
     return (
       <div className="rs-sala-page rs-sala-page--loading">
@@ -258,12 +278,39 @@ export default function SalaPage() {
     );
   }
 
+  /* 🔥 LÓGICA DE NOMBRES CORREGIDA (SOLO FIESTAS) 🔥 */
+  let temaCalculado = 'especial';
+  let textoBarra = '';
+  let esTematica = false;
+
+  if (sala.tipo === 'epoca_estilo' && sala.epoca && sala.tematica) {
+    esTematica = true;
+    let epoca = sala.epoca.nombre?.toLowerCase().replace(/\s/g, '_') || '';
+    const tematica = sala.tematica.nombre?.toLowerCase().replace(/\s/g, '_') || '';
+    
+    if (epoca === '1990-1999') epoca = '90s';
+    if (epoca === '2000-2009') epoca = '2000s';
+    
+    temaCalculado = `${epoca}_${tematica}`;
+    
+    // Texto bonito para la barra
+    if (sala.epoca.nombre === '1990-1999') textoBarra = '1990s';
+    else if (sala.epoca.nombre === '2000-2009') textoBarra = '2000s';
+    else textoBarra = sala.epoca.nombre || '';
+  } else if (sala.ano) {
+    esTematica = false;
+    temaCalculado = sala.ano.toString();
+    textoBarra = sala.ano.toString();
+  }
+
+  console.log('🚀 DIAGNÓSTICO FINAL: Tema:', temaCalculado, ' | Es Temática:', esTematica, ' | Texto:', textoBarra);
+
   return (
-    <div className="rs-sala-page" data-tema={sala.ano?.toString() || 'especial'}>
+    <div className="rs-sala-page" data-tema={temaCalculado}>
+      
       <div className="rs-grid" />
       <AppHeader />
 
-      {/* ── Topbar ── */}
       <div className="rs-sala-topbar">
         <button className="rs-sala-back" onClick={() => navigate('/salas')}>
           <i className="bi bi-arrow-left" />
@@ -277,7 +324,7 @@ export default function SalaPage() {
               <span className="rs-sala-topbar__badge">{sala.ano}</span>
             )}
             {sala.tipo === 'epoca_estilo' && sala.epoca && (
-              <span className="rs-sala-topbar__badge">{sala.epoca.nombre}</span>
+              <span className="rs-sala-topbar__badge">{textoBarra}</span>
             )}
             {sala.tematica && (
               <span className="rs-sala-topbar__badge rs-sala-topbar__badge--sub">
@@ -305,10 +352,8 @@ export default function SalaPage() {
         </div>
       </div>
 
-      {/* ── Layout: 3 columnas ── */}
       <div className="rs-sala-layout">
 
-        {/* Columna 1: Usuarios (izquierda) */}
         <div className="rs-sala-users">
           <div className="rs-sala-users__header">
             <i className="bi bi-people" />
@@ -337,20 +382,22 @@ export default function SalaPage() {
           </div>
         </div>
 
-        {/* Columna 2: Chat (centro) */}
         <div className="rs-sala-chat">
 
-          {/* ── Año grande con icono ── */}
-          {sala.ano && (
-            <div className="rs-sala-year">
-              <span className="rs-sala-year__number">{sala.ano}</span>
-              <span className="rs-sala-year__icon">
-                <i className={`bi ${getIconoPorAnio(sala.ano)}`} />
-              </span>
+          {/* 🔥 BARRA DEL AÑO: SOLO SE PINTA SI NO ES TV SHOW 🔥 */}
+          {!esTvShow && (
+            <div className={`rs-sala-year ${esTematica ? 'rs-sala-year--tematica' : ''}`}>
+              <span className="rs-sala-year__number">{textoBarra}</span>
+              
+              {/* Icono SOLO si NO es temática */}
+              {!esTematica && sala.ano && (
+                <span className="rs-sala-year__icon">
+                  <i className={`bi ${getIconoPorAnio(sala.ano)}`} />
+                </span>
+              )}
             </div>
           )}
 
-          {/* ── Pantalla de TV (solo para salas TV Shows) ── */}
           {esTvShow && (
             <div className="rs-sala-tv">
               <div className="rs-sala-tv__screen">
@@ -372,7 +419,6 @@ export default function SalaPage() {
             </div>
           )}
 
-          {/* ── Área de mensajes ── */}
           <div className={`rs-sala-messages ${esTvShow ? 'rs-sala-messages--with-tv' : ''}`}>
             {mensajes.length === 0 ? (
               <div className="rs-sala-empty">
@@ -388,7 +434,6 @@ export default function SalaPage() {
                     key={idx}
                     className={`rs-msg${isOwn ? ' rs-msg--own' : ' rs-msg--other'}`}
                   >
-                    {/* 🔥 AVATAR Y NOMBRE SIEMPRE VISIBLES PARA TODOS 🔥 */}
                     <div className="rs-msg__avatar" title={msg.nickname}>
                       {msg.nickname.charAt(0).toUpperCase()}
                     </div>
@@ -398,26 +443,8 @@ export default function SalaPage() {
                         <span className="rs-msg__nick">{msg.nickname}</span>
                       </div>
 
-                      {/* 
-                        ⚠️ RENDERIZADO DE IMÁGENES (COMENTADO HASTA QUE TENGAS EL BACKEND LISTO)
-                        Cuando hagas el backend para subir archivos, descomenta esto y borra el div de abajo:
-                      
-                      {msg.tipo === 'imagen' || msg.tipo === 'gif' ? (
-                        <div className="rs-msg__bubble rs-msg__bubble--media">
-                          <img 
-                            src={msg.contenido} 
-                            alt="Contenido multimedia" 
-                            style={{ maxWidth: '100%', maxHeight: '300px', borderRadius: '4px', display: 'block' }} 
-                          />
-                        </div>
-                      ) : (
-                        <div className="rs-msg__bubble">{msg.contenido}</div>
-                      )} */}
-
-                      {/* 🔥 POR AHORA SOLO TEXTO FUNCIONANDO 🔥 */}
                       <div className="rs-msg__bubble">{msg.contenido}</div>
 
-                      {/* 🔥 FECHA INTELIGENTE 🔥 */}
                       <span className="rs-msg__time">{formatFecha(msg.fecha)}</span>
                     </div>
                   </div>
@@ -427,7 +454,6 @@ export default function SalaPage() {
             <div ref={messagesEnd} />
           </div>
 
-          {/* ── Input área ── */}
           {isAuthenticated ? (
             <div className="rs-sala-input-area">
               {roomError && (
@@ -436,7 +462,6 @@ export default function SalaPage() {
                 </div>
               )}
               <div className="rs-sala-input-row">
-                {/* 🔥 BOTÓN DE ADJUNTAR (YA PREPARADO PARA EL FUTURO) 🔥 */}
                 <button className="rs-sala-attach-btn" title="Subir imagen o GIF">
                   <i className="bi bi-paperclip" />
                 </button>
@@ -478,14 +503,12 @@ export default function SalaPage() {
           )}
         </div>
 
-        {/* ── Columna 3: Navegador de salas (derecha) ── */}
         <div className="rs-sala-navegador">
           <div className="rs-sala-navegador__header">
             <i className="bi bi-grid-3x3-gap-fill" />
             <span>Cambiar sala</span>
           </div>
 
-          {/* ── Filtros del navegador ── */}
           <div className="rs-sala-navegador__filtros">
             <button
               className={`rs-sala-navegador__filtro ${filtroNavegador === '90s' ? 'rs-sala-navegador__filtro--active' : ''}`}
@@ -513,7 +536,6 @@ export default function SalaPage() {
             </button>
           </div>
 
-          {/* ── Lista de salas filtradas ── */}
           <div className="rs-sala-navegador__list">
             {salasFiltradas.length === 0 ? (
               <div className="rs-sala-navegador__empty">
