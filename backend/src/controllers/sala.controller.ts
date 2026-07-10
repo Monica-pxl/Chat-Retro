@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
+import { getRoomCount } from "../helpers/roomStore";
 
 const prisma = new PrismaClient();
 
@@ -117,4 +118,13 @@ export const getSalaById = async (req: Request, res: Response) => {
       error: "Error al obtener la sala",
     });
   }
+};
+
+/* ================================
+   USUARIOS ONLINE EN UNA SALA
+================================ */
+export const getOnlineCount = (req: Request, res: Response) => {
+  const id = Number(req.params.id);
+  if (isNaN(id)) return res.status(400).json({ error: "ID inválido" });
+  return res.json({ count: getRoomCount(id) });
 };

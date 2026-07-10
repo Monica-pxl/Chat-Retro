@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import { JWT_SECRET } from "../config/jwt";
 import { PrismaClient } from "@prisma/client";
 import { canJoinRoom } from "../helpers/roomAvailability";
+import { setRoomCount, getRoomCount } from "../helpers/roomStore";
 
 const prisma = new PrismaClient();
 
@@ -10,6 +11,46 @@ const onlineUsers = new Map<number, string>();
 
 interface AuthSocket extends Socket {
   user?: any;
+}
+
+/**
+ * 🔥 NUEVA FUNCIÓN: Obtiene los usuarios conectados a una sala y emite la lista
+ */
+async function emitRoomUsers(io: Server, roomId: number, roomName: string) {
+  try {
+    // Obtener los sockets en la sala
+    const roomSockets = await io.in(roomName).fetchSockets();
+
+    // Obtener los userIds de los sockets
+    const userIds: number[] = [];
+    for (const sock of roomSockets) {
+      const userId = (sock as any).user?.userId;
+      if (userId) {
+        userIds.push(userId);
+      }
+    }
+
+    if (userIds.length === 0) {
+      io.to(roomName).emit("room-users", { users: [] });
+      return;
+    }
+
+    // Buscar los usuarios en la base de datos
+    const users = await prisma.user.findMany({
+      where: {
+        id: { in: userIds },
+      },
+      select: {
+        id: true,
+        nickname: true,
+        avatar: true,
+      },
+    });
+
+    io.to(roomName).emit("room-users", { users });
+  } catch (error) {
+    console.error("Error al obtener usuarios de la sala:", error);
+  }
 }
 
 export const socketHandler = (io: Server) => {
@@ -50,7 +91,23 @@ export const socketHandler = (io: Server) => {
 
     io.emit("online-users", Array.from(onlineUsers.keys()));
 
-    // 🔴 desconexión
+    // 🔴 disconnecting: el socket AÚN está en las salas
+    socket.on("disconnecting", () => {
+      for (const roomName of socket.rooms) {
+        if (roomName.startsWith("room-")) {
+          const roomId = Number(roomName.replace("room-", ""));
+          const currentSize = io.sockets.adapter.rooms.get(roomName)?.size ?? 1;
+          const newCount = Math.max(0, currentSize - 1);
+          setRoomCount(roomId, newCount);
+          io.to(roomName).emit("room-user-count", { count: newCount });
+          
+          // 🔥 ACTUALIZAR LISTA DE USUARIOS
+          emitRoomUsers(io, roomId, roomName);
+        }
+      }
+    });
+
+    // 🔴 disconnect: socket.rooms ya está vacío aquí
     socket.on("disconnect", () => {
       const userId = socket.user?.userId;
 
@@ -71,7 +128,7 @@ export const socketHandler = (io: Server) => {
       io.emit("online-users", Array.from(onlineUsers.keys()));
     });
 
-    // 🚪 join-room
+    // 🚪 join-room - CORREGIDO
     socket.on("join-room", async (roomId: number) => {
       try {
         const sala = await prisma.sala.findUnique({
@@ -101,13 +158,21 @@ export const socketHandler = (io: Server) => {
 
         const roomName = `room-${roomId}`;
 
+        // 🔥 1. UNIRSE PRIMERO
         if (!socket.rooms.has(roomName)) {
           socket.join(roomName);
         }
 
-        socket.emit("joined-room", {
-          roomId,
-        });
+        // 🔥 2. EMITIR QUE SE UNIÓ
+        socket.emit("joined-room", { roomId });
+
+        // 🔥 3. CALCULAR TAMAÑO REAL Y EMITIR A TODOS
+        const roomSize = io.sockets.adapter.rooms.get(roomName)?.size ?? 1;
+        setRoomCount(roomId, roomSize);
+        io.to(roomName).emit("room-user-count", { count: roomSize });
+
+        // 🔥 4. ENVIAR LA LISTA DE USUARIOS EN LA SALA
+        await emitRoomUsers(io, roomId, roomName);
 
       } catch {
         socket.emit("room-error", {
@@ -116,19 +181,27 @@ export const socketHandler = (io: Server) => {
       }
     });
 
-    // 🚶 leave-room
+    // 🚶 leave-room - CORREGIDO
     socket.on("leave-room", (roomId: number) => {
 
       const roomName = `room-${roomId}`;
 
+      // 🔥 1. SALIR PRIMERO
       socket.leave(roomName);
 
-      socket.emit("left-room", {
-        roomId,
-      });
+      // 🔥 2. EMITIR QUE SALIÓ
+      socket.emit("left-room", { roomId });
+
+      // 🔥 3. CALCULAR TAMAÑO REAL Y EMITIR A LOS QUE QUEDAN
+      const roomSize = io.sockets.adapter.rooms.get(roomName)?.size ?? 0;
+      setRoomCount(roomId, roomSize);
+      io.to(roomName).emit("room-user-count", { count: roomSize });
+
+      // 🔥 4. ACTUALIZAR LA LISTA DE USUARIOS
+      emitRoomUsers(io, roomId, roomName);
     });
 
-    // � private-message
+    // 💬 private-message
     socket.on(
       "private-message",
       async ({ destinatarioId, contenido }: { destinatarioId: number; contenido: string }) => {
@@ -187,7 +260,7 @@ export const socketHandler = (io: Server) => {
       }
     );
 
-    // �💬 send-message
+    // 💬 send-message
     socket.on(
       "send-message",
       async ({ roomId, contenido }: { roomId: number; contenido: string }) => {
@@ -255,4 +328,4 @@ export const socketHandler = (io: Server) => {
       }
     );
   });
-}
+};

@@ -23,6 +23,9 @@ export default function AppHeader() {
         </Link>
 
         <nav className="rs-header__nav">
+          <Link to="/salas" className="rs-btn rs-btn--nav">
+            <i className="bi bi-grid-3x3-gap" /> Salas
+          </Link>
           {isAuthenticated ? (
             <>
               <span className="rs-header__user">

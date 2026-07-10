@@ -85,7 +85,7 @@ export default function LandingPage(): JSX.Element {
             Revive la estética, cultura y entretenimiento del internet de los 90 y 2000
           </p>
           <div className="rs-hero__actions">
-            <button className="rs-btn rs-btn--hero rs-btn--primary" onClick={() => navigate('/login')}>
+            <button className="rs-btn rs-btn--hero rs-btn--primary" onClick={() => navigate('/salas')}>
               <i className="bi bi-door-open" /> Explorar salas
             </button>
           </div>

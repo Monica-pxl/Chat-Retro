@@ -12,7 +12,7 @@ export default function AppFooter() {
               <i className="bi bi-display" />
             </span>
             <span className="rs-logo__text">
-              <span>Retro</span><span>Social</span>
+              <span>Retro</span><span>Chat</span>
             </span>
           </Link>
           <p className="rs-footer__tagline">Revive Internet entre 1990 y 2009.</p>
@@ -23,6 +23,7 @@ export default function AppFooter() {
           <h4>Navegación</h4>
           <ul>
             <li><Link to="/">Inicio</Link></li>
+            <li><Link to="/salas">Salas</Link></li>
             <li><Link to="/login">Iniciar sesión</Link></li>
             <li><Link to="/registro">Crear cuenta</Link></li>
           </ul>
@@ -45,7 +46,7 @@ export default function AppFooter() {
           <ul>
             <li>
               <a href="mailto:contacto@retrosocial.es" className="rs-footer__email">
-                contacto@retrosocial.es
+                contacto@retrochat.es
               </a>
             </li>
           </ul>
@@ -53,7 +54,7 @@ export default function AppFooter() {
 
       </div>
       <div className="rs-footer__bottom">
-        © 2026 RetroSocial
+        © 2026 RetroChat
       </div>
     </footer>
   );

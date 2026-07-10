@@ -1,15 +1,17 @@
 import { Router } from "express";
-import { authMiddleware } from "../middlewares/auth.middleware";
 import {
   getSalas,
   getSalaById,
   getMensajesSala,
+  getOnlineCount,
 } from "../controllers/sala.controller";
 
 const router = Router();
 
-router.get("/", authMiddleware, getSalas);
-router.get("/:id/mensajes", authMiddleware, getMensajesSala);
-router.get("/:id", authMiddleware, getSalaById);
+// Rutas públicas — no requieren autenticación
+router.get("/", getSalas);
+router.get("/:id/online", getOnlineCount);
+router.get("/:id/mensajes", getMensajesSala);
+router.get("/:id", getSalaById);
 
 export default router;
