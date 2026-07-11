@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import AppHeader from '../components/AppHeader';
 import { salasService, type Sala } from '../services/salas.service';
 import '../styles/salas.css';
+import { uploadService } from "../services/upload.service";
 
 interface MensajeUI {
   userId?: number;
@@ -57,6 +58,8 @@ export default function SalaPage() {
   const [sala, setSala] = useState<Sala | null>(null);
   const [mensajes, setMensajes] = useState<MensajeUI[]>([]);
   const [texto, setTexto] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [subiendo, setSubiendo] = useState(false);
   const [userCount, setUserCount] = useState(0);
   const [usuarios, setUsuarios] = useState<UsuarioSala[]>([]);
   const [loading, setLoading] = useState(true);
@@ -193,6 +196,34 @@ export default function SalaPage() {
     });
     setTexto('');
     textareaRef.current?.focus();
+  };
+
+  const subirImagen = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    if (!e.target.files?.length) return;
+    if (!socketRef.current) return;
+    if (!token) return;
+
+    const file = e.target.files[0];
+
+    try {
+      setSubiendo(true);
+
+      const res = await uploadService.uploadImage(file, token);
+
+      socketRef.current.emit("send-message", {
+        roomId: salaId,
+        contenido: res.url,
+        tipo: "imagen",
+      });
+
+    } catch {
+      alert("No se pudo subir la imagen");
+    } finally {
+      setSubiendo(false);
+      e.target.value = "";
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -443,7 +474,17 @@ export default function SalaPage() {
                         <span className="rs-msg__nick">{msg.nickname}</span>
                       </div>
 
-                      <div className="rs-msg__bubble">{msg.contenido}</div>
+                      <div className="rs-msg__bubble">
+                        {msg.tipo === "imagen" ? (
+                          <img
+                            src={`http://localhost:3000${msg.contenido}`}
+                            alt="Imagen"
+                            className="rs-msg__image"
+                          />
+                        ) : (
+                          msg.contenido
+                        )}
+                      </div>
 
                       <span className="rs-msg__time">{formatFecha(msg.fecha)}</span>
                     </div>
@@ -462,9 +503,24 @@ export default function SalaPage() {
                 </div>
               )}
               <div className="rs-sala-input-row">
-                <button className="rs-sala-attach-btn" title="Subir imagen o GIF">
-                  <i className="bi bi-paperclip" />
-                </button>
+                <>
+                  <button
+                    className="rs-sala-attach-btn"
+                    title="Subir imagen"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={subiendo}
+                  >
+                    <i className="bi bi-paperclip" />
+                  </button>
+
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    style={{ display: "none" }}
+                    onChange={subirImagen}
+                  />
+                </>
 
                 <textarea
                   ref={textareaRef}

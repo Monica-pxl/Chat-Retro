@@ -263,7 +263,7 @@ export const socketHandler = (io: Server) => {
     // 💬 send-message
     socket.on(
       "send-message",
-      async ({ roomId, contenido }: { roomId: number; contenido: string }) => {
+      async ({ roomId, contenido, tipo }: { roomId: number; contenido: string; tipo: "texto" | "imagen" | "gif"; }) => {
 
         const senderUserId = socket.user?.userId;
 
@@ -271,14 +271,14 @@ export const socketHandler = (io: Server) => {
 
         if (!roomId) return;
 
-        if (!contenido.trim()) {
+        if (!contenido) {
           socket.emit("room-error", {
             message: "El mensaje está vacío",
           });
           return;
         }
 
-        if (contenido.length > 1000) {
+        if (tipo == "texto" && contenido.length > 1000) {
           socket.emit("room-error", {
             message: "El mensaje supera el máximo permitido",
           });
@@ -299,8 +299,8 @@ export const socketHandler = (io: Server) => {
             data: {
               salaId: roomId,
               userId: senderUserId,
-              contenido: contenido.trim(),
-              tipo: "texto",
+              contenido,
+              tipo,
             },
           });
         } catch {
@@ -322,7 +322,8 @@ export const socketHandler = (io: Server) => {
         io.to(roomName).emit("receive-message", {
           roomId,
           user: usuario,
-          contenido: contenido.trim(),
+          contenido,
+          tipo,
           fecha: new Date().toISOString(),
         });
       }

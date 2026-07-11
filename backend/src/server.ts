@@ -1,8 +1,10 @@
+import "dotenv/config";
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
 import http from "http";
 import { Server } from "socket.io";
+import path from "path";
+import uploadRoutes from "./routes/upload.routes";
 
 import authRoutes from "./routes/auth.routes";
 import salaRoutes from "./routes/sala.routes";
@@ -11,7 +13,6 @@ import amistadRoutes from "./routes/amistad.routes";
 import adminRoutes from "./routes/admin.routes";
 import { socketHandler } from "./sockets";
 
-dotenv.config();
 
 const app = express();
 
@@ -23,6 +24,8 @@ app.use("/salas", salaRoutes);
 app.use("/chats", chatRoutes);
 app.use("/amigos", amistadRoutes);
 app.use("/admin", adminRoutes);
+app.use("/upload", uploadRoutes);
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 // HTTP server
 const server = http.createServer(app);
