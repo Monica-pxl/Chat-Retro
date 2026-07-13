@@ -4,6 +4,7 @@ import LoginPage from '../pages/LoginPage';
 import RegisterPage from '../pages/RegisterPage';
 import SalasPage from '../pages/SalasPage';
 import SalaPage from '../pages/SalaPage';
+import PerfilPage from '../pages/PerfilPage';
 
 export default function AppRouter() {
   return (
@@ -14,6 +15,7 @@ export default function AppRouter() {
         <Route path="/registro" element={<RegisterPage />} />
         <Route path="/salas" element={<SalasPage />} />
         <Route path="/salas/:id" element={<SalaPage />} />
+        <Route path="/perfil" element={<PerfilPage />} />
       </Routes>
     </BrowserRouter>
   );

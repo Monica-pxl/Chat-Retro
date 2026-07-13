@@ -6,6 +6,7 @@ export interface AuthUser {
   id: number;
   email: string;
   nickname: string;
+  avatar: string | null;
   rol: string;
   estado: string;
   estado_cuenta: string;

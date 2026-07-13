@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
 import { getRoomCount } from "../helpers/roomStore";
+import { canJoinRoom } from "../helpers/roomAvailability";
 
 const prisma = new PrismaClient();
 
@@ -10,20 +11,19 @@ const prisma = new PrismaClient();
 export const getSalas = async (req: Request, res: Response) => {
   try {
     const salas = await prisma.sala.findMany({
-      orderBy: {
-        id: "asc",
-      },
-      include: {
-        epoca: true,
-        tematica: true,
-      },
+      orderBy: { id: "asc" },
+      include: { epoca: true, tematica: true },
     });
 
-    return res.json(salas);
+    // Aplicar disponibilidad en tiempo real
+    const salasConDisponibilidad = salas.map(sala => ({
+      ...sala,
+      cerrada: sala.cerrada || !canJoinRoom(sala),
+    }));
+
+    return res.json(salasConDisponibilidad);
   } catch {
-    return res.status(500).json({
-      error: "Error al obtener las salas",
-    });
+    return res.status(500).json({ error: "Error al obtener las salas" });
   }
 };
 

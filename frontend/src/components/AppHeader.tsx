@@ -28,10 +28,10 @@ export default function AppHeader() {
           </Link>
           {isAuthenticated ? (
             <>
-              <span className="rs-header__user">
+              <Link to="/perfil" className="rs-header__user">
                 <i className="bi bi-person-circle" />
                 {user?.nickname}
-              </span>
+              </Link>
               <button
                 className="rs-btn rs-btn--nav rs-btn--ghost"
                 onClick={handleLogout}

@@ -5,6 +5,7 @@ import http from "http";
 import { Server } from "socket.io";
 import path from "path";
 import uploadRoutes from "./routes/upload.routes";
+import userRoutes from "./routes/user.routes";
 
 import authRoutes from "./routes/auth.routes";
 import salaRoutes from "./routes/sala.routes";
@@ -25,6 +26,7 @@ app.use("/chats", chatRoutes);
 app.use("/amigos", amistadRoutes);
 app.use("/admin", adminRoutes);
 app.use("/upload", uploadRoutes);
+app.use("/api/users", userRoutes);
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 // HTTP server

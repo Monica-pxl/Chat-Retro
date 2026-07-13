@@ -43,36 +43,34 @@ export const getOrCreateChat = async (req: Request, res: Response) => {
       });
     }
 
+    const mensajesInclude = {
+      mensajes: {
+        orderBy: { fecha_creacion: 'asc' as const },
+        take: 100,
+        select: {
+          id: true,
+          contenido: true,
+          tipo: true,
+          fecha_creacion: true,
+          emisorId: true,
+          emisor: {
+            select: { id: true, nickname: true, avatar: true },
+          },
+        },
+      },
+      usuario1: { select: { id: true, nickname: true, avatar: true } },
+      usuario2: { select: { id: true, nickname: true, avatar: true } },
+    };
+
     // Buscar un chat existente entre ambos usuarios
     const chatExistente = await prisma.chatPrivado.findFirst({
       where: {
         OR: [
-          {
-            usuario1Id: emisorId,
-            usuario2Id: receptorId,
-          },
-          {
-            usuario1Id: receptorId,
-            usuario2Id: emisorId,
-          },
+          { usuario1Id: emisorId, usuario2Id: receptorId },
+          { usuario1Id: receptorId, usuario2Id: emisorId },
         ],
       },
-      include: {
-        usuario1: {
-          select: {
-            id: true,
-            nickname: true,
-            avatar: true,
-          },
-        },
-        usuario2: {
-          select: {
-            id: true,
-            nickname: true,
-            avatar: true,
-          },
-        },
-      },
+      include: mensajesInclude,
     });
 
     if (chatExistente) {
@@ -85,22 +83,7 @@ export const getOrCreateChat = async (req: Request, res: Response) => {
         usuario1Id: emisorId,
         usuario2Id: receptorId,
       },
-      include: {
-        usuario1: {
-          select: {
-            id: true,
-            nickname: true,
-            avatar: true,
-          },
-        },
-        usuario2: {
-          select: {
-            id: true,
-            nickname: true,
-            avatar: true,
-          },
-        },
-      },
+      include: mensajesInclude,
     });
 
     return res.status(201).json(nuevoChat);

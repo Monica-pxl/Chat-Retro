@@ -117,14 +117,6 @@ export const socketHandler = (io: Server) => {
 
       onlineUsers.delete(userId);
 
-      prisma.user.update({
-        where: { id: userId },
-        data: {
-          estado: "desconectado",
-          ultima_conexion: new Date(),
-        },
-      }).catch(() => {});
-
       io.emit("online-users", Array.from(onlineUsers.keys()));
     });
 
@@ -204,8 +196,9 @@ export const socketHandler = (io: Server) => {
     // 💬 private-message
     socket.on(
       "private-message",
-      async ({ destinatarioId, contenido }: { destinatarioId: number; contenido: string }) => {
+      async ({ destinatarioId, contenido, tipo }: { destinatarioId: number; contenido: string; tipo?: string }) => {
         const emisorId: number = socket.user?.userId;
+        const tipoValido = (tipo === "imagen" || tipo === "gif" || tipo === "audio") ? tipo : "texto";
 
         if (!emisorId || !destinatarioId || !contenido?.trim()) return;
 
@@ -231,7 +224,7 @@ export const socketHandler = (io: Server) => {
               chatId: chat.id,
               emisorId,
               contenido: contenido.trim(),
-              tipo: "texto",
+              tipo: tipoValido as any,
             },
           });
 
@@ -244,13 +237,25 @@ export const socketHandler = (io: Server) => {
             },
           });
 
-          // Emitir solo al destinatario si está conectado
+          // Emitir al emisor para confirmación
+          socket.emit("receive-private-message", {
+            chatId: chat.id,
+            user: emisor,
+            destinatarioId,
+            contenido: mensaje.contenido,
+            tipo: tipoValido,
+            fecha: mensaje.fecha_creacion.toISOString(),
+          });
+
+          // Emitir al destinatario si está conectado
           const destinatarioSocketId = onlineUsers.get(destinatarioId);
           if (destinatarioSocketId) {
             io.to(destinatarioSocketId).emit("receive-private-message", {
               chatId: chat.id,
               user: emisor,
+              destinatarioId,
               contenido: mensaje.contenido,
+              tipo: tipoValido,
               fecha: mensaje.fecha_creacion.toISOString(),
             });
           }

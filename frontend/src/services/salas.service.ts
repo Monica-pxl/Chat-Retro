@@ -26,6 +26,15 @@ export interface MensajeSala {
   };
 }
 
+export interface MensajePrivadoAPI {
+  id: number;
+  contenido: string;
+  tipo: string;
+  fecha_creacion: string;
+  emisorId: number;
+  emisor: { id: number; nickname: string; avatar: string | null };
+}
+
 export const salasService = {
   getSalas: () =>
     api.get<Sala[]>('/salas').then(r => r.data),
@@ -42,4 +51,11 @@ export const salasService = {
 
   getOnlineCount: (id: number) =>
     api.get<{ count: number }>(`/salas/${id}/online`).then(r => r.data),
+
+  getChatPrivado: (userId: number, token: string) =>
+    api
+      .get<{ id: number; mensajes: MensajePrivadoAPI[] }>(`/chats/${userId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then(r => r.data),
 };
