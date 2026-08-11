@@ -13,6 +13,7 @@ import chatRoutes from "./routes/chat.routes";
 import amistadRoutes from "./routes/amistad.routes";
 import adminRoutes from "./routes/admin.routes";
 import { socketHandler } from "./sockets";
+import { setIo } from "./helpers/socketStore";
 
 
 const app = express();
@@ -34,12 +35,10 @@ const server = http.createServer(app);
 
 // Socket.IO
 const io = new Server(server, {
-  cors: {
-    origin: "*",
-  },
+  cors: { origin: "*" },
 });
 
-// 🔥 aquí conectas todo el sistema de sockets
+setIo(io);
 socketHandler(io);
 
 

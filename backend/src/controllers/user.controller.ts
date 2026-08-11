@@ -115,3 +115,29 @@ export const uploadAvatar = async (req: Request, res: Response) => {
     return res.status(500).json({ error: "Error al subir el avatar" });
   }
 };
+
+/* ───────────────────────────────
+   GET /api/users/search?q=nickname
+─────────────────────────────── */
+export const searchUsers = async (req: Request, res: Response) => {
+  try {
+    const currentUserId = (req as any).user.userId;
+    const q = ((req.query.q as string) || '').trim();
+
+    if (!q || q.length < 2) return res.json([]);
+
+    const users = await prisma.user.findMany({
+      where: {
+        nickname: { contains: q },
+        id: { not: currentUserId },
+        estado_cuenta: 'activa',
+      },
+      select: { id: true, nickname: true, avatar: true, estado: true },
+      take: 8,
+    });
+
+    return res.json(users);
+  } catch {
+    return res.status(500).json({ error: 'Error al buscar usuarios' });
+  }
+};

@@ -4,10 +4,9 @@ import { JWT_SECRET } from "../config/jwt";
 import { PrismaClient } from "@prisma/client";
 import { canJoinRoom } from "../helpers/roomAvailability";
 import { setRoomCount, getRoomCount } from "../helpers/roomStore";
+import { addUserSocket, removeUserSocket, getOnlineUserIds, emitToUser } from "../helpers/socketStore";
 
 const prisma = new PrismaClient();
-
-const onlineUsers = new Map<number, string>();
 
 interface AuthSocket extends Socket {
   user?: any;
@@ -82,14 +81,14 @@ export const socketHandler = (io: Server) => {
 
     console.log("🟢 Usuario conectado:", userId);
 
-    onlineUsers.set(userId, socket.id);
+    addUserSocket(userId, socket.id);
 
     prisma.user.update({
       where: { id: userId },
       data: { estado: "en_linea" },
     }).catch(() => {});
 
-    io.emit("online-users", Array.from(onlineUsers.keys()));
+    io.emit("online-users", getOnlineUserIds());
 
     // 🔴 disconnecting: el socket AÚN está en las salas
     socket.on("disconnecting", () => {
@@ -115,9 +114,9 @@ export const socketHandler = (io: Server) => {
 
       console.log("🔴 Usuario desconectado:", userId);
 
-      onlineUsers.delete(userId);
+      removeUserSocket(userId, socket.id);
 
-      io.emit("online-users", Array.from(onlineUsers.keys()));
+      io.emit("online-users", getOnlineUserIds());
     });
 
     // 🚪 join-room - CORREGIDO
@@ -247,18 +246,15 @@ export const socketHandler = (io: Server) => {
             fecha: mensaje.fecha_creacion.toISOString(),
           });
 
-          // Emitir al destinatario si está conectado
-          const destinatarioSocketId = onlineUsers.get(destinatarioId);
-          if (destinatarioSocketId) {
-            io.to(destinatarioSocketId).emit("receive-private-message", {
-              chatId: chat.id,
-              user: emisor,
-              destinatarioId,
-              contenido: mensaje.contenido,
-              tipo: tipoValido,
-              fecha: mensaje.fecha_creacion.toISOString(),
-            });
-          }
+          // Emitir al destinatario en todos sus sockets activos
+          emitToUser(destinatarioId, "receive-private-message", {
+            chatId: chat.id,
+            user: emisor,
+            destinatarioId,
+            contenido: mensaje.contenido,
+            tipo: tipoValido,
+            fecha: mensaje.fecha_creacion.toISOString(),
+          });
         } catch {
           socket.emit("private-message-error", { message: "Error al enviar el mensaje privado" });
         }

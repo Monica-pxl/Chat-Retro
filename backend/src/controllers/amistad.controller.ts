@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
+import { emitToUser } from "../helpers/socketStore";
 
 const prisma = new PrismaClient();
 
@@ -104,6 +105,12 @@ export const enviarSolicitud = async (req: Request, res: Response) => {
       }
     });
 
+    // Notificar al receptor en tiempo real
+    emitToUser(receptor, 'nueva-solicitud', {
+      ...solicitud,
+      fecha_creacion: solicitud.fecha_creacion.toISOString(),
+    });
+
     return res.status(201).json(solicitud);
 
   } catch {
@@ -176,6 +183,9 @@ export const aceptarSolicitud = async (req: Request, res: Response) => {
         }
       }
     });
+
+    // Notificar al emisor que su solicitud fue aceptada
+    emitToUser(solicitud.emisorId, 'solicitud-aceptada', { id: solicitud.id });
 
     return res.json(actualizada);
 
@@ -250,6 +260,9 @@ export const rechazarSolicitud = async (req: Request, res: Response) => {
       }
     });
 
+    // Notificar al emisor que su solicitud fue rechazada
+    emitToUser(solicitud.emisorId, 'solicitud-rechazada', { id: solicitud.id });
+
     return res.json(actualizada);
 
   } catch {
@@ -298,11 +311,14 @@ export const cancelarSolicitud = async (req: Request, res: Response) => {
       });
     }
 
+    const receptorId = solicitud.receptorId;
+
     await prisma.amistad.delete({
-      where: {
-        id
-      }
+      where: { id }
     });
+
+    // Notificar al receptor que la solicitud fue cancelada
+    emitToUser(receptorId, 'solicitud-cancelada', { id: solicitud.id });
 
     return res.json({
       message: "Solicitud cancelada correctamente"

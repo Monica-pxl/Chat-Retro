@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { io, type Socket } from 'socket.io-client';
 import { useAuth } from '../context/AuthContext';
+import { usePrivateMessages } from '../context/PrivateMessagesContext';
 import AppHeader from '../components/AppHeader';
 import { salasService, type Sala, type MensajePrivadoAPI } from '../services/salas.service';
 import '../styles/salas.css';
@@ -64,6 +65,7 @@ type FiltroNavegador = '90s' | '2000s' | 'tematicas90s' | 'tematicas2000s';
 export default function SalaPage() {
   const { id } = useParams<{ id: string }>();
   const { isAuthenticated, token, user } = useAuth();
+  const { clearUnread } = usePrivateMessages();
   const navigate = useNavigate();
 
   const [sala, setSala] = useState<Sala | null>(null);
@@ -202,6 +204,8 @@ export default function SalaPage() {
           fecha: msg.fecha,
           tipo: (msg.tipo as any) || 'texto'
         }]);
+        // Chat activo: limpiar no leído del contexto global
+        clearUnread(msg.chatId);
       } else if (!soyEmisor) {
         // Solo notificar pendiente al receptor, nunca al propio emisor
         setMensajesPendientes(prev => new Set(prev).add(partnerId));
@@ -363,6 +367,8 @@ export default function SalaPage() {
     if (token) {
       try {
         const chat = await salasService.getChatPrivado(usuario.id, token);
+        // Limpiar badge de no leído del contexto global para este chat
+        clearUnread(chat.id);
         const historial = chat.mensajes.map((m: MensajePrivadoAPI) => ({
           id: m.id,
           emisorId: m.emisorId,

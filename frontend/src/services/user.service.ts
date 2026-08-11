@@ -1,6 +1,4 @@
-import axios from 'axios';
-
-const api = axios.create({ baseURL: 'http://localhost:3000' });
+import api from './api';
 
 export interface UserProfile {
   id: number;
@@ -14,11 +12,21 @@ export interface UserProfile {
   ultima_conexion: string | null;
 }
 
+export interface UserSearch {
+  id: number;
+  nickname: string;
+  avatar: string | null;
+  estado: string;
+}
+
 const authHeader = (token: string) => ({ Authorization: `Bearer ${token}` });
 
 export const userService = {
   getMe: (token: string) =>
     api.get<UserProfile>('/api/users/me', { headers: authHeader(token) }).then(r => r.data),
+
+  searchUsers: (q: string, token: string) =>
+    api.get<UserSearch[]>(`/api/users/search?q=${encodeURIComponent(q)}`, { headers: authHeader(token) }).then(r => r.data),
 
   updateNickname: (nickname: string, token: string) =>
     api

@@ -94,3 +94,42 @@ export const getOrCreateChat = async (req: Request, res: Response) => {
     });
   }
 };
+
+/* ================================
+   LISTAR TODOS LOS CHATS DEL USUARIO
+================================ */
+export const listarChats = async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user.userId;
+
+    const chats = await prisma.chatPrivado.findMany({
+      where: {
+        OR: [
+          { usuario1Id: userId },
+          { usuario2Id: userId },
+        ],
+        mensajes: { some: {} },
+      },
+      include: {
+        usuario1: { select: { id: true, nickname: true, avatar: true } },
+        usuario2: { select: { id: true, nickname: true, avatar: true } },
+        mensajes: {
+          orderBy: { fecha_creacion: "desc" },
+          take: 1,
+          select: {
+            id: true,
+            contenido: true,
+            tipo: true,
+            fecha_creacion: true,
+            emisorId: true,
+          },
+        },
+      },
+      orderBy: { id: "desc" },
+    });
+
+    return res.json(chats);
+  } catch {
+    return res.status(500).json({ error: "Error al listar los chats" });
+  }
+};
