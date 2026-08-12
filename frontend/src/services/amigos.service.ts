@@ -68,6 +68,9 @@ export const amigosService = {
 
   enviarSolicitud: (receptorId: number, token: string) =>
     api.post('/amigos/solicitud', { receptorId }, { headers: auth(token) }).then(r => r.data),
+
+  eliminarAmigo: (amigoId: number, token: string) =>
+    api.delete(`/amigos/${amigoId}`, { headers: auth(token) }).then(r => r.data),
 };
 
 /* ── Chats privados ── */

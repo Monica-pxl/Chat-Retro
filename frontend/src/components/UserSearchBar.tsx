@@ -1,24 +1,26 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { usePrivateMessages } from '../context/PrivateMessagesContext';
 import { userService, type UserSearch } from '../services/user.service';
-import { amigosService } from '../services/amigos.service';
 import '../styles/search.css';
 
 const API = 'http://localhost:3000';
 
 /* ── Modal de perfil de usuario ── */
-function UserProfileModal({
+export function UserProfileModal({
   user,
   onClose,
 }: {
   user: UserSearch;
   onClose: () => void;
 }) {
-  const { token } = useAuth();
   const navigate = useNavigate();
-  const [addState, setAddState] = useState<'idle' | 'loading' | 'sent' | 'error'>('idle');
-  const [feedback, setFeedback] = useState('');
+  const { getFriendStatus, isUserOnline, sendFriendRequest, cancelFriendRequest, acceptFriendRequest } = usePrivateMessages();
+  const [busy, setBusy] = useState(false);
+  const [feedback, setFeedback] = useState<{ text: string; err: boolean } | null>(null);
+  const estado = getFriendStatus(user.id);
+  const enLinea = isUserOnline(user.id);
 
   // Cerrar con Escape
   useEffect(() => {
@@ -33,15 +35,41 @@ function UserProfileModal({
   };
 
   const handleAddFriend = async () => {
-    if (!token || addState !== 'idle') return;
-    setAddState('loading');
+    if (busy) return;
+    setBusy(true);
     try {
-      await amigosService.enviarSolicitud(user.id, token);
-      setAddState('sent');
-      setFeedback('¡Solicitud enviada!');
+      await sendFriendRequest(user.id);
+      setFeedback({ text: '¡Solicitud enviada!', err: false });
     } catch (err: any) {
-      setAddState('error');
-      setFeedback(err.response?.data?.error || 'Error al enviar solicitud');
+      setFeedback({ text: err.response?.data?.error || 'Error al enviar solicitud', err: true });
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const handleCancelFriend = async () => {
+    if (busy) return;
+    setBusy(true);
+    try {
+      await cancelFriendRequest(user.id);
+      setFeedback({ text: 'Solicitud cancelada', err: false });
+    } catch (err: any) {
+      setFeedback({ text: err.response?.data?.error || 'Error al cancelar solicitud', err: true });
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const handleAcceptFriend = async () => {
+    if (busy) return;
+    setBusy(true);
+    try {
+      await acceptFriendRequest(user.id);
+      setFeedback({ text: '¡Ahora sois amigos!', err: false });
+    } catch (err: any) {
+      setFeedback({ text: err.response?.data?.error || 'Error al aceptar solicitud', err: true });
+    } finally {
+      setBusy(false);
     }
   };
 
@@ -65,8 +93,8 @@ function UserProfileModal({
 
         {/* Estado */}
         <div className="rs-modal-status">
-          <span className={`rs-modal-status__dot rs-modal-status__dot--${user.estado === 'en_linea' ? 'online' : 'offline'}`} />
-          {user.estado === 'en_linea' ? 'En línea' : 'Desconectado'}
+          <span className={`rs-modal-status__dot rs-modal-status__dot--${enLinea ? 'online' : 'offline'}`} />
+          {enLinea ? 'En línea' : 'Desconectado'}
         </div>
 
         {/* Acciones */}
@@ -74,23 +102,56 @@ function UserProfileModal({
           <button className="rs-modal-btn rs-modal-btn--msg" onClick={handleMensaje}>
             <i className="bi bi-chat-dots-fill" /> Mensaje
           </button>
-          <button
-            className={`rs-modal-btn rs-modal-btn--add${addState === 'sent' ? ' sent' : ''}`}
-            onClick={handleAddFriend}
-            disabled={addState === 'loading' || addState === 'sent'}
-          >
-            {addState === 'loading'
-              ? <><i className="bi bi-arrow-repeat rs-spin" /> Enviando…</>
-              : addState === 'sent'
-              ? <><i className="bi bi-check-lg" /> Enviada</>
-              : <><i className="bi bi-person-plus-fill" /> Añadir</>
-            }
-          </button>
+
+          {estado === 'amigo' && (
+            <button className="rs-modal-btn rs-modal-btn--add sent" disabled>
+              <i className="bi bi-people-fill" /> Ya sois amigos
+            </button>
+          )}
+
+          {estado === 'enviada' && (
+            <button
+              className="rs-modal-btn rs-modal-btn--add"
+              onClick={handleCancelFriend}
+              disabled={busy}
+            >
+              {busy
+                ? <><i className="bi bi-arrow-repeat rs-spin" /> Cancelando…</>
+                : <><i className="bi bi-x-circle" /> Cancelar solicitud</>
+              }
+            </button>
+          )}
+
+          {estado === 'recibida' && (
+            <button
+              className="rs-modal-btn rs-modal-btn--add"
+              onClick={handleAcceptFriend}
+              disabled={busy}
+            >
+              {busy
+                ? <><i className="bi bi-arrow-repeat rs-spin" /> Aceptando…</>
+                : <><i className="bi bi-check-lg" /> Aceptar solicitud</>
+              }
+            </button>
+          )}
+
+          {estado === 'ninguno' && (
+            <button
+              className="rs-modal-btn rs-modal-btn--add"
+              onClick={handleAddFriend}
+              disabled={busy}
+            >
+              {busy
+                ? <><i className="bi bi-arrow-repeat rs-spin" /> Enviando…</>
+                : <><i className="bi bi-person-plus-fill" /> Añadir</>
+              }
+            </button>
+          )}
         </div>
 
         {feedback && (
-          <div className={`rs-modal-feedback rs-modal-feedback--${addState === 'error' ? 'err' : 'ok'}`}>
-            {feedback}
+          <div className={`rs-modal-feedback rs-modal-feedback--${feedback.err ? 'err' : 'ok'}`}>
+            {feedback.text}
           </div>
         )}
       </div>
@@ -101,6 +162,7 @@ function UserProfileModal({
 /* ── Barra de búsqueda ── */
 export default function UserSearchBar() {
   const { token } = useAuth();
+  const { isUserOnline } = usePrivateMessages();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<UserSearch[]>([]);
   const [loading, setLoading] = useState(false);
@@ -206,8 +268,8 @@ export default function UserSearchBar() {
                   <div className="rs-search-result__info">
                     <div className="rs-search-result__nick">{u.nickname}</div>
                     <div className="rs-search-result__status">
-                      <span className={`rs-search-result__dot rs-search-result__dot--${u.estado === 'en_linea' ? 'online' : 'offline'}`} />
-                      {u.estado === 'en_linea' ? 'En línea' : 'Desconectado'}
+                      <span className={`rs-search-result__dot rs-search-result__dot--${isUserOnline(u.id) ? 'online' : 'offline'}`} />
+                      {isUserOnline(u.id) ? 'En línea' : 'Desconectado'}
                     </div>
                   </div>
                 </div>

@@ -147,6 +147,8 @@ export default function MensajesPage() {
   }, [clearUnread]);
 
   useEffect(() => subscribe(incomingHandler), [subscribe, incomingHandler]);
+
+  /* ── Abrir chat (Click en la lista) ── */
   const abrirChat = useCallback(async (chat: ChatResumen) => {
     if (!token) return;
     setChatActivo(chat);
@@ -206,6 +208,19 @@ export default function MensajesPage() {
       e.target.value = '';
     }
   };
+
+  /* ── SCROLL HASTA EL FONDO (AHORA SÍ QUE BAJA DEL TODO) ── */
+  useEffect(() => {
+    // Pequeño timeout para asegurar que React ya renderizó los mensajes en el DOM
+    const timeoutId = setTimeout(() => {
+      if (messagesEnd.current) {
+        // 'block: "end"' asegura que el elemento final quede alineado con el borde inferior de la caja
+        messagesEnd.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
+      }
+    }, 100);
+
+    return () => clearTimeout(timeoutId);
+  }, [mensajes]);
 
   if (!isAuthenticated) return null;
 

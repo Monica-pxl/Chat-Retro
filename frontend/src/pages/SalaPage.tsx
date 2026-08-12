@@ -65,9 +65,9 @@ type FiltroNavegador = '90s' | '2000s' | 'tematicas90s' | 'tematicas2000s';
 export default function SalaPage() {
   const { id } = useParams<{ id: string }>();
   const { isAuthenticated, token, user } = useAuth();
-  const { clearUnread } = usePrivateMessages();
+  const { clearUnread, getFriendStatus, sendFriendRequest, cancelFriendRequest, acceptFriendRequest } = usePrivateMessages();
   const navigate = useNavigate();
-
+  const [amigoBusy, setAmigoBusy] = useState<Set<number>>(new Set());
   const [sala, setSala] = useState<Sala | null>(null);
   const [mensajes, setMensajes] = useState<MensajeUI[]>([]);
   const [texto, setTexto] = useState('');
@@ -223,13 +223,20 @@ export default function SalaPage() {
     };
   }, [salaId, isAuthenticated, token]);
 
-  /* ── Auto-scroll ── */
+  /* ── Auto-scroll Sala Pública ── */
   useEffect(() => {
     messagesEnd.current?.scrollIntoView({ behavior: 'smooth' });
   }, [mensajes]);
 
+  /* ── Auto-scroll Chat Privado (CORREGIDO) ── */
   useEffect(() => {
-    privadoMessagesEnd.current?.scrollIntoView({ behavior: 'smooth' });
+    const timeoutId = setTimeout(() => {
+      if (privadoMessagesEnd.current) {
+        privadoMessagesEnd.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
+      }
+    }, 100);
+
+    return () => clearTimeout(timeoutId);
   }, [mensajesPrivados]);
 
   /* ── Enviar mensaje sala ── */
@@ -339,6 +346,23 @@ export default function SalaPage() {
 
   const toggleMusic = () => {
     setMusicOn(!musicOn);
+  };
+
+  /* ── Amistad desde la lista de usuarios de la sala ── */
+  const handleFriendAction = async (e: React.MouseEvent, targetId: number) => {
+    e.stopPropagation();
+    if (amigoBusy.has(targetId)) return;
+    setAmigoBusy(prev => new Set(prev).add(targetId));
+    try {
+      const estado = getFriendStatus(targetId);
+      if (estado === 'ninguno') await sendFriendRequest(targetId);
+      else if (estado === 'enviada') await cancelFriendRequest(targetId);
+      else if (estado === 'recibida') await acceptFriendRequest(targetId);
+    } catch {
+      /* silencioso */
+    } finally {
+      setAmigoBusy(prev => { const next = new Set(prev); next.delete(targetId); return next; });
+    }
   };
 
   /* ── Sync ref para el handler del socket ── */
@@ -524,6 +548,8 @@ export default function SalaPage() {
             ) : (
               usuarios.map((u) => {
                 const esYo = isAuthenticated && user?.id === u.id;
+                const estadoAmistad = esYo ? 'ninguno' : getFriendStatus(u.id);
+                const ocupado = amigoBusy.has(u.id);
                 return (
                   <div 
                     key={u.id} 
@@ -545,6 +571,31 @@ export default function SalaPage() {
                       <span className="rs-sala-users__msg-badge" title="Mensaje no leído">!</span>
                     ) : (
                       <span className="rs-sala-users__dot" />
+                    )}
+                    {!esYo && (
+                      <button
+                        className={`rs-sala-users__friend-btn rs-sala-users__friend-btn--${estadoAmistad}`}
+                        onClick={(e) => handleFriendAction(e, u.id)}
+                        disabled={ocupado || estadoAmistad === 'amigo'}
+                        title={
+                          estadoAmistad === 'amigo' ? 'Ya sois amigos'
+                          : estadoAmistad === 'enviada' ? 'Cancelar solicitud'
+                          : estadoAmistad === 'recibida' ? 'Aceptar solicitud'
+                          : 'Enviar solicitud de amistad'
+                        }
+                      >
+                        {ocupado ? (
+                          <i className="bi bi-arrow-repeat rs-spin" />
+                        ) : estadoAmistad === 'amigo' ? (
+                          <i className="bi bi-people-fill" />
+                        ) : estadoAmistad === 'enviada' ? (
+                          <i className="bi bi-x-circle" />
+                        ) : estadoAmistad === 'recibida' ? (
+                          <i className="bi bi-check-circle" />
+                        ) : (
+                          <i className="bi bi-person-plus" />
+                        )}
+                      </button>
                     )}
                   </div>
                 );

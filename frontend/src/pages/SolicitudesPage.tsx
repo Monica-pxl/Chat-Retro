@@ -34,7 +34,7 @@ function formatFecha(iso: string) {
 
 export default function SolicitudesPage() {
   const { isAuthenticated, token } = useAuth();
-  const { subscribeSolicitud } = usePrivateMessages();
+  const { subscribeSolicitud, refreshAmistades } = usePrivateMessages();
   const navigate = useNavigate();
 
   const [tab, setTab] = useState<Tab>('recibidas');
@@ -87,6 +87,7 @@ export default function SolicitudesPage() {
     try {
       await amigosService.aceptar(id, token);
       setRecibidas(r => r.filter(s => s.id !== id));
+      refreshAmistades();
     } catch { /* silent */ }
     finally { setBusyId(id, false); }
   };
@@ -97,6 +98,7 @@ export default function SolicitudesPage() {
     try {
       await amigosService.rechazar(id, token);
       setRecibidas(r => r.filter(s => s.id !== id));
+      refreshAmistades();
     } catch { /* silent */ }
     finally { setBusyId(id, false); }
   };
@@ -107,6 +109,7 @@ export default function SolicitudesPage() {
     try {
       await amigosService.cancelar(id, token);
       setEnviadas(e => e.filter(s => s.id !== id));
+      refreshAmistades();
     } catch { /* silent */ }
     finally { setBusyId(id, false); }
   };

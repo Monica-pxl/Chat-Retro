@@ -31,6 +31,7 @@ export default function AppFooter() {
               <>
                 <li><Link to="/mensajes">Mensajes</Link></li>
                 <li><Link to="/solicitudes">Solicitudes</Link></li>
+                <li><Link to="/amigos">Amigos</Link></li>
                 <li><Link to="/perfil">Perfil</Link></li>
                 {/* Aquí puedes añadir más enlaces para usuarios logueados */}
               </>

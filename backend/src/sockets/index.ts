@@ -116,6 +116,14 @@ export const socketHandler = (io: Server) => {
 
       removeUserSocket(userId, socket.id);
 
+      // Solo marcar desconectado si no le quedan otras pestañas/sockets activos
+      if (!getOnlineUserIds().includes(userId)) {
+        prisma.user.update({
+          where: { id: userId },
+          data: { estado: "desconectado" },
+        }).catch(() => {});
+      }
+
       io.emit("online-users", getOnlineUserIds());
     });
 

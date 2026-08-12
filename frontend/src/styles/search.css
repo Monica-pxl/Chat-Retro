@@ -18,6 +18,11 @@
   animation: nav-badge-pulse 1.8s ease-in-out infinite;
 }
 
+.rs-nav-badge--orange {
+  background: var(--accent-orange);
+  box-shadow: 0 0 7px var(--accent-orange);
+}
+
 @keyframes nav-badge-pulse {
   0%, 100% { opacity: 1; }
   50%       { opacity: 0.4; }
@@ -164,7 +169,7 @@
 }
 
 /* ══════════════════════════════════════════════
-   Modal de perfil de usuario
+   Modal de perfil de usuario (CORREGIDO)
    ══════════════════════════════════════════════ */
 
 .rs-modal-overlay {
@@ -174,9 +179,13 @@
   backdrop-filter: blur(4px);
   z-index: 500;
   display: flex;
-  align-items: center;
+  
+  /* CAMBIO AQUÍ: align-items: center -> flex-start */
+  align-items: flex-start; 
   justify-content: center;
-  padding: 1rem;
+  
+  /* CAMBIO AQUÍ: Añadimos un gran padding superior para bajar el modal */
+  padding: 80px 1rem 2rem; 
 }
 
 .rs-modal-card {
@@ -189,6 +198,9 @@
   position: relative;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
   text-align: center;
+  
+  /* CAMBIO AQUÍ: Asegura que si se encoge, se mantenga centrado horizontalmente */
+  margin: 0 auto;
 }
 
 .rs-modal-close {

@@ -7,6 +7,7 @@ import SalaPage from '../pages/SalaPage';
 import PerfilPage from '../pages/PerfilPage';
 import MensajesPage from '../pages/MensajesPage';
 import SolicitudesPage from '../pages/SolicitudesPage';
+import AmigosPage from '../pages/AmigosPage';
 
 export default function AppRouter() {
   return (
@@ -20,6 +21,7 @@ export default function AppRouter() {
         <Route path="/perfil" element={<PerfilPage />} />
         <Route path="/mensajes" element={<MensajesPage />} />
         <Route path="/solicitudes" element={<SolicitudesPage />} />
+        <Route path="/amigos" element={<AmigosPage />} />
       </Routes>
     </BrowserRouter>
   );

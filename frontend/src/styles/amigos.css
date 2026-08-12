@@ -1,0 +1,210 @@
+/* ═══════════════════════════════════════════════════════════
+   RetroChat — Amigos  (acento verde)
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Página base ── */
+.am-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background:
+    radial-gradient(ellipse at 10% 15%,  rgba(105, 240, 174, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 90% 25%,  rgba(105, 240, 174, 0.05) 0%, transparent 45%),
+    radial-gradient(ellipse at 50% 80%,  rgba(179, 136, 255, 0.03) 0%, transparent 40%),
+    #06060e;
+  position: relative;
+}
+
+.am-page::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
+  background-size: 256px 256px;
+}
+
+/* ── Hero ── */
+.am-hero {
+  position: relative;
+  z-index: 5;
+  text-align: center;
+  padding: 4rem 2rem 2.5rem;
+}
+.am-hero__badge {
+  display: inline-block;
+  background: rgba(105, 240, 174, 0.1);
+  border: 1px solid rgba(105, 240, 174, 0.2);
+  padding: 0.25rem 1.2rem;
+  border-radius: 40px;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--accent-green);
+  margin-bottom: 0.8rem;
+}
+.am-hero__title {
+  font-size: clamp(2.2rem, 5vw, 3.4rem);
+  font-weight: 800;
+  letter-spacing: -1.5px;
+  color: var(--text-primary);
+  margin: 0.8rem 0 1rem;
+  line-height: 1.1;
+}
+.am-hero__title span { color: var(--accent-green); }
+.am-hero__sub {
+  font-size: 1.05rem;
+  color: var(--text-secondary);
+}
+
+/* ── Contenido ── */
+.am-main {
+  position: relative;
+  z-index: 5;
+  flex: 1;
+  padding: 0 2rem 15rem;
+  max-width: 700px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* ── Estado vacío / loading / error ── */
+.am-status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 3rem 0;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  text-align: center;
+}
+.am-status i { font-size: 2rem; }
+.am-status--error { color: rgba(239, 68, 68, 0.8); }
+
+/* ── Lista de amigos ── */
+.am-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.am-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 14px;
+  transition: border-color 0.18s, background 0.18s;
+}
+.am-card:hover {
+  background: rgba(105, 240, 174, 0.04);
+  border-color: rgba(105, 240, 174, 0.15);
+}
+
+.am-card__avatar {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: rgba(105, 240, 174, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--accent-green);
+  font-size: 1.2rem;
+  border: 2px solid rgba(105, 240, 174, 0.15);
+  flex-shrink: 0;
+}
+.am-card__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.am-card__info {
+  flex: 1;
+  min-width: 0;
+}
+.am-card__nick {
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 0.95rem;
+}
+.am-card__time {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.15rem;
+}
+
+.am-card__actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+/* ── Indicador de estado (en línea / desconectado) ── */
+.am-status-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 0.5rem;
+  flex-shrink: 0;
+}
+.am-status-dot--online {
+  background: var(--accent-green);
+  box-shadow: 0 0 6px var(--accent-green);
+}
+.am-status-dot--offline {
+  background: var(--text-muted);
+}
+
+/* ── Botones de acción ── */
+.am-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.4rem 0.9rem;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.18s;
+}
+.am-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.am-btn--msg {
+  background: rgba(0, 229, 255, 0.1);
+  border-color: rgba(0, 229, 255, 0.2);
+  color: var(--accent-cyan);
+}
+.am-btn--msg:hover:not(:disabled) {
+  background: rgba(0, 229, 255, 0.18);
+}
+
+.am-btn--profile {
+  background: rgba(105, 240, 174, 0.12);
+  border-color: rgba(105, 240, 174, 0.25);
+  color: var(--accent-green);
+}
+.am-btn--profile:hover:not(:disabled) {
+  background: rgba(105, 240, 174, 0.22);
+}
+
+.am-btn--remove {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.2);
+  color: rgba(239, 68, 68, 0.85);
+}
+.am-btn--remove:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.18);
+}
