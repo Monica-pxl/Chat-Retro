@@ -19,8 +19,13 @@ export default function LoginPage() {
     setError('');
     setLoading(true);
     try {
-      await login(email, password);
-      navigate('/');
+      const loggedUser = await login(email, password);
+
+      if (loggedUser.rol === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/');
+      }
     } catch (err: unknown) {
       const msg =
         (err as { response?: { data?: { error?: string } } })

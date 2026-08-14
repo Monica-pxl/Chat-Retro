@@ -18,6 +18,60 @@ interface MsgUI {
   fecha: string;
 }
 
+// 🔥 MAPA DE TEMAS CON GRANATE BRILLANTE
+const TEMAS = {
+  azul: { 
+    accent: '#00d4ff', 
+    mainBg: '#06060e',
+    glow: 'rgba(0, 212, 255, 0.15)',
+    btnBg: 'rgba(0, 212, 255, 0.15)',
+    border: 'rgba(0, 212, 255, 0.25)',
+    msgMioBg: 'rgba(0, 212, 255, 0.20)'
+  },
+  rosa: { 
+    accent: '#f472b6', 
+    mainBg: '#0e060a',
+    glow: 'rgba(244, 114, 182, 0.12)',
+    btnBg: 'rgba(244, 114, 182, 0.15)',
+    border: 'rgba(244, 114, 182, 0.25)',
+    msgMioBg: 'rgba(244, 114, 182, 0.20)'
+  },
+  dorado: { 
+    accent: '#fbbf24', 
+    mainBg: '#0f0c06',
+    glow: 'rgba(251, 191, 36, 0.12)',
+    btnBg: 'rgba(251, 191, 36, 0.15)',
+    border: 'rgba(251, 191, 36, 0.25)',
+    msgMioBg: 'rgba(251, 191, 36, 0.20)'
+  },
+  rojo: { 
+    accent: '#b91c1c', // Rojo vino intenso
+    mainBg: '#0a0404',
+    glow: 'rgba(185, 28, 28, 0.15)',
+    btnBg: 'rgba(185, 28, 28, 0.20)',
+    border: 'rgba(239, 68, 68, 0.50)', // Borde rojo brillante
+    msgMioBg: 'rgba(185, 28, 28, 0.25)'
+  },
+  morado: { 
+    accent: '#a855f7', 
+    mainBg: '#0a060e',
+    glow: 'rgba(168, 85, 247, 0.12)',
+    btnBg: 'rgba(168, 85, 247, 0.15)',
+    border: 'rgba(168, 85, 247, 0.25)',
+    msgMioBg: 'rgba(168, 85, 247, 0.20)'
+  },
+  verde_oscuro: { 
+    accent: '#10b981', 
+    mainBg: '#060e08',
+    glow: 'rgba(16, 185, 129, 0.12)',
+    btnBg: 'rgba(16, 185, 129, 0.15)',
+    border: 'rgba(16, 185, 129, 0.25)',
+    msgMioBg: 'rgba(16, 185, 129, 0.20)'
+  },
+};
+
+type TemaKey = keyof typeof TEMAS;
+
 function Avatar({ src, nick, size = 42 }: { src: string | null; nick: string; size?: number }) {
   if (src) {
     return (
@@ -59,6 +113,28 @@ export default function MensajesPage() {
   const [enviando, setEnviando] = useState(false);
   const [subiendo, setSubiendo] = useState(false);
 
+  // 🔥 ESTADO DEL TEMA Y VISIBILIDAD
+  const [tema, setTema] = useState<TemaKey>(() => {
+    const saved = localStorage.getItem('mp_color_tema') as TemaKey | null;
+    return saved && TEMAS[saved] ? saved : 'azul';
+  });
+  
+  const [selectorVisible, setSelectorVisible] = useState(() => {
+    const saved = localStorage.getItem('mp_selector_visible');
+    return saved !== null ? JSON.parse(saved) : true;
+  });
+
+  const cambiarTema = (nuevoTema: TemaKey) => {
+    setTema(nuevoTema);
+    localStorage.setItem('mp_color_tema', nuevoTema);
+  };
+
+  const toggleSelector = () => {
+    const newVal = !selectorVisible;
+    localStorage.setItem('mp_selector_visible', JSON.stringify(newVal));
+    setSelectorVisible(newVal);
+  };
+
   const messagesEnd = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -67,35 +143,26 @@ export default function MensajesPage() {
 
   useEffect(() => { chatActivoRef.current = chatActivo; }, [chatActivo]);
 
-  /* ── Auth guard ── */
   useEffect(() => {
     if (!isAuthenticated || !token) navigate('/login');
   }, [isAuthenticated, token, navigate]);
 
-  /* ── Al montar: limpiar todos los no leídos (el usuario está en la página) ── */
-  useEffect(() => {
-    clearAll();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  useEffect(() => { clearAll(); }, []);
 
-  /* ── Cargar lista de chats ── */
   useEffect(() => {
     if (!token) return;
-    chatsService
-      .listarChats(token)
+    chatsService.listarChats(token)
       .then(setChats)
       .catch(() => setError('No se pudieron cargar los mensajes'))
       .finally(() => setLoading(false));
   }, [token]);
 
-  /* ── Abrir chat desde URL param ?userId=X ── */
   useEffect(() => {
     const uid = searchParams.get('userId');
     if (!uid || !token) return;
     const userId = Number(uid);
     if (isNaN(userId)) return;
     chatsService.getChatConUsuario(userId, token).then(chat => {
-      // Convertir ChatCompleto a ChatResumen-compatible
       const resumen: ChatResumen = {
         id: chat.id,
         usuario1: chat.usuario1,
@@ -109,24 +176,19 @@ export default function MensajesPage() {
         })),
       };
       setChatActivo(resumen);
-      setMensajes(
-        chat.mensajes.map(m => ({
-          id: m.id,
-          emisorId: m.emisorId,
-          contenido: m.contenido,
-          tipo: m.tipo,
-          fecha: m.fecha_creacion,
-        }))
-      );
+      setMensajes(chat.mensajes.map(m => ({
+        id: m.id,
+        emisorId: m.emisorId,
+        contenido: m.contenido,
+        tipo: m.tipo,
+        fecha: m.fecha_creacion,
+      })));
     }).catch(() => {});
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams, token]);
 
-  /* ── Suscribirse a mensajes entrantes vía contexto ── */
   const incomingHandler = useCallback((data: IncomingPrivateMsg) => {
     const current = chatActivoRef.current;
     if (current?.id === data.chatId) {
-      // Chat activo: mostrar mensaje + limpiar no leído
       setMensajes(m => [...m, {
         emisorId: data.user.id,
         contenido: data.contenido,
@@ -135,20 +197,15 @@ export default function MensajesPage() {
       }]);
       clearUnread(data.chatId);
     }
-    // Si no es el chat activo, el contexto ya lo marcó como no leído
-    // Actualizar último mensaje en la lista del sidebar
-    setChats(prev =>
-      prev.map(c =>
-        c.id === data.chatId
-          ? { ...c, mensajes: [{ id: Date.now(), contenido: data.contenido, tipo: data.tipo, fecha_creacion: data.fecha, emisorId: data.user.id }] }
-          : c
-      )
-    );
+    setChats(prev => prev.map(c =>
+      c.id === data.chatId
+        ? { ...c, mensajes: [{ id: Date.now(), contenido: data.contenido, tipo: data.tipo, fecha_creacion: data.fecha, emisorId: data.user.id }] }
+        : c
+    ));
   }, [clearUnread]);
 
   useEffect(() => subscribe(incomingHandler), [subscribe, incomingHandler]);
 
-  /* ── Abrir chat (Click en la lista) ── */
   const abrirChat = useCallback(async (chat: ChatResumen) => {
     if (!token) return;
     setChatActivo(chat);
@@ -156,29 +213,20 @@ export default function MensajesPage() {
     const interlocutor = chat.usuario1.id === user?.id ? chat.usuario2 : chat.usuario1;
     try {
       const completo = await chatsService.getChatConUsuario(interlocutor.id, token);
-      setMensajes(
-        completo.mensajes.map((m: MensajePrivado) => ({
-          id: m.id,
-          emisorId: m.emisorId,
-          contenido: m.contenido,
-          tipo: m.tipo,
-          fecha: m.fecha_creacion,
-        }))
-      );
-    } catch {
-      setMensajes([]);
-    }
+      setMensajes(completo.mensajes.map((m: MensajePrivado) => ({
+        id: m.id,
+        emisorId: m.emisorId,
+        contenido: m.contenido,
+        tipo: m.tipo,
+        fecha: m.fecha_creacion,
+      })));
+    } catch { setMensajes([]); }
   }, [token, user?.id]);
 
-  /* ── Enviar mensaje ── */
   const enviar = () => {
     const trimmed = texto.trim();
     if (!trimmed || !chatActivo || enviando) return;
-
-    const interlocutor = chatActivo.usuario1.id === user?.id
-      ? chatActivo.usuario2
-      : chatActivo.usuario1;
-
+    const interlocutor = chatActivo.usuario1.id === user?.id ? chatActivo.usuario2 : chatActivo.usuario1;
     setEnviando(true);
     emitMessage(interlocutor.id, trimmed, 'texto');
     setTexto('');
@@ -195,30 +243,21 @@ export default function MensajesPage() {
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !chatActivo || !token) return;
-    const interlocutor = chatActivo.usuario1.id === user?.id
-      ? chatActivo.usuario2
-      : chatActivo.usuario1;
+    const interlocutor = chatActivo.usuario1.id === user?.id ? chatActivo.usuario2 : chatActivo.usuario1;
     setSubiendo(true);
     try {
       const { url } = await uploadService.uploadImage(file, token);
       emitMessage(interlocutor.id, url, 'imagen');
     } catch { /* silent */ }
-    finally {
-      setSubiendo(false);
-      e.target.value = '';
-    }
+    finally { setSubiendo(false); e.target.value = ''; }
   };
 
-  /* ── SCROLL HASTA EL FONDO (AHORA SÍ QUE BAJA DEL TODO) ── */
   useEffect(() => {
-    // Pequeño timeout para asegurar que React ya renderizó los mensajes en el DOM
     const timeoutId = setTimeout(() => {
       if (messagesEnd.current) {
-        // 'block: "end"' asegura que el elemento final quede alineado con el borde inferior de la caja
         messagesEnd.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
       }
     }, 100);
-
     return () => clearTimeout(timeoutId);
   }, [mensajes]);
 
@@ -252,35 +291,98 @@ export default function MensajesPage() {
     ? (chatActivo.usuario1.id === user?.id ? chatActivo.usuario2 : chatActivo.usuario1)
     : null;
 
+  const currentTheme = TEMAS[tema];
+
   return (
-    <div className="mp-page">
+    <div 
+      className="mp-page" 
+      style={{
+        '--accent-color': currentTheme.accent,
+        '--main-bg': currentTheme.mainBg,
+        '--glow-color': currentTheme.glow,
+        '--btn-bg': currentTheme.btnBg,
+        '--border-color': currentTheme.border,
+        '--msg-mio-bg': currentTheme.msgMioBg,
+        '--badge-bg': currentTheme.btnBg,
+      } as React.CSSProperties}
+    >
       <div className="rs-grid" />
       <AppHeader />
 
       <section className="mp-hero">
-        <span className="mp-hero__badge">✦ Privado</span>
-        <h1 className="mp-hero__title">Mensajes</h1>
-        <p className="mp-hero__sub">Tus conversaciones privadas en tiempo real</p>
+        
+        {/* 🔥 SELECTOR DE TEMAS EN COLUMNA (CON ESTILOS DIRECTOS) */}
+        <div className="mp-theme-selector-wrapper">
+          <button 
+            className="mp-theme-toggle"
+            onClick={toggleSelector}
+            title="Mostrar / Ocultar selector de temas"
+          >
+            TEMAS
+          </button>
+          
+          {selectorVisible && (
+            <div 
+              style={{
+                display: 'flex',
+                gap: '8px',
+                background: 'rgba(0, 0, 0, 0.5)',
+                padding: '6px 10px',
+                borderRadius: '30px',
+                border: '1px solid rgba(255, 255, 255, 0.05)',
+                backdropFilter: 'blur(10px)'
+              }}
+            >
+              {(Object.keys(TEMAS) as TemaKey[]).map(key => {
+                const isActive = tema === key;
+                const color = TEMAS[key].accent;
+                return (
+                  <button
+                    key={key}
+                    onClick={() => cambiarTema(key)}
+                    title={key}
+                    style={{
+                      width: '22px',
+                      height: '22px',
+                      borderRadius: '50%',
+                      backgroundColor: color,
+                      border: isActive ? '2px solid #fff' : key === 'rojo' ? '2px solid rgba(255,255,255,0.3)' : '2px solid transparent',
+                      boxShadow: isActive ? `0 0 12px ${color}` : 'none',
+                      cursor: 'pointer',
+                      padding: 0,
+                      transition: 'all 0.2s'
+                    }}
+                  />
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* 🔥 TÍTULO Y BADGE CENTRADOS */}
+        <div className="mp-hero-center">
+          <span className="mp-hero__badge">✦ Privado</span>
+          <h1 className="mp-hero__title">Mensajes</h1>
+          <p className="mp-hero__sub">Tus conversaciones privadas en tiempo real</p>
+        </div>
+        
       </section>
 
       <div className="mp-scroll-container">
         <div className="mp-body">
           <aside className="mp-sidebar">
             <p className="mp-sidebar__title">Conversaciones ({chats.length})</p>
-
             {chats.length === 0 && (
               <div className="mp-empty-list">
                 <i className="bi bi-chat-dots" style={{ fontSize: '2rem', display: 'block', marginBottom: '0.5rem' }} />
                 Aún no tienes mensajes privados
               </div>
             )}
-
             {chats.map(chat => {
               const interlocutor = chat.usuario1.id === user?.id ? chat.usuario2 : chat.usuario1;
               const ultimo = chat.mensajes[0];
               const isActive = chatActivo?.id === chat.id;
               const hasUnread = unreadChats.has(chat.id);
-
               return (
                 <div
                   key={chat.id}
@@ -290,11 +392,7 @@ export default function MensajesPage() {
                   <Avatar src={interlocutor.avatar} nick={interlocutor.nickname} />
                   <div className="mp-chat-item__info">
                     <div className="mp-chat-item__nick">{interlocutor.nickname}</div>
-                    {ultimo && (
-                      <div className="mp-chat-item__last">
-                        {formatUltimo(ultimo.contenido, ultimo.tipo)}
-                      </div>
-                    )}
+                    {ultimo && <div className="mp-chat-item__last">{formatUltimo(ultimo.contenido, ultimo.tipo)}</div>}
                   </div>
                   {hasUnread && <span className="mp-chat-item__badge" title="Nuevo mensaje" />}
                 </div>
@@ -314,8 +412,7 @@ export default function MensajesPage() {
                   <div className="mp-chat-header__avatar">
                     {interlocutorActivo?.avatar
                       ? <img src={`${API}${interlocutorActivo.avatar}`} alt={interlocutorActivo.nickname} />
-                      : <i className="bi bi-person-fill" />
-                    }
+                      : <i className="bi bi-person-fill" />}
                   </div>
                   <span className="mp-chat-header__nick">{interlocutorActivo?.nickname}</span>
                 </div>
@@ -326,7 +423,6 @@ export default function MensajesPage() {
                       No hay mensajes aún — ¡sé el primero en escribir!
                     </div>
                   )}
-
                   {mensajes.map((msg, i) => {
                     const esMio = msg.emisorId === user?.id;
                     return (
@@ -334,9 +430,7 @@ export default function MensajesPage() {
                         <div className="mp-msg__bubble">
                           {msg.tipo === 'imagen' || msg.tipo === 'gif' ? (
                             <img src={msg.contenido.startsWith('http') ? msg.contenido : `${API}${msg.contenido}`} alt="imagen" />
-                          ) : (
-                            msg.contenido
-                          )}
+                          ) : (msg.contenido)}
                         </div>
                         <span className="mp-msg__time">{formatHora(msg.fecha)}</span>
                       </div>
@@ -346,38 +440,12 @@ export default function MensajesPage() {
                 </div>
 
                 <div className="mp-input-area">
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept="image/*"
-                    style={{ display: 'none' }}
-                    onChange={handleFile}
-                  />
-                  <button
-                    className="mp-attach-btn"
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={subiendo || !chatActivo}
-                    title="Adjuntar imagen"
-                  >
-                    {subiendo
-                      ? <i className="bi bi-arrow-repeat rs-spin" />
-                      : <i className="bi bi-paperclip" />}
+                  <input ref={fileInputRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleFile} />
+                  <button className="mp-attach-btn" onClick={() => fileInputRef.current?.click()} disabled={subiendo || !chatActivo} title="Adjuntar imagen">
+                    {subiendo ? <i className="bi bi-arrow-repeat rs-spin" /> : <i className="bi bi-paperclip" />}
                   </button>
-                  <textarea
-                    ref={textareaRef}
-                    className="mp-input"
-                    rows={1}
-                    placeholder="Escribe un mensaje…"
-                    value={texto}
-                    onChange={e => setTexto(e.target.value)}
-                    onKeyDown={handleKey}
-                  />
-                  <button
-                    className="mp-send-btn"
-                    onClick={enviar}
-                    disabled={!texto.trim() || enviando}
-                    title="Enviar"
-                  >
+                  <textarea ref={textareaRef} className="mp-input" rows={1} placeholder="Escribe un mensaje…" value={texto} onChange={e => setTexto(e.target.value)} onKeyDown={handleKey} />
+                  <button className="mp-send-btn" onClick={enviar} disabled={!texto.trim() || enviando} title="Enviar">
                     <i className="bi bi-send-fill" />
                   </button>
                 </div>
@@ -388,7 +456,6 @@ export default function MensajesPage() {
       </div>
       
       <AppFooter />
-      
     </div>
   );
 }

@@ -353,3 +353,73 @@
 .rp-page .rs-footer {
   margin-top: 2rem;
 }
+
+
+
+
+/* 🔥 MODO ADMIN - Colores ROJOS y FONDO ROJO (Se activa cuando la ruta es /admin/perfil) */
+.rp-page--admin .rp-hero__badge {
+  background: rgba(239, 68, 68, 0.1) !important;
+  border-color: rgba(239, 68, 68, 0.2) !important;
+  color: #f87171 !important;
+}
+
+.rp-page--admin .rp-label {
+  color: #f87171 !important;
+}
+
+.rp-page--admin .rp-avatar-wrap {
+  border-color: rgba(239, 68, 68, 0.35) !important;
+  box-shadow: 0 0 40px rgba(239, 68, 68, 0.15) !important;
+}
+
+.rp-page--admin .rp-avatar-wrap:hover {
+  box-shadow: 0 0 60px rgba(239, 68, 68, 0.35) !important;
+}
+
+.rp-page--admin .rp-avatar-placeholder {
+  background: rgba(239, 68, 68, 0.08) !important;
+  color: #f87171 !important;
+}
+
+.rp-page--admin .rp-card {
+  border-color: rgba(239, 68, 68, 0.15) !important;
+  box-shadow: 0 0 80px rgba(239, 68, 68, 0.04) !important;
+}
+
+.rp-page--admin .rp-input:focus {
+  border-color: #f87171 !important;
+  background: rgba(239, 68, 68, 0.04) !important;
+}
+
+.rp-page--admin .rp-btn--primary {
+  background: #ef4444 !important;
+  color: #fff !important;
+}
+
+.rp-page--admin .rp-btn--primary:hover:not(:disabled) {
+  box-shadow: 0 0 25px rgba(239, 68, 68, 0.4) !important;
+}
+
+.rp-page--admin .rp-badge--admin {
+  background: rgba(239, 68, 68, 0.12) !important;
+  border-color: rgba(239, 68, 68, 0.3) !important;
+  color: #f87171 !important;
+}
+
+/* 🔥 FONDO DE PÁGINA ROJO PARA ADMIN */
+.rp-page--admin {
+  background: radial-gradient(ellipse at 10% 15%, rgba(239, 68, 68, 0.08) 0%, transparent 50%),
+              radial-gradient(ellipse at 90% 25%, rgba(239, 68, 68, 0.04) 0%, transparent 45%),
+              radial-gradient(ellipse at 50% 80%, rgba(185, 28, 28, 0.03) 0%, transparent 40%),
+              #06060e !important;
+}
+
+.rp-page--admin::before {
+  background: none !important;
+}
+
+/* 🔥 AJUSTE DEL FOOTER PARA EL MODO ADMIN */
+.rp-page--admin .rs-footer {
+  margin-top: 2rem !important;
+}

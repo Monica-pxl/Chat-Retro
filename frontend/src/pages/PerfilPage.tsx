@@ -1,16 +1,20 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import AppHeader from '../components/AppHeader';
+import AppFooter from '../components/AppFooter';
 import { userService, type UserProfile } from '../services/user.service';
 import '../styles/perfil.css';
-import AppFooter from '../components/AppFooter';
 
 const API = 'http://localhost:3000';
 
 export default function PerfilPage() {
   const { token, isAuthenticated, user, updateUser } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // 🔥 DETECTAR SI ES ADMIN
+  const isAdminRoute = location.pathname.startsWith('/admin');
 
   const [perfil, setPerfil] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -111,7 +115,7 @@ export default function PerfilPage() {
 
   if (loading) {
     return (
-      <div className="rp-page">
+      <div className={`${isAdminRoute ? 'rp-page rp-page--admin' : 'rp-page'}`}>
         <div className="rs-grid" />
         <AppHeader />
         <div className="rp-center">
@@ -125,7 +129,7 @@ export default function PerfilPage() {
 
   if (error || !perfil) {
     return (
-      <div className="rp-page">
+      <div className={`${isAdminRoute ? 'rp-page rp-page--admin' : 'rp-page'}`}>
         <div className="rs-grid" />
         <AppHeader />
         <div className="rp-center rp-center--error">
@@ -140,16 +144,20 @@ export default function PerfilPage() {
   const avatarSrc = perfil.avatar ? `${API}${perfil.avatar}` : null;
 
   return (
-    <div className="rp-page">
+    <div className={`${isAdminRoute ? 'rp-page rp-page--admin' : 'rp-page'}`}>
       <div className="rs-grid" />
 
       <AppHeader />
 
       <div className="rp-hero">
         <div className="rp-hero__inner">
-          <span className="rp-hero__badge">✦ Tu espacio</span>
+          <span className="rp-hero__badge">✦ {isAdminRoute ? 'Admin' : 'Tu espacio'}</span>
           <h1 className="rp-hero__title">Mi Perfil</h1>
-          <p className="rp-hero__sub">Visualiza y gestiona tu información personal</p>
+          <p className="rp-hero__sub">
+            {isAdminRoute 
+              ? 'Panel de administración - Datos personales' 
+              : 'Visualiza y gestiona tu información personal'}
+          </p>
         </div>
       </div>
 
