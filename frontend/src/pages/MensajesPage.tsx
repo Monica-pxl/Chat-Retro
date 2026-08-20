@@ -160,6 +160,13 @@ export default function MensajesPage() {
   useEffect(() => {
     const uid = searchParams.get('userId');
     if (!uid || !token) return;
+    
+    // 🔥 BLOQUEO DE APERTURA DE CHAT SI ESTÁ SUSPENDIDO
+    if (user?.estado_cuenta === 'suspendida') {
+      navigate('/mensajes');
+      return;
+    }
+
     const userId = Number(uid);
     if (isNaN(userId)) return;
     chatsService.getChatConUsuario(userId, token).then(chat => {
@@ -184,7 +191,7 @@ export default function MensajesPage() {
         fecha: m.fecha_creacion,
       })));
     }).catch(() => {});
-  }, [searchParams, token]);
+  }, [searchParams, token, user, navigate]);
 
   const incomingHandler = useCallback((data: IncomingPrivateMsg) => {
     const current = chatActivoRef.current;
@@ -224,6 +231,17 @@ export default function MensajesPage() {
   }, [token, user?.id]);
 
   const enviar = () => {
+    // 🔥 TOAST DE AVISO SI ESTÁ SUSPENDIDO
+    if (user?.estado_cuenta === 'suspendida') {
+      window.dispatchEvent(new CustomEvent('show-toast', { 
+        detail: { 
+          type: 'warning', 
+          message: 'Cuenta suspendida. No puedes enviar mensajes.' 
+        }
+      }));
+      return;
+    }
+
     const trimmed = texto.trim();
     if (!trimmed || !chatActivo || enviando) return;
     const interlocutor = chatActivo.usuario1.id === user?.id ? chatActivo.usuario2 : chatActivo.usuario1;
@@ -260,6 +278,39 @@ export default function MensajesPage() {
     }, 100);
     return () => clearTimeout(timeoutId);
   }, [mensajes]);
+
+  // 🔥 SI EL USUARIO ESTÁ SUSPENDIDO, BLOQUEAMOS LA PÁGINA POR COMPLETO
+  if (user?.estado_cuenta === 'suspendida') {
+    return (
+      <div className="mp-page">
+        <div className="rs-grid" />
+        <AppHeader />
+        <div className="mp-hero">
+          <span className="mp-hero__badge" style={{ color: '#f87171', borderColor: '#f87171' }}>✦ Bloqueado</span>
+          <h1 className="mp-hero__title" style={{ color: '#fff' }}>Cuenta Suspendida</h1>
+          <p className="mp-hero__sub" style={{ color: '#94a3b8' }}>
+            Has sido suspendido. No puedes enviar ni recibir mensajes.
+          </p>
+        </div>
+        <div className="mp-scroll-container">
+          <div className="mp-body">
+            <div className="mp-chat-panel" style={{ borderColor: 'rgba(239, 68, 68, 0.2)' }}>
+              <div className="mp-chat-placeholder">
+                <i className="bi bi-lock-fill" style={{ fontSize: '3.5rem', color: 'var(--text-muted)' }} />
+                <span style={{ color: 'var(--text-muted)', fontSize: '1.1rem', fontWeight: 'bold', marginTop: '1rem' }}>
+                  Acción bloqueada
+                </span>
+                <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+                  Tu cuenta está suspendida temporalmente.
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <AppFooter />
+      </div>
+    );
+  }
 
   if (!isAuthenticated) return null;
 
@@ -441,11 +492,30 @@ export default function MensajesPage() {
 
                 <div className="mp-input-area">
                   <input ref={fileInputRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleFile} />
-                  <button className="mp-attach-btn" onClick={() => fileInputRef.current?.click()} disabled={subiendo || !chatActivo} title="Adjuntar imagen">
+                  <button 
+                    className="mp-attach-btn" 
+                    onClick={() => fileInputRef.current?.click()} 
+                    disabled={subiendo || !chatActivo || user?.estado_cuenta === 'suspendida'}
+                    title="Adjuntar imagen"
+                  >
                     {subiendo ? <i className="bi bi-arrow-repeat rs-spin" /> : <i className="bi bi-paperclip" />}
                   </button>
-                  <textarea ref={textareaRef} className="mp-input" rows={1} placeholder="Escribe un mensaje…" value={texto} onChange={e => setTexto(e.target.value)} onKeyDown={handleKey} />
-                  <button className="mp-send-btn" onClick={enviar} disabled={!texto.trim() || enviando} title="Enviar">
+                  <textarea 
+                    ref={textareaRef} 
+                    className="mp-input" 
+                    rows={1} 
+                    placeholder={user?.estado_cuenta === 'suspendida' ? "Cuenta suspendida" : "Escribe un mensaje…"} 
+                    value={texto} 
+                    onChange={e => setTexto(e.target.value)} 
+                    onKeyDown={handleKey} 
+                    disabled={user?.estado_cuenta === 'suspendida'}
+                  />
+                  <button 
+                    className="mp-send-btn" 
+                    onClick={enviar} 
+                    disabled={!texto.trim() || enviando || user?.estado_cuenta === 'suspendida'}
+                    title="Enviar"
+                  >
                     <i className="bi bi-send-fill" />
                   </button>
                 </div>

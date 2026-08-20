@@ -12,6 +12,15 @@ export const enviarSolicitud = async (req: Request, res: Response) => {
     const emisorId = (req as any).user.userId;
     const { receptorId } = req.body;
 
+    // 🔥 BLOQUEO POR ROL O SUSPENSIÓN DEL EMISOR
+    const emisor = await prisma.user.findUnique({ where: { id: emisorId } });
+    if (emisor?.estado_cuenta === 'suspendida') {
+      return res.status(403).json({ error: "Cuenta suspendida. No puedes enviar solicitudes." });
+    }
+    if (emisor?.rol === 'admin') {
+      return res.status(403).json({ error: "Los administradores no pueden enviar solicitudes de amistad." });
+    }
+
     if (!receptorId || isNaN(Number(receptorId))) {
       return res.status(400).json({
         error: "ID del usuario receptor inválido"
@@ -38,9 +47,15 @@ export const enviarSolicitud = async (req: Request, res: Response) => {
       });
     }
 
+    // 🔥 BLOQUEO POR ROL O ESTADO DEL RECEPTOR
+    if (usuarioDestino.rol === 'admin') {
+      return res.status(403).json({
+        error: "No puedes enviar solicitudes a un administrador."
+      });
+    }
     if (usuarioDestino.estado_cuenta !== "activa") {
       return res.status(403).json({
-        error: "No puedes enviar solicitudes a este usuario"
+        error: "No puedes enviar solicitudes a este usuario."
       });
     }
 
@@ -125,9 +140,14 @@ export const enviarSolicitud = async (req: Request, res: Response) => {
 ================================ */
 export const aceptarSolicitud = async (req: Request, res: Response) => {
   try {
-
     const userId = (req as any).user.userId;
     const id = Number(req.params.id);
+
+    // 🔥 BLOQUEO POR SUSPENSIÓN (Ya no distingue si es admin o no)
+    const usuario = await prisma.user.findUnique({ where: { id: userId } });
+    if (usuario?.estado_cuenta === 'suspendida') {
+      return res.status(403).json({ error: "Cuenta suspendida. No puedes aceptar solicitudes." });
+    }
 
     if (isNaN(id)) {
       return res.status(400).json({
@@ -201,9 +221,14 @@ export const aceptarSolicitud = async (req: Request, res: Response) => {
 ================================ */
 export const rechazarSolicitud = async (req: Request, res: Response) => {
   try {
-
     const userId = (req as any).user.userId;
     const id = Number(req.params.id);
+
+    // 🔥 BLOQUEO POR SUSPENSIÓN (Ya no distingue si es admin o no)
+    const usuario = await prisma.user.findUnique({ where: { id: userId } });
+    if (usuario?.estado_cuenta === 'suspendida') {
+      return res.status(403).json({ error: "Cuenta suspendida. No puedes rechazar solicitudes." });
+    }
 
     if (isNaN(id)) {
       return res.status(400).json({
@@ -277,9 +302,14 @@ export const rechazarSolicitud = async (req: Request, res: Response) => {
 ================================ */
 export const cancelarSolicitud = async (req: Request, res: Response) => {
   try {
-
     const userId = (req as any).user.userId;
     const id = Number(req.params.id);
+
+    // 🔥 BLOQUEO POR SUSPENSIÓN (Ya no distingue si es admin o no)
+    const usuario = await prisma.user.findUnique({ where: { id: userId } });
+    if (usuario?.estado_cuenta === 'suspendida') {
+      return res.status(403).json({ error: "Cuenta suspendida. No puedes cancelar solicitudes." });
+    }
 
     if (isNaN(id)) {
       return res.status(400).json({
@@ -336,9 +366,14 @@ export const cancelarSolicitud = async (req: Request, res: Response) => {
 ================================ */
 export const eliminarAmigo = async (req: Request, res: Response) => {
   try {
-
     const userId = (req as any).user.userId;
     const amigoId = Number(req.params.amigoId);
+
+    // 🔥 BLOQUEO POR SUSPENSIÓN (Ya no distingue si es admin o no)
+    const usuario = await prisma.user.findUnique({ where: { id: userId } });
+    if (usuario?.estado_cuenta === 'suspendida') {
+      return res.status(403).json({ error: "Cuenta suspendida. No puedes eliminar amigos." });
+    }
 
     if (isNaN(amigoId)) {
       return res.status(400).json({
@@ -390,7 +425,6 @@ export const eliminarAmigo = async (req: Request, res: Response) => {
 ================================ */
 export const listarAmigos = async (req: Request, res: Response) => {
   try {
-
     const userId = (req as any).user.userId;
 
     const amistades = await prisma.amistad.findMany({
@@ -428,7 +462,6 @@ export const listarAmigos = async (req: Request, res: Response) => {
     });
 
     const amigos = amistades.map((amistad) => {
-
       const amigo =
         amistad.emisorId === userId
           ? amistad.receptor
@@ -439,7 +472,6 @@ export const listarAmigos = async (req: Request, res: Response) => {
         desde: amistad.fecha_creacion,
         amigo
       };
-
     });
 
     return res.json(amigos);
@@ -456,7 +488,6 @@ export const listarAmigos = async (req: Request, res: Response) => {
 ================================ */
 export const listarSolicitudes = async (req: Request, res: Response) => {
   try {
-
     const userId = (req as any).user.userId;
 
     const solicitudes = await prisma.amistad.findMany({
@@ -493,7 +524,6 @@ export const listarSolicitudes = async (req: Request, res: Response) => {
 ================================ */
 export const listarSolicitudesEnviadas = async (req: Request, res: Response) => {
   try {
-
     const userId = (req as any).user.userId;
 
     const solicitudes = await prisma.amistad.findMany({

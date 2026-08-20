@@ -21,6 +21,27 @@ export default function AppHeader() {
 
   return (
     <header className="rs-header">
+      {/* 🔥 BANNER DE SUSPENSIÓN (Añadido aquí) */}
+      {isAuthenticated && user?.estado_cuenta === 'suspendida' && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100%',
+          background: 'rgba(251, 191, 36, 0.85)',
+          color: '#000',
+          textAlign: 'center',
+          padding: '6px 0',
+          fontWeight: 'bold',
+          fontSize: '0.9rem',
+          zIndex: 10000,
+          borderBottom: '2px solid #fbbf24',
+          backdropFilter: 'blur(4px)'
+        }}>
+          ⚠️ Tu cuenta está suspendida. No puedes enviar mensajes ni unirte a salas.
+        </div>
+      )}
+
       <div className="rs-header__inner">
         <Link className="rs-logo" to={isAdminRoute ? "/admin" : "/"}>
           <span className="rs-logo__icon">

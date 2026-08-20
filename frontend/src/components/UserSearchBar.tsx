@@ -7,12 +7,21 @@ import '../styles/search.css';
 
 const API = 'http://localhost:3000';
 
+// 🔥 Esta interfaz define que el modal acepta CUALQUIER usuario que tenga estos campos
+interface ModalUser {
+  id: number;
+  nickname: string;
+  avatar: string | null;
+  estado: string;
+  estado_cuenta: string;
+}
+
 /* ── Modal de perfil de usuario ── */
 export function UserProfileModal({
   user,
   onClose,
 }: {
-  user: UserSearch;
+  user: ModalUser;
   onClose: () => void;
 }) {
   const navigate = useNavigate();
@@ -21,6 +30,9 @@ export function UserProfileModal({
   const [feedback, setFeedback] = useState<{ text: string; err: boolean } | null>(null);
   const estado = getFriendStatus(user.id);
   const enLinea = isUserOnline(user.id);
+
+  // 🔥 DETECTAMOS SI EL USUARIO DEL PERFIL ESTÁ SUSPENDIDO
+  const estaSuspendido = user.estado_cuenta === 'suspendida';
 
   // Cerrar con Escape
   useEffect(() => {
@@ -99,7 +111,13 @@ export function UserProfileModal({
 
         {/* Acciones */}
         <div className="rs-modal-actions">
-          <button className="rs-modal-btn rs-modal-btn--msg" onClick={handleMensaje}>
+          
+          {/* 🔥 MENSAJE: Deshabilitado si está suspendido */}
+          <button 
+            className="rs-modal-btn rs-modal-btn--msg" 
+            onClick={handleMensaje}
+            disabled={estaSuspendido}
+          >
             <i className="bi bi-chat-dots-fill" /> Mensaje
           </button>
 
@@ -139,7 +157,7 @@ export function UserProfileModal({
             <button
               className="rs-modal-btn rs-modal-btn--add"
               onClick={handleAddFriend}
-              disabled={busy}
+              disabled={busy || estaSuspendido}
             >
               {busy
                 ? <><i className="bi bi-arrow-repeat rs-spin" /> Enviando…</>

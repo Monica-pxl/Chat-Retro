@@ -13,6 +13,7 @@ export interface UserProfile {
 }
 
 export interface UserSearch {
+  estado_cuenta: string;
   id: number;
   nickname: string;
   avatar: string | null;

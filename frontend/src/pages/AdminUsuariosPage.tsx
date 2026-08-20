@@ -17,16 +17,14 @@ const formatearFecha = (fechaStr: string | null) => {
 };
 
 export default function AdminUsuariosPage() {
-  const { token, user } = useAuth();
+  const { user } = useAuth(); // Solo necesitamos el usuario, no el token
   const [usuarios, setUsuarios] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [accionando, setAccionando] = useState<Set<number>>(new Set());
   
-  // 🔥 NOTIFICACIONES TOAST
   const [toast, setToast] = useState<{ type: 'ok' | 'err'; msg: string } | null>(null);
 
-  // 🔎 ESTADO DE LOS FILTROS
   const [busqueda, setBusqueda] = useState('');
   const [filtroRol, setFiltroRol] = useState<'todos' | 'user' | 'admin'>('todos');
   const [filtroEstadoCuenta, setFiltroEstadoCuenta] = useState<'todos' | 'activa' | 'suspendida' | 'baneada'>('todos');
@@ -35,7 +33,6 @@ export default function AdminUsuariosPage() {
   const socketRef = useRef<Socket | null>(null);
   const [onlineIds, setOnlineIds] = useState<Set<number>>(new Set());
 
-  // Auto-limpiar el toast a los 4 segundos
   useEffect(() => {
     if (toast) {
       const timer = setTimeout(() => setToast(null), 4000);
@@ -44,21 +41,24 @@ export default function AdminUsuariosPage() {
   }, [toast]);
 
   useEffect(() => {
-    if (!token) return;
-    const socket = io(API, { auth: { token } });
+    // Usamos el token del localStorage directamente para el socket
+    const tokenLocal = localStorage.getItem('rs_token');
+    if (!tokenLocal) return;
+    
+    const socket = io(API, { auth: { token: tokenLocal } });
     socketRef.current = socket;
     socket.on('online-users', (ids: number[]) => {
       setOnlineIds(new Set(ids));
     });
     return () => { socket.disconnect(); };
-  }, [token]);
+  }, []);
 
   useEffect(() => {
     const fetchUsuarios = async () => {
-      if (!token) return;
       try {
         setLoading(true);
-        const data = await adminService.getUsuarios(token);
+        // 🔥 El servicio ya coge el token solo
+        const data = await adminService.getUsuarios();
         let listaFinal = data;
         const existeAdmin = data.some(u => u.id === user?.id);
         if (!existeAdmin && user) {
@@ -84,7 +84,7 @@ export default function AdminUsuariosPage() {
       }
     };
     fetchUsuarios();
-  }, [token, user]);
+  }, [user]);
 
   useEffect(() => {
     setUsuarios(prev => prev.map(u => ({
@@ -107,12 +107,12 @@ export default function AdminUsuariosPage() {
     });
   }, [usuarios, busqueda, filtroRol, filtroEstadoCuenta, filtroConexion]);
 
+  // 🔥 AHORA LAS FUNCIONES YA NO PIDEN EL TOKEN
   const cambiarEstado = async (userId: number, nuevoEstado: 'activa' | 'suspendida' | 'baneada') => {
-    if (!token) return;
     setAccionando(prev => new Set(prev).add(userId));
     setToast(null);
     try {
-      await adminService.cambiarEstadoCuenta(userId, nuevoEstado, token);
+      await adminService.cambiarEstadoCuenta(userId, nuevoEstado);
       setUsuarios(prev => prev.map(u => u.id === userId ? { ...u, estado_cuenta: nuevoEstado } : u));
       setToast({ type: 'ok', msg: `Estado actualizado a ${nuevoEstado}` });
     } catch (err: any) {
@@ -124,11 +124,10 @@ export default function AdminUsuariosPage() {
   };
 
   const cambiarRol = async (userId: number, nuevoRol: 'user' | 'admin') => {
-    if (!token) return;
     setAccionando(prev => new Set(prev).add(userId));
     setToast(null);
     try {
-      await adminService.cambiarRol(userId, nuevoRol, token);
+      await adminService.cambiarRol(userId, nuevoRol);
       setUsuarios(prev => prev.map(u => u.id === userId ? { ...u, rol: nuevoRol } : u));
       setToast({ type: 'ok', msg: `Rol actualizado a ${nuevoRol}` });
     } catch (err: any) {
@@ -143,7 +142,6 @@ export default function AdminUsuariosPage() {
     <div className="ad-page">
       <AppHeader />
 
-      {/* 🔥 TOAST DE NOTIFICACIÓN CON ICONOS BOOTSTRAP */}
       {toast && (
         <div className={`ad-toast ad-toast--${toast.type}`}>
           <i className={`bi ${toast.type === 'ok' ? 'bi-check-circle-fill' : 'bi-x-circle-fill'}`} style={{ marginRight: '0.5rem' }} />
@@ -165,7 +163,6 @@ export default function AdminUsuariosPage() {
 
       <section className="ad-main ad-main--fullwidth ad-main--bajito">
         
-        {/* 🔎 BARRA DE FILTROS */}
         <div className="ad-filters-bar">
           <div className="ad-filters-row">
             <div className="ad-filter-group ad-filter-group--grow">
@@ -221,7 +218,6 @@ export default function AdminUsuariosPage() {
           </div>
         </div>
 
-        {/* ── TABLA DE USUARIOS ── */}
         {loading && (
           <div className="ad-status">
             <i className="bi bi-arrow-repeat rs-spin" />

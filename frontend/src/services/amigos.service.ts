@@ -6,7 +6,13 @@ const auth = (token: string) => ({ Authorization: `Bearer ${token}` });
 export interface AmigoItem {
   amistadId: number;
   desde: string;
-  amigo: { id: number; nickname: string; avatar: string | null; estado: string };
+  amigo: { 
+    id: number; 
+    nickname: string; 
+    avatar: string | null; 
+    estado: string;
+    estado_cuenta: string; // 🔥 AÑADIDO PARA CORREGIR EL ERROR DE TIPOS
+  };
 }
 
 export interface Solicitud {

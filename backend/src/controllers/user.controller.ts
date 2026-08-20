@@ -130,7 +130,8 @@ export const searchUsers = async (req: Request, res: Response) => {
       where: {
         nickname: { contains: q },
         id: { not: currentUserId },
-        estado_cuenta: 'activa',
+        rol: { not: 'admin' },
+        estado_cuenta: { in: ['activa', 'suspendida'] },
       },
       select: { id: true, nickname: true, avatar: true, estado: true },
       take: 8,

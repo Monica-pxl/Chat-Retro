@@ -12,21 +12,13 @@ interface AuthSocket extends Socket {
   user?: any;
 }
 
-/**
- * 🔥 NUEVA FUNCIÓN: Obtiene los usuarios conectados a una sala y emite la lista
- */
 async function emitRoomUsers(io: Server, roomId: number, roomName: string) {
   try {
-    // Obtener los sockets en la sala
     const roomSockets = await io.in(roomName).fetchSockets();
-
-    // Obtener los userIds de los sockets
     const userIds: number[] = [];
     for (const sock of roomSockets) {
       const userId = (sock as any).user?.userId;
-      if (userId) {
-        userIds.push(userId);
-      }
+      if (userId) userIds.push(userId);
     }
 
     if (userIds.length === 0) {
@@ -34,16 +26,9 @@ async function emitRoomUsers(io: Server, roomId: number, roomName: string) {
       return;
     }
 
-    // Buscar los usuarios en la base de datos
     const users = await prisma.user.findMany({
-      where: {
-        id: { in: userIds },
-      },
-      select: {
-        id: true,
-        nickname: true,
-        avatar: true,
-      },
+      where: { id: { in: userIds } },
+      select: { id: true, nickname: true, avatar: true },
     });
 
     io.to(roomName).emit("room-users", { users });
@@ -54,33 +39,23 @@ async function emitRoomUsers(io: Server, roomId: number, roomName: string) {
 
 export const socketHandler = (io: Server) => {
 
-  // 🔐 JWT middleware
   io.use((socket: AuthSocket, next) => {
     try {
       const token = socket.handshake.auth.token;
-
-      if (!token) {
-        return next(new Error("Token requerido"));
-      }
-
+      if (!token) return next(new Error("Token requerido"));
       const decoded = jwt.verify(token, JWT_SECRET);
       socket.user = decoded;
-
       next();
     } catch {
       return next(new Error("Token inválido"));
     }
   });
 
-  // 🟢 conexión
   io.on("connection", (socket: AuthSocket) => {
-
     const userId = socket.user?.userId;
-
     if (!userId) return;
 
     console.log("🟢 Usuario conectado:", userId);
-
     addUserSocket(userId, socket.id);
 
     prisma.user.update({
@@ -90,7 +65,6 @@ export const socketHandler = (io: Server) => {
 
     io.emit("online-users", getOnlineUserIds());
 
-    // 🔴 disconnecting: el socket AÚN está en las salas
     socket.on("disconnecting", () => {
       for (const roomName of socket.rooms) {
         if (roomName.startsWith("room-")) {
@@ -99,243 +73,182 @@ export const socketHandler = (io: Server) => {
           const newCount = Math.max(0, currentSize - 1);
           setRoomCount(roomId, newCount);
           io.to(roomName).emit("room-user-count", { count: newCount });
-          
-          // 🔥 ACTUALIZAR LISTA DE USUARIOS
           emitRoomUsers(io, roomId, roomName);
         }
       }
     });
 
-    // 🔴 disconnect: socket.rooms ya está vacío aquí
     socket.on("disconnect", () => {
       const userId = socket.user?.userId;
-
       if (!userId) return;
-
       console.log("🔴 Usuario desconectado:", userId);
-
       removeUserSocket(userId, socket.id);
-
-      // Solo marcar desconectado si no le quedan otras pestañas/sockets activos
       if (!getOnlineUserIds().includes(userId)) {
         prisma.user.update({
           where: { id: userId },
           data: { estado: "desconectado" },
         }).catch(() => {});
       }
-
       io.emit("online-users", getOnlineUserIds());
     });
 
-    // 🚪 join-room - CORREGIDO
+    // 🚪 JOIN ROOM - BLOQUEADO SI ESTÁ SUSPENDIDO (NO ENTRA NI UN POCO)
     socket.on("join-room", async (roomId: number) => {
       try {
-        const sala = await prisma.sala.findUnique({
-          where: { id: roomId },
-        });
+        // 🔥 BLOQUEO DURO
+        const user = await prisma.user.findUnique({ where: { id: userId } });
+        if (user?.estado_cuenta === 'suspendida') {
+          socket.emit("room-error", {
+            message: "Cuenta suspendida. No puedes unirte a salas.",
+          });
+          return; // 🔥 SE CORTA AQUÍ, NO ENTRA
+        }
 
+        const sala = await prisma.sala.findUnique({ where: { id: roomId } });
         if (!sala) {
-          socket.emit("room-error", {
-            message: "Sala no encontrada",
-          });
+          socket.emit("room-error", { message: "Sala no encontrada" });
           return;
         }
-
         if (sala.cerrada) {
-          socket.emit("room-error", {
-            message: "Esta sala está cerrada",
-          });
+          socket.emit("room-error", { message: "Esta sala está cerrada" });
           return;
         }
-
         if (!canJoinRoom(sala)) {
-          socket.emit("room-error", {
-            message: "La sala no está disponible ahora mismo",
-          });
+          socket.emit("room-error", { message: "La sala no está disponible ahora mismo" });
           return;
         }
 
         const roomName = `room-${roomId}`;
-
-        // 🔥 1. UNIRSE PRIMERO
-        if (!socket.rooms.has(roomName)) {
-          socket.join(roomName);
-        }
-
-        // 🔥 2. EMITIR QUE SE UNIÓ
+        if (!socket.rooms.has(roomName)) socket.join(roomName);
         socket.emit("joined-room", { roomId });
 
-        // 🔥 3. CALCULAR TAMAÑO REAL Y EMITIR A TODOS
         const roomSize = io.sockets.adapter.rooms.get(roomName)?.size ?? 1;
         setRoomCount(roomId, roomSize);
         io.to(roomName).emit("room-user-count", { count: roomSize });
-
-        // 🔥 4. ENVIAR LA LISTA DE USUARIOS EN LA SALA
         await emitRoomUsers(io, roomId, roomName);
 
       } catch {
-        socket.emit("room-error", {
-          message: "Error al unirse a la sala",
-        });
+        socket.emit("room-error", { message: "Error al unirse a la sala" });
       }
     });
 
-    // 🚶 leave-room - CORREGIDO
     socket.on("leave-room", (roomId: number) => {
-
       const roomName = `room-${roomId}`;
-
-      // 🔥 1. SALIR PRIMERO
       socket.leave(roomName);
-
-      // 🔥 2. EMITIR QUE SALIÓ
       socket.emit("left-room", { roomId });
-
-      // 🔥 3. CALCULAR TAMAÑO REAL Y EMITIR A LOS QUE QUEDAN
       const roomSize = io.sockets.adapter.rooms.get(roomName)?.size ?? 0;
       setRoomCount(roomId, roomSize);
       io.to(roomName).emit("room-user-count", { count: roomSize });
-
-      // 🔥 4. ACTUALIZAR LA LISTA DE USUARIOS
       emitRoomUsers(io, roomId, roomName);
     });
 
-    // 💬 private-message
-    socket.on(
-      "private-message",
-      async ({ destinatarioId, contenido, tipo }: { destinatarioId: number; contenido: string; tipo?: string }) => {
-        const emisorId: number = socket.user?.userId;
-        const tipoValido = (tipo === "imagen" || tipo === "gif" || tipo === "audio") ? tipo : "texto";
-
-        if (!emisorId || !destinatarioId || !contenido?.trim()) return;
-
-        try {
-          // Buscar o crear el chat privado
-          let chat = await prisma.chatPrivado.findFirst({
-            where: {
-              OR: [
-                { usuario1Id: emisorId, usuario2Id: destinatarioId },
-                { usuario1Id: destinatarioId, usuario2Id: emisorId },
-              ],
-            },
-          });
-
-          if (!chat) {
-            chat = await prisma.chatPrivado.create({
-              data: { usuario1Id: emisorId, usuario2Id: destinatarioId },
-            });
-          }
-
-          const mensaje = await prisma.mensajePrivado.create({
-            data: {
-              chatId: chat.id,
-              emisorId,
-              contenido: contenido.trim(),
-              tipo: tipoValido as any,
-            },
-          });
-
-          const emisor = await prisma.user.findUnique({
-            where: { id: emisorId },
-            select: {
-              id: true,
-              nickname: true,
-              avatar: true,
-            },
-          });
-
-          // Emitir al emisor para confirmación
-          socket.emit("receive-private-message", {
-            chatId: chat.id,
-            user: emisor,
-            destinatarioId,
-            contenido: mensaje.contenido,
-            tipo: tipoValido,
-            fecha: mensaje.fecha_creacion.toISOString(),
-          });
-
-          // Emitir al destinatario en todos sus sockets activos
-          emitToUser(destinatarioId, "receive-private-message", {
-            chatId: chat.id,
-            user: emisor,
-            destinatarioId,
-            contenido: mensaje.contenido,
-            tipo: tipoValido,
-            fecha: mensaje.fecha_creacion.toISOString(),
-          });
-        } catch {
-          socket.emit("private-message-error", { message: "Error al enviar el mensaje privado" });
-        }
+    // 💬 SEND MESSAGE - BLOQUEADO SI ESTÁ SUSPENDIDO
+    socket.on("send-message", async ({ roomId, contenido, tipo }) => {
+      const senderUserId = socket.user?.userId;
+      if (!senderUserId || !roomId || !contenido) return;
+      if (tipo == "texto" && contenido.length > 1000) {
+        socket.emit("room-error", { message: "El mensaje supera el máximo permitido" });
+        return;
       }
-    );
 
-    // 💬 send-message
-    socket.on(
-      "send-message",
-      async ({ roomId, contenido, tipo }: { roomId: number; contenido: string; tipo: "texto" | "imagen" | "gif"; }) => {
+      // 🔥 BLOQUEO DURO ANTES DE GUARDAR
+      const sender = await prisma.user.findUnique({ where: { id: senderUserId } });
+      if (sender?.estado_cuenta === 'suspendida') {
+        socket.emit("room-error", { message: "Cuenta suspendida. No puedes enviar mensajes." });
+        return;
+      }
 
-        const senderUserId = socket.user?.userId;
+      const roomName = `room-${roomId}`;
+      if (!socket.rooms.has(roomName)) {
+        socket.emit("room-error", { message: "No perteneces a esta sala" });
+        return;
+      }
 
-        if (!senderUserId) return;
+      try {
+        await prisma.mensajeSala.create({
+          data: { salaId: roomId, userId: senderUserId, contenido, tipo },
+        });
+      } catch {
+        socket.emit("room-error", { message: "Error al guardar el mensaje" });
+        return;
+      }
 
-        if (!roomId) return;
+      const usuario = await prisma.user.findUnique({
+        where: { id: senderUserId },
+        select: { id: true, nickname: true, avatar: true },
+      });
 
-        if (!contenido) {
-          socket.emit("room-error", {
-            message: "El mensaje está vacío",
+      io.to(roomName).emit("receive-message", {
+        roomId,
+        user: usuario,
+        contenido,
+        tipo,
+        fecha: new Date().toISOString(),
+      });
+    });
+
+    // 💬 PRIVATE MESSAGE - BLOQUEADO SI ESTÁ SUSPENDIDO
+    socket.on("private-message", async ({ destinatarioId, contenido, tipo }) => {
+      const emisorId: number = socket.user?.userId;
+      if (!emisorId || !destinatarioId || !contenido?.trim()) return;
+      const tipoValido = (tipo === "imagen" || tipo === "gif" || tipo === "audio") ? tipo : "texto";
+
+      // 🔥 BLOQUEO DURO ANTES DE GUARDAR
+      const emisor = await prisma.user.findUnique({ where: { id: emisorId } });
+      if (emisor?.estado_cuenta === 'suspendida') {
+        socket.emit("private-message-error", { message: "Cuenta suspendida. No puedes enviar mensajes." });
+        return; // 🔥 SE CORTA AQUÍ, NO SE GUARDA EN LA BD
+      }
+
+      try {
+        let chat = await prisma.chatPrivado.findFirst({
+          where: {
+            OR: [
+              { usuario1Id: emisorId, usuario2Id: destinatarioId },
+              { usuario1Id: destinatarioId, usuario2Id: emisorId },
+            ],
+          },
+        });
+        if (!chat) {
+          chat = await prisma.chatPrivado.create({
+            data: { usuario1Id: emisorId, usuario2Id: destinatarioId },
           });
-          return;
         }
 
-        if (tipo == "texto" && contenido.length > 1000) {
-          socket.emit("room-error", {
-            message: "El mensaje supera el máximo permitido",
-          });
-          return;
-        }
-
-        const roomName = `room-${roomId}`;
-
-        if (!socket.rooms.has(roomName)) {
-          socket.emit("room-error", {
-            message: "No perteneces a esta sala",
-          });
-          return;
-        }
-
-        try {
-          await prisma.mensajeSala.create({
-            data: {
-              salaId: roomId,
-              userId: senderUserId,
-              contenido,
-              tipo,
-            },
-          });
-        } catch {
-          socket.emit("room-error", {
-            message: "Error al guardar el mensaje",
-          });
-          return;
-        }
-
-        const usuario = await prisma.user.findUnique({
-          where: { id: senderUserId },
-          select: {
-            id: true,
-            nickname: true,
-            avatar: true,
+        const mensaje = await prisma.mensajePrivado.create({
+          data: {
+            chatId: chat.id,
+            emisorId,
+            contenido: contenido.trim(),
+            tipo: tipoValido as any,
           },
         });
 
-        io.to(roomName).emit("receive-message", {
-          roomId,
-          user: usuario,
-          contenido,
-          tipo,
-          fecha: new Date().toISOString(),
+        const emisorData = await prisma.user.findUnique({
+          where: { id: emisorId },
+          select: { id: true, nickname: true, avatar: true },
         });
+
+        socket.emit("receive-private-message", {
+          chatId: chat.id,
+          user: emisorData,
+          destinatarioId,
+          contenido: mensaje.contenido,
+          tipo: tipoValido,
+          fecha: mensaje.fecha_creacion.toISOString(),
+        });
+
+        emitToUser(destinatarioId, "receive-private-message", {
+          chatId: chat.id,
+          user: emisorData,
+          destinatarioId,
+          contenido: mensaje.contenido,
+          tipo: tipoValido,
+          fecha: mensaje.fecha_creacion.toISOString(),
+        });
+      } catch {
+        socket.emit("private-message-error", { message: "Error al enviar el mensaje privado" });
       }
-    );
+    });
   });
 };

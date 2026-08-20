@@ -36,10 +36,10 @@ export const getOrCreateChat = async (req: Request, res: Response) => {
       });
     }
 
-    // Comprobar que la cuenta está activa
-    if (receptor.estado_cuenta !== "activa") {
+    // 🔥 CAMBIO AQUÍ: Bloquear si el receptor es admin o no está activo
+    if (receptor.rol === 'admin' || receptor.estado_cuenta !== "activa") {
       return res.status(403).json({
-        error: "No puedes iniciar un chat con este usuario",
+        error: "No puedes iniciar un chat con este administrador.",
       });
     }
 

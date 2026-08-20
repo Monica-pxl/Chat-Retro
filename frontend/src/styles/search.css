@@ -286,7 +286,18 @@
   transition: all 0.18s;
   font-family: var(--font);
 }
-.rs-modal-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* 🔥 ESTADO DESHABILITADO (Fuerza bruta) 🔥 */
+.rs-modal-btn:disabled,
+.rs-modal-btn.disabled {
+  opacity: 0.4 !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+  filter: grayscale(0.9) !important;
+  background: rgba(255, 255, 255, 0.03) !important;
+  border-color: rgba(255, 255, 255, 0.05) !important;
+  color: #6b6b80 !important;
+}
 
 .rs-modal-btn--msg {
   background: rgba(0, 229, 255, 0.12);

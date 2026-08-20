@@ -1,11 +1,11 @@
 import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
+import { emitToUser } from "../helpers/socketStore";
 
 const prisma = new PrismaClient();
 
 /* ================================
    LISTAR USUARIOS
-   (excluye al propio admin y a otros admins)
 ================================ */
 export const getUsuarios = async (req: Request, res: Response) => {
   try {
@@ -37,8 +37,6 @@ export const getUsuarios = async (req: Request, res: Response) => {
 
 /* ================================
    CAMBIAR ESTADO DE CUENTA
-   (activa / suspendida / baneada)
-   No aplica sobre sí mismo ni sobre otros admins
 ================================ */
 export const updateEstadoCuenta = async (req: Request, res: Response) => {
   try {
@@ -85,6 +83,18 @@ export const updateEstadoCuenta = async (req: Request, res: Response) => {
       },
     });
 
+    if (updated.estado_cuenta === 'baneada') {
+      emitToUser(targetId, "admin-action", {
+        type: "baneada",
+        message: "Tu cuenta ha sido baneada por un administrador.",
+      });
+    } else if (updated.estado_cuenta === 'suspendida') {
+      emitToUser(targetId, "admin-action", {
+        type: "suspendida",
+        message: "Tu cuenta ha sido suspendida temporalmente.",
+      });
+    }
+
     return res.json(updated);
   } catch {
     return res.status(500).json({ error: "Error al actualizar el estado de cuenta" });
@@ -93,7 +103,6 @@ export const updateEstadoCuenta = async (req: Request, res: Response) => {
 
 /* ================================
    CAMBIAR ROL DE USUARIO
-   El admin no puede cambiarse de rol a sí mismo
 ================================ */
 export const cambiarRol = async (req: Request, res: Response) => {
   try {
@@ -132,6 +141,12 @@ export const cambiarRol = async (req: Request, res: Response) => {
         nickname: true,
         rol: true,
       },
+    });
+
+    // 🔥 ENVIAR EVENTO DE CAMBIO DE ROL CON EL MENSAJE EXACTO
+    emitToUser(targetId, "admin-action", {
+      type: "rol_actualizado",
+      message: "Tu rol ha cambiado. Por favor, recarga la página.",
     });
 
     return res.json(updated);

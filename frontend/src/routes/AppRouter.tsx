@@ -1,11 +1,12 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { ReactNode } from 'react';
 import LandingPage from '../pages/LandingPage';
 import LoginPage from '../pages/LoginPage';
 import RegisterPage from '../pages/RegisterPage';
 import AdminDashboard from '../pages/AdminPage';
 import AdminUsuariosPage from '../pages/AdminUsuariosPage';
 import AdminSalasPage from '../pages/AdminSalasPage';
-import AdminRoute from '../components/AdminRoute'; // El componente limpio que arreglamos arriba
+import AdminRoute from '../components/AdminRoute';
 import SalasPage from '../pages/SalasPage';
 import SalaPage from '../pages/SalaPage';
 import PerfilPage from '../pages/PerfilPage';
@@ -13,9 +14,14 @@ import MensajesPage from '../pages/MensajesPage';
 import SolicitudesPage from '../pages/SolicitudesPage';
 import AmigosPage from '../pages/AmigosPage';
 
-export default function AppRouter() {
+interface AppRouterProps {
+  children?: ReactNode;
+}
+
+export default function AppRouter({ children }: AppRouterProps) {
   return (
     <BrowserRouter>
+      {children}
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
@@ -26,6 +32,8 @@ export default function AppRouter() {
         <Route path="/mensajes" element={<MensajesPage />} />
         <Route path="/solicitudes" element={<SolicitudesPage />} />
         <Route path="/amigos" element={<AmigosPage />} />
+
+        {/* Rutas protegidas de Admin */}
         <Route
           path="/admin"
           element={

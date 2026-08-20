@@ -2,9 +2,6 @@ import axios from 'axios';
 
 const API = 'http://localhost:3000';
 
-/* ==========================================================
-   Tipos de datos que devuelve tu backend
-========================================================== */
 export interface AdminUser {
   id: number;
   email: string;
@@ -30,67 +27,72 @@ export interface AdminStats {
   chatsPrivados: number;
 }
 
+const getToken = () => localStorage.getItem('rs_token');
+
+const getHeaders = () => {
+  const token = getToken();
+  return {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+};
+
 export const adminService = {
-  // 1. Obtener todos los usuarios
-  getUsuarios: async (token: string): Promise<AdminUser[]> => {
-    const response = await axios.get(`${API}/admin/usuarios`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+  // ✅ Usa GET
+  getUsuarios: async (): Promise<AdminUser[]> => {
+    const response = await axios.get(`${API}/admin/usuarios`, getHeaders());
     return response.data;
   },
 
-  // 2. Cambiar estado de cuenta (activa, suspendida, baneada)
+  // ✅ CAMBIADO A PUT (Coincide con el backend)
   cambiarEstadoCuenta: async (
     userId: number,
-    nuevoEstado: 'activa' | 'suspendida' | 'baneada',
-    token: string
+    nuevoEstado: 'activa' | 'suspendida' | 'baneada'
   ): Promise<{ id: number; nickname: string; estado_cuenta: string }> => {
-    const response = await axios.patch(
-      `${API}/admin/usuario/${userId}/estado`,
+    const response = await axios.put(
+      `${API}/admin/usuarios/${userId}/estado`,
       { estado_cuenta: nuevoEstado },
-      { headers: { Authorization: `Bearer ${token}` } }
+      getHeaders()
     );
     return response.data;
   },
 
-  // 3. Cambiar rol de usuario
+  // ✅ CAMBIADO A PUT (Coincide con el backend)
   cambiarRol: async (
     userId: number,
-    nuevoRol: 'user' | 'admin',
-    token: string
+    nuevoRol: 'user' | 'admin'
   ): Promise<{ id: number; nickname: string; rol: string }> => {
-    const response = await axios.patch(
-      `${API}/admin/usuario/${userId}/rol`,
+    const response = await axios.put(
+      `${API}/admin/usuarios/${userId}/rol`,
       { rol: nuevoRol },
-      { headers: { Authorization: `Bearer ${token}` } }
+      getHeaders()
     );
     return response.data;
   },
 
-  // 4. Obtener Estadísticas Globales (Tu Dashboard)
-  getEstadisticas: async (token: string): Promise<AdminStats> => {
-    const response = await axios.get(`${API}/admin/stats`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+  // ✅ Usa GET
+  getEstadisticas: async (): Promise<AdminStats> => {
+    const response = await axios.get(`${API}/admin/stats`, getHeaders());
     return response.data;
   },
 
-  // 5. Cerrar Sala
-  cerrarSala: async (salaId: number, token: string) => {
-    const response = await axios.post(
-      `${API}/admin/sala/${salaId}/cerrar`,
+  // ✅ CAMBIADO A PUT (Coincide con el backend)
+  cerrarSala: async (salaId: number) => {
+    const response = await axios.put(
+      `${API}/admin/salas/${salaId}/cerrar`,
       {},
-      { headers: { Authorization: `Bearer ${token}` } }
+      getHeaders()
     );
     return response.data;
   },
 
-  // 6. Abrir Sala
-  abrirSala: async (salaId: number, token: string) => {
-    const response = await axios.post(
-      `${API}/admin/sala/${salaId}/abrir`,
+  // ✅ CAMBIADO A PUT (Coincide con el backend)
+  abrirSala: async (salaId: number) => {
+    const response = await axios.put(
+      `${API}/admin/salas/${salaId}/abrir`,
       {},
-      { headers: { Authorization: `Bearer ${token}` } }
+      getHeaders()
     );
     return response.data;
   },

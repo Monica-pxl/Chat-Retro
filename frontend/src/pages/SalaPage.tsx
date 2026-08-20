@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { io, type Socket } from 'socket.io-client';
 import { useAuth } from '../context/AuthContext';
@@ -97,6 +97,19 @@ export default function SalaPage() {
   const privadoMessagesEnd = useRef<HTMLDivElement>(null);
 
   const salaId = Number(id);
+
+  // 🚨 REDIRECCIÓN Y TOAST SI ESTÁ SUSPENDIDO (SE EJECUTA ANTES DE RENDERIZAR NADA)
+  useLayoutEffect(() => {
+    if (user?.estado_cuenta === 'suspendida') {
+      window.dispatchEvent(new CustomEvent('show-toast', { 
+        detail: { 
+          type: 'warning', 
+          message: 'Cuenta suspendida. No puedes unirte a salas.' 
+        }
+      }));
+      navigate('/salas', { replace: true });
+    }
+  }, [user, navigate]);
 
   const esTvShow = sala?.tematica?.nombre?.toLowerCase().includes('tv shows') || false;
 
@@ -576,7 +589,7 @@ export default function SalaPage() {
                       <button
                         className={`rs-sala-users__friend-btn rs-sala-users__friend-btn--${estadoAmistad}`}
                         onClick={(e) => handleFriendAction(e, u.id)}
-                        disabled={ocupado || estadoAmistad === 'amigo'}
+                        disabled={ocupado || estadoAmistad === 'amigo' || user?.estado_cuenta === 'suspendida'}
                         title={
                           estadoAmistad === 'amigo' ? 'Ya sois amigos'
                           : estadoAmistad === 'enviada' ? 'Cancelar solicitud'
@@ -788,7 +801,7 @@ export default function SalaPage() {
                   className="rs-sala-attach-btn"
                   title="Subir imagen"
                   onClick={() => fileInputRef.current?.click()}
-                  disabled={subiendo}
+                  disabled={subiendo || user?.estado_cuenta === 'suspendida'}
                 >
                   <i className="bi bi-paperclip" />
                 </button>
@@ -802,24 +815,28 @@ export default function SalaPage() {
                 <textarea
                   ref={textareaRef}
                   className="rs-sala-input"
-                  placeholder="Escribe un mensaje..."
+                  placeholder={user?.estado_cuenta === 'suspendida' ? "Cuenta suspendida" : "Escribe un mensaje..."}
                   value={texto}
                   onChange={e => setTexto(e.target.value)}
                   onKeyDown={handleKeyDown}
                   rows={1}
                   maxLength={1000}
+                  disabled={user?.estado_cuenta === 'suspendida'}
                 />
                 <button
                   className="rs-sala-send-btn"
                   onClick={sendMessage}
-                  disabled={!texto.trim()}
+                  disabled={!texto.trim() || user?.estado_cuenta === 'suspendida'}
                   title="Enviar (Enter)"
                 >
                   <i className="bi bi-send-fill" />
                 </button>
               </div>
               <p className="rs-sala-input-hint">
-                <kbd>Enter</kbd> para enviar &nbsp;·&nbsp; <kbd>Shift+Enter</kbd> para nueva línea
+                {user?.estado_cuenta === 'suspendida' 
+                  ? '🔒 Cuenta suspendida' 
+                  : <><kbd>Enter</kbd> para enviar &nbsp;·&nbsp; <kbd>Shift+Enter</kbd> para nueva línea</>
+                }
               </p>
             </div>
           ) : (

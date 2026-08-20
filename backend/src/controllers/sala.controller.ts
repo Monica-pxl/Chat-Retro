@@ -44,6 +44,14 @@ export const getMensajesSala = async (req: Request, res: Response) => {
       return res.status(404).json({ error: "Sala no encontrada" });
     }
 
+    const userId = (req as any).user?.userId;
+    if (userId) {
+      const usuario = await prisma.user.findUnique({ where: { id: userId } });
+      if (usuario?.estado_cuenta === 'suspendida') {
+        return res.status(403).json({ error: "Cuenta suspendida. No puedes ver los mensajes de esta sala." });
+      }
+    }
+
     if (sala.cerrada) {
       const requesterId = (req as any).user?.userId;
       const requester = requesterId
