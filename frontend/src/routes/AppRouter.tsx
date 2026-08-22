@@ -66,6 +66,14 @@ export default function AppRouter({ children }: AppRouterProps) {
             </AdminRoute>
           }
         />
+        <Route
+          path="/admin/salas"
+          element={
+            <AdminRoute>
+              <AdminSalasPage />
+            </AdminRoute>
+          }
+        />
       </Routes>
     </BrowserRouter>
   );

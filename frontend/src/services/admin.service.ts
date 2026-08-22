@@ -27,72 +27,69 @@ export interface AdminStats {
   chatsPrivados: number;
 }
 
-const getToken = () => localStorage.getItem('rs_token');
-
-const getHeaders = () => {
-  const token = getToken();
+// ✅ Función auxiliar que acepta token opcional
+const getHeaders = (token?: string) => {
+  const authToken = token || localStorage.getItem('rs_token');
   return {
     headers: {
-      Authorization: `Bearer ${token}`,
+      Authorization: `Bearer ${authToken}`,
     },
   };
 };
 
 export const adminService = {
-  // ✅ Usa GET
-  getUsuarios: async (): Promise<AdminUser[]> => {
-    const response = await axios.get(`${API}/admin/usuarios`, getHeaders());
+  // ✅ AHORA ACEPTAN TOKEN OPCIONAL
+  getUsuarios: async (token?: string): Promise<AdminUser[]> => {
+    const response = await axios.get(`${API}/admin/usuarios`, getHeaders(token));
     return response.data;
   },
 
-  // ✅ CAMBIADO A PUT (Coincide con el backend)
   cambiarEstadoCuenta: async (
     userId: number,
-    nuevoEstado: 'activa' | 'suspendida' | 'baneada'
+    nuevoEstado: 'activa' | 'suspendida' | 'baneada',
+    token?: string
   ): Promise<{ id: number; nickname: string; estado_cuenta: string }> => {
     const response = await axios.put(
       `${API}/admin/usuarios/${userId}/estado`,
       { estado_cuenta: nuevoEstado },
-      getHeaders()
+      getHeaders(token)
     );
     return response.data;
   },
 
-  // ✅ CAMBIADO A PUT (Coincide con el backend)
   cambiarRol: async (
     userId: number,
-    nuevoRol: 'user' | 'admin'
+    nuevoRol: 'user' | 'admin',
+    token?: string
   ): Promise<{ id: number; nickname: string; rol: string }> => {
     const response = await axios.put(
       `${API}/admin/usuarios/${userId}/rol`,
       { rol: nuevoRol },
-      getHeaders()
+      getHeaders(token)
     );
     return response.data;
   },
 
-  // ✅ Usa GET
-  getEstadisticas: async (): Promise<AdminStats> => {
-    const response = await axios.get(`${API}/admin/stats`, getHeaders());
+  // ✅ AHORA ACEPTA TOKEN COMO PARÁMETRO
+  getEstadisticas: async (token?: string): Promise<AdminStats> => {
+    const response = await axios.get(`${API}/admin/stats`, getHeaders(token));
     return response.data;
   },
 
-  // ✅ CAMBIADO A PUT (Coincide con el backend)
-  cerrarSala: async (salaId: number) => {
+  cerrarSala: async (salaId: number, token?: string) => {
     const response = await axios.put(
       `${API}/admin/salas/${salaId}/cerrar`,
       {},
-      getHeaders()
+      getHeaders(token)
     );
     return response.data;
   },
 
-  // ✅ CAMBIADO A PUT (Coincide con el backend)
-  abrirSala: async (salaId: number) => {
+  abrirSala: async (salaId: number, token?: string) => {
     const response = await axios.put(
       `${API}/admin/salas/${salaId}/abrir`,
       {},
-      getHeaders()
+      getHeaders(token)
     );
     return response.data;
   },
