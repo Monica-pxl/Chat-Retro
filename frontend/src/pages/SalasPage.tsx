@@ -58,7 +58,9 @@ export default function SalasPage() {
       <section className="rs-salas-hero">
         <div className="rs-salas-hero__inner">
           <span className="rs-hero__badge">✦ En tiempo real</span>
-          <h1 className="rs-salas-hero__title">Salas de Chat</h1>
+          <h1 className="rs-salas-hero__title">
+            Salas de <span>Chat</span>
+          </h1>
           <p className="rs-salas-hero__sub">
             Explora todas las salas y únete a la conversación — sin necesidad de registrarte
           </p>
@@ -67,17 +69,19 @@ export default function SalasPage() {
 
       {/* ── Filtros ── */}
       <div className="rs-salas-filters">
-        {(['todas', 'anuales', 'especiales'] as Filtro[]).map(f => (
-          <button
-            key={f}
-            className={`rs-salas-filter-btn${filtro === f ? ' rs-salas-filter-btn--active' : ''}`}
-            onClick={() => setFiltro(f)}
-          >
-            {f === 'todas'      && <><i className="bi bi-grid-3x3-gap" /> Todas</>}
-            {f === 'anuales'    && <><i className="bi bi-calendar3" /> Por año</>}
-            {f === 'especiales' && <><i className="bi bi-stars" /> Especiales</>}
-          </button>
-        ))}
+        <div className="rs-salas-filters__scroll">
+          {(['todas', 'anuales', 'especiales'] as Filtro[]).map(f => (
+            <button
+              key={f}
+              className={`rs-salas-filter-btn${filtro === f ? ' rs-salas-filter-btn--active' : ''}`}
+              onClick={() => setFiltro(f)}
+            >
+              {f === 'todas'      && <><i className="bi bi-grid-3x3-gap" /> <span>Todas</span></>}
+              {f === 'anuales'    && <><i className="bi bi-calendar3" /> <span>Por año</span></>}
+              {f === 'especiales' && <><i className="bi bi-stars" /> <span>Especiales</span></>}
+            </button>
+          ))}
+        </div>
         <span className="rs-salas-filter-count">{salasFiltradas.length} salas</span>
       </div>
 
@@ -111,6 +115,7 @@ export default function SalasPage() {
                 key={sala.id}
                 className={`rs-sala-card${sala.cerrada ? ' rs-sala-card--cerrada' : ''}`}
                 style={{ '--sala-accent': getAccent(sala) } as React.CSSProperties}
+                onClick={() => !sala.cerrada && navigate(`/salas/${sala.id}`)}
               >
                 <div className="rs-sala-card__glow" />
 
@@ -158,7 +163,10 @@ export default function SalasPage() {
                 <div className="rs-sala-card__footer">
                   <button
                     className="rs-sala-enter-btn"
-                    onClick={() => navigate(`/salas/${sala.id}`)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (!sala.cerrada) navigate(`/salas/${sala.id}`);
+                    }}
                     disabled={sala.cerrada}
                   >
                     {sala.cerrada

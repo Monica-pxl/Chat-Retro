@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════
-   RetroChat — Solicitudes de amistad  (acento naranja)
+   RetroChat — Solicitudes de amistad (acento naranja)
    ═══════════════════════════════════════════════════════════ */
 
 /* ── Página base ── */
@@ -233,7 +233,6 @@
   background: rgba(255, 138, 101, 0.2);
 }
 
-/* Pending indicator */
 .sq-pending-dot {
   display: inline-block;
   width: 8px;
@@ -242,4 +241,254 @@
   background: var(--accent-orange);
   margin-right: 0.4rem;
   box-shadow: 0 0 6px var(--accent-orange);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE - SOLICITUDES
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Tablets ── */
+@media (max-width: 1024px) {
+  .sq-main {
+    padding: 0 1.5rem 12rem;
+  }
+  
+  .sq-hero {
+    padding: 3rem 2rem 2rem;
+  }
+}
+
+/* ── Móviles grandes ── */
+@media (max-width: 768px) {
+  .sq-hero {
+    padding: 2.5rem 1.5rem 1.5rem;
+  }
+  
+  .sq-hero__title {
+    font-size: clamp(1.8rem, 5vw, 2.4rem);
+  }
+  
+  .sq-hero__sub {
+    font-size: 0.9rem;
+  }
+  
+  .sq-tabs {
+    padding: 0 1.2rem 1.2rem;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+  }
+  
+  .sq-tab {
+    padding: 0.4rem 1rem;
+    font-size: 0.78rem;
+    gap: 0.3rem;
+  }
+  
+  .sq-tab__badge {
+    min-width: 18px;
+    height: 18px;
+    font-size: 0.6rem;
+  }
+  
+  .sq-main {
+    padding: 0 1.2rem 10rem;
+  }
+  
+  .sq-card {
+    padding: 0.8rem 1rem;
+    gap: 0.7rem;
+    border-radius: 12px;
+  }
+  
+  .sq-card__avatar {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+  
+  .sq-card__nick {
+    font-size: 0.85rem;
+  }
+  
+  .sq-card__time {
+    font-size: 0.7rem;
+  }
+  
+  .sq-card__actions {
+    gap: 0.3rem;
+    flex-direction: column;
+  }
+  
+  .sq-btn {
+    padding: 0.3rem 0.7rem;
+    font-size: 0.7rem;
+    justify-content: center;
+    min-width: 70px;
+  }
+  
+  .sq-btn i {
+    font-size: 0.7rem;
+  }
+}
+
+/* ── Móviles pequeños ── */
+@media (max-width: 480px) {
+  .sq-hero {
+    padding: 2rem 1rem 1rem;
+  }
+  
+  .sq-hero__badge {
+    font-size: 0.6rem;
+    padding: 0.2rem 0.8rem;
+  }
+  
+  .sq-hero__title {
+    font-size: clamp(1.5rem, 4vw, 1.8rem);
+  }
+  
+  .sq-hero__sub {
+    font-size: 0.8rem;
+  }
+  
+  .sq-tabs {
+    padding: 0 0.8rem 1rem;
+    gap: 0.3rem;
+  }
+  
+  .sq-tab {
+    padding: 0.3rem 0.7rem;
+    font-size: 0.7rem;
+    gap: 0.25rem;
+    border-radius: 30px;
+  }
+  
+  .sq-tab i {
+    font-size: 0.7rem;
+  }
+  
+  .sq-tab__badge {
+    min-width: 16px;
+    height: 16px;
+    font-size: 0.55rem;
+    padding: 0 3px;
+  }
+  
+  .sq-main {
+    padding: 0 0.8rem 8rem;
+  }
+  
+  .sq-status {
+    padding: 2rem 0;
+    font-size: 0.85rem;
+  }
+  
+  .sq-status i {
+    font-size: 1.6rem;
+  }
+  
+  .sq-card {
+    padding: 0.6rem 0.7rem;
+    gap: 0.5rem;
+    border-radius: 10px;
+  }
+  
+  .sq-card__avatar {
+    width: 34px;
+    height: 34px;
+    font-size: 0.85rem;
+  }
+  
+  .sq-card__nick {
+    font-size: 0.8rem;
+  }
+  
+  .sq-card__time {
+    font-size: 0.65rem;
+  }
+  
+  .sq-card__actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.3rem;
+  }
+  
+  .sq-btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.65rem;
+    min-width: auto;
+    border-radius: 6px;
+    gap: 0.2rem;
+  }
+  
+  .sq-btn i {
+    font-size: 0.6rem;
+  }
+  
+  .sq-pending-dot {
+    width: 6px;
+    height: 6px;
+    margin-right: 0.25rem;
+  }
+}
+
+/* ── Móviles muy pequeños ── */
+@media (max-width: 380px) {
+  .sq-hero {
+    padding: 1.5rem 0.5rem 0.8rem;
+  }
+  
+  .sq-hero__title {
+    font-size: 1.3rem;
+  }
+  
+  .sq-hero__sub {
+    font-size: 0.75rem;
+  }
+  
+  .sq-tabs {
+    padding: 0 0.5rem 0.8rem;
+  }
+  
+  .sq-tab {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.6rem;
+  }
+  
+  .sq-tab i {
+    font-size: 0.6rem;
+  }
+  
+  .sq-main {
+    padding: 0 0.5rem 6rem;
+  }
+  
+  .sq-card {
+    padding: 0.5rem 0.5rem;
+    gap: 0.4rem;
+    border-radius: 8px;
+  }
+  
+  .sq-card__avatar {
+    width: 30px;
+    height: 30px;
+    font-size: 0.75rem;
+  }
+  
+  .sq-card__nick {
+    font-size: 0.75rem;
+  }
+  
+  .sq-card__time {
+    font-size: 0.6rem;
+  }
+  
+  .sq-btn {
+    font-size: 0.6rem;
+    padding: 0.2rem 0.4rem;
+    border-radius: 4px;
+  }
+  
+  .sq-btn i {
+    font-size: 0.55rem;
+  }
 }

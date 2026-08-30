@@ -1,13 +1,10 @@
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import AppHeader from '../components/AppHeader';
 import AppFooter from '../components/AppFooter';
 import { salasService, type Sala } from '../services/salas.service';
 import { adminService } from '../services/admin.service';
 import '../styles/admin.css';
 import { useAuth } from '../context/AuthContext';
-import { io, type Socket } from 'socket.io-client';
-
-const API = 'http://localhost:3000';
 
 export default function AdminSalasPage() {
   const { token } = useAuth();
@@ -17,15 +14,11 @@ export default function AdminSalasPage() {
   const [accionando, setAccionando] = useState<Set<number>>(new Set());
   const [toast, setToast] = useState<{ type: 'ok' | 'err'; msg: string } | null>(null);
 
-  // 🔥 FILTROS
   const [busqueda, setBusqueda] = useState('');
   const [filtroTipo, setFiltroTipo] = useState<'todos' | 'general_anual' | 'epoca_estilo'>('todos');
   const [filtroEstado, setFiltroEstado] = useState<'todos' | 'abierta' | 'cerrada'>('todos');
   const [filtroEpoca, setFiltroEpoca] = useState<'todos' | '90s' | '2000s'>('todos');
 
-  const socketRef = useRef<Socket | null>(null);
-
-  // ── TOAST ──
   useEffect(() => {
     if (toast) {
       const timer = setTimeout(() => setToast(null), 4000);
@@ -33,57 +26,63 @@ export default function AdminSalasPage() {
     }
   }, [toast]);
 
-  // ── SOCKET PARA TIEMPO REAL ──
+  // ── ESCUCHAR CAMBIOS DE ESTADO DE SALAS VÍA SocketListener ──
   useEffect(() => {
-    if (!token) return;
-
-    const socket = io(API, { auth: { token } });
-    socketRef.current = socket;
-
-    socket.on('sala-estado-cambiado', (data: { salaId: number; cerrada: boolean; nombre: string }) => {
-      console.log('📩 AdminSalasPage - Cambio de sala recibido:', data);
+    console.log('🔄 AdminSalasPage - Registrando listener de ventana');
+    
+    const handler = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      const data = customEvent.detail as { salaId: number; cerrada: boolean; nombre: string };
+      console.log('📩 AdminSalasPage - Evento de ventana RECIBIDO:', data);
       setSalas(prev => prev.map(sala =>
         sala.id === data.salaId ? { ...sala, cerrada: data.cerrada } : sala
       ));
       setToast({
         type: 'ok',
-        msg: `Sala "${data.nombre}" ${data.cerrada ? 'cerrada' : 'abierta'} por administrador.`
+        msg: `Sala "${data.nombre}" ${data.cerrada ? 'cerrada' : 'abierta'}.`
       });
-    });
-
-    return () => {
-      socket.disconnect();
-      socketRef.current = null;
     };
-  }, [token]);
+
+    window.addEventListener('sala-estado-cambiado', handler as EventListener);
+    return () => {
+      console.log('🔄 AdminSalasPage - Eliminando listener de ventana');
+      window.removeEventListener('sala-estado-cambiado', handler as EventListener);
+    };
+  }, []);
 
   // ── CARGAR SALAS ──
   useEffect(() => {
-    if (!token) return;
+    if (!token) {
+      console.log('⚠️ AdminSalasPage - No hay token');
+      return;
+    }
+    console.log('🔄 AdminSalasPage - Cargando salas...');
     setLoading(true);
     salasService.getSalas()
-      .then((data) => setSalas(data))
-      .catch(() => setError('No se pudieron cargar las salas.'))
+      .then((data) => {
+        console.log('✅ AdminSalasPage - Salas cargadas:', data.length);
+        setSalas(data);
+      })
+      .catch((err) => {
+        console.error('❌ AdminSalasPage - Error al cargar salas:', err);
+        setError('No se pudieron cargar las salas.');
+      })
       .finally(() => setLoading(false));
   }, [token]);
 
   // ── FILTRADO DE SALAS ──
   const salasFiltradas = useMemo(() => {
     return salas.filter(sala => {
-      // Búsqueda por nombre o descripción
       const textoCoincide =
         sala.nombre.toLowerCase().includes(busqueda.toLowerCase()) ||
         (sala.descripcion?.toLowerCase().includes(busqueda.toLowerCase()) ?? false);
 
-      // Filtro por tipo
       const tipoCoincide = filtroTipo === 'todos' || sala.tipo === filtroTipo;
 
-      // Filtro por estado (abierta/cerrada)
       const estadoCoincide = filtroEstado === 'todos' ||
         (filtroEstado === 'abierta' && !sala.cerrada) ||
         (filtroEstado === 'cerrada' && sala.cerrada);
 
-      // Filtro por época (90s / 2000s)
       let epocaCoincide = true;
       if (filtroEpoca !== 'todos') {
         if (sala.tipo === 'general_anual' && sala.ano) {
@@ -103,18 +102,39 @@ export default function AdminSalasPage() {
 
   // ── ABRIR / CERRAR SALA ──
   const toggleSala = async (sala: Sala) => {
-    if (!token) return;
+    if (!token) {
+      console.log('⚠️ toggleSala - No hay token');
+      return;
+    }
+    
+    console.log('🔄 toggleSala - Sala:', sala.nombre, 'ID:', sala.id, 'cerrada:', sala.cerrada);
     setAccionando(prev => new Set(prev).add(sala.id));
     setToast(null);
+    
     try {
+      let response;
       if (sala.cerrada) {
-        await adminService.abrirSala(sala.id);
-        // El socket actualizará la lista automáticamente
+        console.log('🔓 Abriendo sala:', sala.id);
+        response = await adminService.abrirSala(sala.id);
+        console.log('✅ Respuesta abrirSala:', response);
       } else {
-        await adminService.cerrarSala(sala.id);
-        // El socket actualizará la lista automáticamente
+        console.log('🔒 Cerrando sala:', sala.id);
+        response = await adminService.cerrarSala(sala.id);
+        console.log('✅ Respuesta cerrarSala:', response);
       }
+      
+      // ✅ ACTUALIZACIÓN MANUAL CON LA RESPUESTA DEL BACKEND
+      console.log('📩 Actualizando estado manualmente con:', response);
+      setSalas(prev => prev.map(s =>
+        s.id === sala.id ? { ...s, cerrada: response.cerrada } : s
+      ));
+      
+      setToast({
+        type: 'ok',
+        msg: `Sala "${sala.nombre}" ${sala.cerrada ? 'abierta' : 'cerrada'}.`
+      });
     } catch (err: any) {
+      console.error('❌ Error en toggleSala:', err);
       const msg = err.response?.data?.error || 'Error al cambiar el estado de la sala.';
       setToast({ type: 'err', msg: `${msg}` });
     } finally {
@@ -122,7 +142,6 @@ export default function AdminSalasPage() {
     }
   };
 
-  // ── LOADING ──
   if (loading) {
     return (
       <div className="ad-page">
@@ -136,7 +155,6 @@ export default function AdminSalasPage() {
     );
   }
 
-  // ── ERROR ──
   if (error) {
     return (
       <div className="ad-page">
@@ -150,7 +168,6 @@ export default function AdminSalasPage() {
     );
   }
 
-  // ── RENDER ──
   return (
     <div className="ad-page">
       <AppHeader />
@@ -176,7 +193,6 @@ export default function AdminSalasPage() {
 
       <section className="ad-main ad-main--fullwidth ad-main--bajito">
 
-        {/* ── BARRA DE FILTROS ── */}
         <div className="ad-filters-bar">
           <div className="ad-filters-row">
             <div className="ad-filter-group ad-filter-group--grow">
@@ -235,7 +251,6 @@ export default function AdminSalasPage() {
           </div>
         </div>
 
-        {/* ── TABLA ── */}
         <div className="ad-table-wrapper">
           <table className="ad-table">
             <thead>
@@ -268,20 +283,20 @@ export default function AdminSalasPage() {
 
                   return (
                     <tr key={sala.id}>
-                      <td className="ad-table-nick">
+                      <td data-label="Nombre" className="ad-table-nick">
                         <i className="bi bi-door-open" style={{ marginRight: '8px', color: 'var(--accent-color)' }} />
                         {sala.nombre}
                       </td>
-                      <td>{sala.tipo === 'general_anual' ? 'Anual' : 'Temática'}</td>
-                      <td>{sala.ano || sala.epoca?.nombre || '—'}</td>
-                      <td className="ad-table-date">{sala.descripcion || '—'}</td>
-                      <td>
+                      <td data-label="Tipo">{sala.tipo === 'general_anual' ? 'Anual' : 'Temática'}</td>
+                      <td data-label="Época / Año">{sala.ano || sala.epoca?.nombre || '—'}</td>
+                      <td data-label="Descripción" className="ad-table-date">{sala.descripcion || '—'}</td>
+                      <td data-label="Estado">
                         <span className={`ad-badge ad-badge--${sala.cerrada ? 'baneada' : 'activa'}`}>
                           <i className={`bi ${sala.cerrada ? 'bi-lock-fill' : 'bi-check-circle-fill'}`} style={{ marginRight: '4px' }} />
                           {sala.cerrada ? 'Cerrada' : 'Abierta'}
                         </span>
                       </td>
-                      <td>
+                      <td data-label="Acciones">
                         <div className="ad-btn-group-acciones">
                           <button
                             className={`ad-btn-accion ${sala.cerrada ? 'ad-btn-accion--activar' : 'ad-btn-accion--suspender'}`}

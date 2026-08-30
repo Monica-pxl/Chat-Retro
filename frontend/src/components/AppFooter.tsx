@@ -5,14 +5,13 @@ export default function AppFooter() {
   const { isAuthenticated } = useAuth();
   const location = useLocation();
   
-  // Detectamos si estamos en el panel de administración
   const isAdminRoute = location.pathname.startsWith('/admin');
 
   return (
     <footer className="rs-footer">
       <div className="rs-footer__inner">
 
-        {/* Columna 1 — Logo + frase (Siempre igual) */}
+        {/* Columna 1 — Logo + frase */}
         <div className="rs-footer__col">
           <Link className="rs-logo--footer" to={isAdminRoute ? "/admin" : "/"}>
             <span className="rs-logo__icon">
@@ -27,11 +26,10 @@ export default function AppFooter() {
           </p>
         </div>
 
-        {/* Columna 2 — Navegación (Cambia según Admin o Usuario) */}
+        {/* Columna 2 — Navegación */}
         <div className="rs-footer__col">
           <h4>Navegación</h4>
           <ul>
-            {/* ─── SI ESTÁS EN ADMIN ─── */}
             {isAuthenticated && isAdminRoute ? (
               <>
                 <li><Link to="/admin">Dashboard</Link></li>
@@ -39,30 +37,27 @@ export default function AppFooter() {
                 <li><Link to="/admin/salas">Gestionar Salas</Link></li>
                 <li><Link to="/admin/perfil">Perfil</Link></li>
               </>
+            ) : isAuthenticated ? (
+              <>
+                <li><Link to="/">Inicio</Link></li>
+                <li><Link to="/salas">Salas</Link></li>
+                <li><Link to="/mensajes">Mensajes</Link></li>
+                <li><Link to="/solicitudes">Solicitudes</Link></li>
+                <li><Link to="/amigos">Amigos</Link></li>
+                <li><Link to="/perfil">Perfil</Link></li>
+              </>
             ) : (
-            /* ─── SI ESTÁS EN LA WEB NORMAL ─── */
-              isAuthenticated ? (
-                <>
-                  <li><Link to="/">Inicio</Link></li>
-                  <li><Link to="/salas">Salas</Link></li>
-                  <li><Link to="/mensajes">Mensajes</Link></li>
-                  <li><Link to="/solicitudes">Solicitudes</Link></li>
-                  <li><Link to="/amigos">Amigos</Link></li>
-                  <li><Link to="/perfil">Perfil</Link></li>
-                </>
-              ) : (
-                <>
-                  <li><Link to="/">Inicio</Link></li>
-                  <li><Link to="/salas">Salas</Link></li>
-                  <li><Link to="/login">Iniciar sesión</Link></li>
-                  <li><Link to="/registro">Crear cuenta</Link></li>
-                </>
-              )
+              <>
+                <li><Link to="/">Inicio</Link></li>
+                <li><Link to="/salas">Salas</Link></li>
+                <li><Link to="/login">Iniciar sesión</Link></li>
+                <li><Link to="/registro">Crear cuenta</Link></li>
+              </>
             )}
           </ul>
         </div>
 
-        {/* Columna 3 — Información (Siempre igual) */}
+        {/* Columna 3 — Información */}
         <div className="rs-footer__col">
           <h4>Información</h4>
           <ul>
@@ -73,12 +68,12 @@ export default function AppFooter() {
           </ul>
         </div>
 
-        {/* Columna 4 — Contacto (Siempre igual) */}
+        {/* Columna 4 — Contacto */}
         <div className="rs-footer__col">
           <h4>Contacto</h4>
           <ul>
             <li>
-              <a href="mailto:contacto@retrosocial.es" className="rs-footer__email">
+              <a href="mailto:contacto@retrochat.es" className="rs-footer__email">
                 contacto@retrochat.es
               </a>
             </li>

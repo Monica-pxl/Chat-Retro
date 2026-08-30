@@ -83,7 +83,22 @@
   max-width: 1300px;
   margin: 0 auto 2rem;
   padding: 0 2rem;
-  flex-wrap: wrap;
+}
+
+.rs-salas-filters__scroll {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex: 1;
+  overflow-x: auto;
+  overflow-y: visible;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding: 0.2rem 0;
+}
+
+.rs-salas-filters__scroll::-webkit-scrollbar {
+  display: none;
 }
 
 .rs-salas-filter-btn {
@@ -100,6 +115,8 @@
   font-family: var(--font);
   cursor: pointer;
   transition: all 0.25s;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .rs-salas-filter-btn:hover {
@@ -115,9 +132,10 @@
 }
 
 .rs-salas-filter-count {
-  margin-left: auto;
   font-size: 0.85rem;
   color: var(--text-muted);
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 /* ── Main / Grid ── */
@@ -355,6 +373,332 @@
   cursor: not-allowed;
   opacity: 0.45;
 }
+
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE - SALAS
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Ajustes para tablets ── */
+@media (max-width: 1024px) {
+  .rs-salas-grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1rem;
+  }
+
+  .rs-sala-card {
+    padding: 1.2rem 1.2rem 1rem;
+  }
+
+  .rs-salas-filters {
+    padding: 0 1.5rem;
+  }
+}
+
+/* ── Ajustes para móviles grandes ── */
+@media (max-width: 768px) {
+  .rs-salas-hero {
+    padding: 2.5rem 1.5rem 1.5rem;
+  }
+
+  .rs-salas-hero__title {
+    font-size: clamp(1.8rem, 6vw, 2.4rem);
+  }
+
+  .rs-salas-hero__sub {
+    font-size: 0.95rem;
+  }
+
+  .rs-salas-filters {
+    padding: 0 1.2rem;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: nowrap;
+  }
+
+  .rs-salas-filters__scroll {
+    gap: 0.5rem;
+  }
+
+  .rs-salas-filter-btn {
+    padding: 0.4rem 1rem;
+    font-size: 0.8rem;
+    flex-shrink: 0;
+  }
+
+  .rs-salas-filter-btn i {
+    font-size: 0.8rem;
+  }
+
+  .rs-salas-filter-count {
+    font-size: 0.75rem;
+    flex-shrink: 0;
+  }
+
+  .rs-salas-main {
+    padding: 0 1.2rem 2.5rem;
+  }
+
+  .rs-salas-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0.9rem;
+  }
+
+  .rs-sala-card {
+    padding: 1rem 1rem 0.9rem;
+    border-radius: 14px;
+    gap: 0.7rem;
+  }
+
+  .rs-sala-card__name {
+    font-size: 1rem;
+  }
+
+  .rs-sala-card__desc {
+    font-size: 0.8rem;
+    -webkit-line-clamp: 2;
+  }
+
+  .rs-sala-card__era {
+    font-size: 0.7rem;
+    padding: 0.15rem 0.5rem;
+  }
+
+  .rs-sala-badge {
+    font-size: 0.65rem;
+    padding: 0.2rem 0.6rem;
+  }
+
+  .rs-sala-enter-btn {
+    font-size: 0.8rem;
+    padding: 0.5rem 1rem;
+  }
+
+  .rs-sala-card__tag {
+    font-size: 0.7rem;
+  }
+
+  .rs-sala-card__ver-mas {
+    font-size: 0.7rem;
+  }
+
+  /* Mejora de accesibilidad táctil */
+  .rs-sala-card {
+    cursor: default;
+  }
+
+  .rs-sala-card:not(.rs-sala-card--cerrada):active {
+    transform: scale(0.98);
+    transition: transform 0.1s;
+  }
+
+  .rs-sala-enter-btn {
+    min-height: 44px;
+  }
+
+  .rs-sala-card__ver-mas {
+    min-height: 36px;
+    padding: 0.2rem 0.4rem;
+  }
+
+  .rs-salas-filter-btn {
+    min-height: 40px;
+  }
+}
+
+/* ── Ajustes para móviles pequeños ── */
+@media (max-width: 480px) {
+  .rs-salas-hero {
+    padding: 2rem 1rem 1.2rem;
+  }
+
+  .rs-salas-hero__title {
+    font-size: clamp(1.5rem, 5vw, 1.8rem);
+  }
+
+  .rs-salas-hero__sub {
+    font-size: 0.85rem;
+  }
+
+  .rs-salas-filters {
+    padding: 0 0.8rem;
+    gap: 0.4rem;
+    margin-bottom: 1rem;
+  }
+
+  .rs-salas-filters__scroll {
+    gap: 0.4rem;
+    padding: 0.2rem 0;
+  }
+
+  .rs-salas-filter-btn {
+    padding: 0.3rem 0.8rem;
+    font-size: 0.75rem;
+    border-radius: 30px;
+  }
+
+  .rs-salas-filter-btn i {
+    font-size: 0.7rem;
+  }
+
+  .rs-salas-filter-count {
+    font-size: 0.7rem;
+  }
+
+  .rs-salas-main {
+    padding: 0 0.8rem 2rem;
+  }
+
+  .rs-salas-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.7rem;
+  }
+
+  .rs-sala-card {
+    padding: 0.8rem 0.8rem 0.7rem;
+    border-radius: 12px;
+    gap: 0.5rem;
+  }
+
+  .rs-sala-card__head {
+    flex-wrap: wrap;
+    gap: 0.3rem;
+  }
+
+  .rs-sala-card__name {
+    font-size: 0.9rem;
+  }
+
+  .rs-sala-card__desc {
+    font-size: 0.75rem;
+    -webkit-line-clamp: 1;
+  }
+
+  .rs-sala-card__desc--expanded {
+    -webkit-line-clamp: unset;
+  }
+
+  .rs-sala-card__era {
+    font-size: 0.6rem;
+    padding: 0.1rem 0.4rem;
+    border-radius: 6px;
+  }
+
+  .rs-sala-badge {
+    font-size: 0.55rem;
+    padding: 0.15rem 0.5rem;
+    gap: 0.2rem;
+  }
+
+  .rs-sala-badge i {
+    font-size: 0.5rem;
+  }
+
+  .rs-sala-enter-btn {
+    font-size: 0.7rem;
+    padding: 0.4rem 0.8rem;
+    border-radius: 10px;
+    gap: 0.3rem;
+  }
+
+  .rs-sala-enter-btn i {
+    font-size: 0.7rem;
+  }
+
+  .rs-sala-card__tag {
+    font-size: 0.6rem;
+  }
+
+  .rs-sala-card__tag i {
+    font-size: 0.6rem;
+  }
+
+  .rs-sala-card__ver-mas {
+    font-size: 0.65rem;
+  }
+
+  .rs-sala-card__ver-mas i {
+    font-size: 0.6rem;
+  }
+
+  .rs-sala-card__glow {
+    width: 80px;
+    height: 80px;
+    top: -20px;
+    right: -20px;
+  }
+}
+
+/* ── Ajustes para móviles muy pequeños ── */
+@media (max-width: 380px) {
+  .rs-salas-grid {
+    grid-template-columns: 1fr;
+    gap: 0.6rem;
+  }
+
+  .rs-salas-filters {
+    padding: 0 0.6rem;
+    gap: 0.3rem;
+  }
+
+  .rs-salas-filters__scroll {
+    gap: 0.3rem;
+  }
+
+  .rs-salas-filter-btn {
+    font-size: 0.65rem;
+    padding: 0.25rem 0.6rem;
+  }
+
+  .rs-sala-card {
+    padding: 0.7rem 0.7rem 0.6rem;
+  }
+
+  .rs-sala-card__name {
+    font-size: 0.85rem;
+  }
+
+  .rs-sala-card__desc {
+    font-size: 0.7rem;
+  }
+
+  .rs-sala-enter-btn {
+    font-size: 0.65rem;
+    padding: 0.35rem 0.6rem;
+  }
+
+  .rs-salas-filter-count {
+    font-size: 0.6rem;
+  }
+}
+
+/* ── Mejora de scroll horizontal en filtros ── */
+@media (max-width: 600px) {
+  .rs-salas-filters {
+    flex-wrap: nowrap;
+  }
+
+  .rs-salas-filters__scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .rs-salas-filters__scroll::-webkit-scrollbar {
+    display: none;
+  }
+
+  .rs-salas-filter-btn {
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+
+  .rs-salas-filter-count {
+    flex-shrink: 0;
+  }
+}
+
+
+
 
 
 

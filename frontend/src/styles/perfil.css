@@ -56,13 +56,13 @@
 .rp-center--error { color: rgba(239, 68, 68, 0.85); }
 
 /* ══════════════════════════════════════════════════
-   TÍTULO DE LA PÁGINA (mismo tamaño que Salas)
+   TÍTULO DE LA PÁGINA
    ══════════════════════════════════════════════════ */
 .rp-hero {
   position: relative;
   z-index: 5;
   text-align: center;
-  padding: 4rem 2rem 2.5rem; /* 🔥 MISMO QUE SALAS */
+  padding: 4rem 2rem 2.5rem;
 }
 
 .rp-hero__inner {
@@ -84,16 +84,16 @@
 }
 
 .rp-hero__title {
-  font-size: clamp(2.2rem, 5vw, 3.4rem); /* 🔥 MISMO QUE SALAS */
+  font-size: clamp(2.2rem, 5vw, 3.4rem);
   font-weight: 800;
   letter-spacing: -1.5px;
   color: var(--text-primary);
-  margin: 0.8rem 0 1rem; /* 🔥 MISMO QUE SALAS */
+  margin: 0.8rem 0 1rem;
   line-height: 1.1;
 }
 
 .rp-hero__sub {
-  font-size: 1.05rem; /* 🔥 MISMO QUE SALAS */
+  font-size: 1.05rem;
   color: var(--text-secondary);
   margin-top: 0;
 }
@@ -106,33 +106,23 @@
   display: flex;
   align-items: flex-start;
   justify-content: center;
-  padding: 0 2rem 4rem; /* 🔥 AJUSTADO */
+  padding: 0 2rem 4rem;
   position: relative;
   z-index: 5;
 }
 
-/* ── Card (MÁS GRANDE) ── */
+/* ── Card ── */
 .rp-card {
   width: 100%;
-  max-width: 960px; /* 🔥 ANTES: 860px */
+  max-width: 960px;
   display: flex;
-  gap: 3.5rem; /* 🔥 ANTES: 3rem */
+  gap: 3.5rem;
   background: rgba(255, 255, 255, 0.025);
   backdrop-filter: blur(14px);
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 24px;
-  padding: 3.5rem 4rem; /* 🔥 ANTES: 3rem 3.5rem */
+  padding: 3.5rem 4rem;
   box-shadow: 0 0 80px rgba(0, 229, 255, 0.04);
-}
-
-@media (max-width: 640px) {
-  .rp-card {
-    flex-direction: column;
-    align-items: center;
-    padding: 2rem 1.5rem;
-    gap: 1.5rem;
-    max-width: 100%;
-  }
 }
 
 /* ── Columna avatar ── */
@@ -146,7 +136,7 @@
 
 .rp-avatar-wrap {
   position: relative;
-  width: 160px; /* 🔥 ANTES: 150px */
+  width: 160px;
   height: 160px;
   border-radius: 50%;
   cursor: pointer;
@@ -171,7 +161,7 @@
   justify-content: center;
   background: rgba(0, 229, 255, 0.08);
   color: var(--accent-cyan);
-  font-size: 4rem; /* 🔥 ANTES: 3.5rem */
+  font-size: 4rem;
   font-weight: 700;
 }
 
@@ -183,7 +173,7 @@
   align-items: center;
   justify-content: center;
   color: #fff;
-  font-size: 1.8rem; /* 🔥 ANTES: 1.6rem */
+  font-size: 1.8rem;
   opacity: 0;
   transition: opacity 0.2s;
 }
@@ -193,16 +183,16 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: 0.9rem; /* 🔥 ANTES: 0.85rem */
+  font-size: 0.9rem;
   color: var(--text-secondary);
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.07);
   border-radius: 20px;
-  padding: 0.35rem 1rem; /* 🔥 ANTES: 0.3rem 0.9rem */
+  padding: 0.35rem 1rem;
 }
 
 .rp-dot {
-  width: 9px; /* 🔥 ANTES: 8px */
+  width: 9px;
   height: 9px;
   border-radius: 50%;
   flex-shrink: 0;
@@ -215,12 +205,12 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 1.8rem; /* 🔥 ANTES: 1.6rem */
+  gap: 1.8rem;
   min-width: 0;
 }
 
 .rp-nombre {
-  font-size: 2.2rem; /* 🔥 ANTES: 2rem */
+  font-size: 2.2rem;
   font-weight: 800;
   color: var(--text-primary);
   letter-spacing: -0.5px;
@@ -231,11 +221,11 @@
 .rp-section {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem; /* 🔥 ANTES: 0.4rem */
+  gap: 0.5rem;
 }
 
 .rp-label {
-  font-size: 0.85rem; /* 🔥 ANTES: 0.78rem */
+  font-size: 0.85rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -247,16 +237,16 @@
 
 .rp-input-row {
   display: flex;
-  gap: 0.7rem; /* 🔥 ANTES: 0.6rem */
+  gap: 0.7rem;
 }
 
 .rp-input {
   flex: 1;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px; /* 🔥 ANTES: 10px */
-  padding: 0.8rem 1.2rem; /* 🔥 ANTES: 0.65rem 1rem */
-  font-size: 1.05rem; /* 🔥 ANTES: 1rem */
+  border-radius: 12px;
+  padding: 0.8rem 1.2rem;
+  font-size: 1.05rem;
   color: #fff;
   transition: border-color 0.2s;
   min-width: 0;
@@ -271,9 +261,9 @@
 .rp-readonly {
   background: rgba(255, 255, 255, 0.025);
   border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 12px; /* 🔥 ANTES: 10px */
-  padding: 0.8rem 1.2rem; /* 🔥 ANTES: 0.65rem 1rem */
-  font-size: 1.05rem; /* 🔥 ANTES: 0.98rem */
+  border-radius: 12px;
+  padding: 0.8rem 1.2rem;
+  font-size: 1.05rem;
   color: var(--text-secondary);
   word-break: break-all;
 }
@@ -282,20 +272,17 @@
 .rp-row-2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1.5rem; /* 🔥 ANTES: 1.2rem */
-}
-@media (max-width: 420px) {
-  .rp-row-2 { grid-template-columns: 1fr; }
+  gap: 1.5rem;
 }
 
 /* ── Badge de rol ── */
 .rp-badge {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem; /* 🔥 ANTES: 0.4rem */
-  padding: 0.5rem 1rem; /* 🔥 ANTES: 0.4rem 0.9rem */
-  border-radius: 24px; /* 🔥 ANTES: 20px */
-  font-size: 0.9rem; /* 🔥 ANTES: 0.85rem */
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 24px;
+  font-size: 0.9rem;
   font-weight: 700;
   width: fit-content;
 }
@@ -312,17 +299,17 @@
 
 /* ── Botones ── */
 .rp-btn {
-  padding: 0.8rem 1.6rem; /* 🔥 ANTES: 0.65rem 1.3rem */
+  padding: 0.8rem 1.6rem;
   border: none;
-  border-radius: 12px; /* 🔥 ANTES: 10px */
-  font-size: 0.95rem; /* 🔥 ANTES: 0.9rem */
+  border-radius: 12px;
+  font-size: 0.95rem;
   font-weight: 700;
   cursor: pointer;
   transition: all 0.18s;
   white-space: nowrap;
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem; /* 🔥 ANTES: 0.4rem */
+  gap: 0.5rem;
 }
 .rp-btn--primary {
   background: var(--accent-cyan);
@@ -342,8 +329,8 @@
 .rp-feedback {
   display: flex;
   align-items: center;
-  gap: 0.5rem; /* 🔥 ANTES: 0.4rem */
-  font-size: 0.85rem; /* 🔥 ANTES: 0.82rem */
+  gap: 0.5rem;
+  font-size: 0.85rem;
   padding: 0.3rem 0;
 }
 .rp-feedback--ok  { color: var(--accent-green); }
@@ -354,10 +341,7 @@
   margin-top: 2rem;
 }
 
-
-
-
-/* 🔥 MODO ADMIN - Colores ROJOS y FONDO ROJO (Se activa cuando la ruta es /admin/perfil) */
+/* 🔥 MODO ADMIN - Colores ROJOS y FONDO ROJO */
 .rp-page--admin .rp-hero__badge {
   background: rgba(239, 68, 68, 0.1) !important;
   border-color: rgba(239, 68, 68, 0.2) !important;
@@ -407,7 +391,6 @@
   color: #f87171 !important;
 }
 
-/* 🔥 FONDO DE PÁGINA ROJO PARA ADMIN */
 .rp-page--admin {
   background: radial-gradient(ellipse at 10% 15%, rgba(239, 68, 68, 0.08) 0%, transparent 50%),
               radial-gradient(ellipse at 90% 25%, rgba(239, 68, 68, 0.04) 0%, transparent 45%),
@@ -419,7 +402,302 @@
   background: none !important;
 }
 
-/* 🔥 AJUSTE DEL FOOTER PARA EL MODO ADMIN */
 .rp-page--admin .rs-footer {
   margin-top: 2rem !important;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE - PERFIL
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Tablets ── */
+@media (max-width: 1024px) {
+  .rp-card {
+    padding: 2.5rem 3rem;
+    gap: 2.5rem;
+  }
+  
+  .rp-hero {
+    padding: 3rem 2rem 2rem;
+  }
+}
+
+/* ── Móviles grandes ── */
+@media (max-width: 768px) {
+  .rp-hero {
+    padding: 2.5rem 1.5rem 1.5rem;
+  }
+  
+  .rp-hero__title {
+    font-size: clamp(1.8rem, 5vw, 2.4rem);
+  }
+  
+  .rp-hero__sub {
+    font-size: 0.9rem;
+  }
+  
+  .rp-main {
+    padding: 0 1.5rem 3rem;
+  }
+  
+  .rp-card {
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 1.5rem;
+    gap: 1.5rem;
+    max-width: 100%;
+    border-radius: 18px;
+  }
+  
+  .rp-avatar-section {
+    width: 100%;
+  }
+  
+  .rp-avatar-wrap {
+    width: 130px;
+    height: 130px;
+  }
+  
+  .rp-avatar-placeholder {
+    font-size: 3.2rem;
+  }
+  
+  .rp-info {
+    width: 100%;
+    gap: 1.2rem;
+  }
+  
+  .rp-nombre {
+    font-size: 1.6rem;
+    text-align: center;
+  }
+  
+  .rp-input-row {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .rp-input {
+    font-size: 0.95rem;
+    padding: 0.6rem 1rem;
+  }
+  
+  .rp-btn {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.85rem;
+    justify-content: center;
+    width: 100%;
+  }
+  
+  .rp-row-2 {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .rp-readonly {
+    font-size: 0.95rem;
+    padding: 0.6rem 1rem;
+  }
+  
+  .rp-badge {
+    font-size: 0.8rem;
+    padding: 0.35rem 0.8rem;
+  }
+  
+  .rp-estado-badge {
+    font-size: 0.8rem;
+    padding: 0.25rem 0.8rem;
+  }
+  
+  .rp-label {
+    font-size: 0.75rem;
+  }
+}
+
+/* ── Móviles pequeños ── */
+@media (max-width: 480px) {
+  .rp-hero {
+    padding: 2rem 1rem 1rem;
+  }
+  
+  .rp-hero__badge {
+    font-size: 0.6rem;
+    padding: 0.2rem 0.8rem;
+  }
+  
+  .rp-hero__title {
+    font-size: clamp(1.5rem, 4vw, 1.8rem);
+  }
+  
+  .rp-hero__sub {
+    font-size: 0.8rem;
+  }
+  
+  .rp-main {
+    padding: 0 1rem 2rem;
+  }
+  
+  .rp-card {
+    padding: 1.5rem 1rem;
+    border-radius: 14px;
+  }
+  
+  .rp-avatar-wrap {
+    width: 110px;
+    height: 110px;
+  }
+  
+  .rp-avatar-placeholder {
+    font-size: 2.6rem;
+  }
+  
+  .rp-avatar-overlay {
+    font-size: 1.4rem;
+  }
+  
+  .rp-nombre {
+    font-size: 1.4rem;
+  }
+  
+  .rp-input {
+    font-size: 0.85rem;
+    padding: 0.5rem 0.8rem;
+    border-radius: 10px;
+  }
+  
+  .rp-btn {
+    font-size: 0.8rem;
+    padding: 0.5rem 1rem;
+    border-radius: 10px;
+  }
+  
+  .rp-readonly {
+    font-size: 0.85rem;
+    padding: 0.5rem 0.8rem;
+    border-radius: 10px;
+  }
+  
+  .rp-badge {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.7rem;
+    border-radius: 20px;
+  }
+  
+  .rp-estado-badge {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.6rem;
+  }
+  
+  .rp-dot {
+    width: 7px;
+    height: 7px;
+  }
+  
+  .rp-feedback {
+    font-size: 0.75rem;
+  }
+  
+  .rp-section {
+    gap: 0.3rem;
+  }
+  
+  .rp-label {
+    font-size: 0.65rem;
+  }
+}
+
+/* ── Móviles muy pequeños ── */
+@media (max-width: 380px) {
+  .rp-hero {
+    padding: 1.5rem 0.5rem 0.8rem;
+  }
+  
+  .rp-hero__title {
+    font-size: 1.3rem;
+  }
+  
+  .rp-hero__sub {
+    font-size: 0.75rem;
+  }
+  
+  .rp-main {
+    padding: 0 0.5rem 1.5rem;
+  }
+  
+  .rp-card {
+    padding: 1.2rem 0.7rem;
+    gap: 1rem;
+  }
+  
+  .rp-avatar-wrap {
+    width: 90px;
+    height: 90px;
+  }
+  
+  .rp-avatar-placeholder {
+    font-size: 2.2rem;
+  }
+  
+  .rp-avatar-overlay {
+    font-size: 1.2rem;
+  }
+  
+  .rp-nombre {
+    font-size: 1.2rem;
+  }
+  
+  .rp-input {
+    font-size: 0.8rem;
+    padding: 0.4rem 0.6rem;
+    border-radius: 8px;
+  }
+  
+  .rp-btn {
+    font-size: 0.75rem;
+    padding: 0.4rem 0.8rem;
+    border-radius: 8px;
+  }
+  
+  .rp-readonly {
+    font-size: 0.8rem;
+    padding: 0.4rem 0.6rem;
+    border-radius: 8px;
+  }
+  
+  .rp-badge {
+    font-size: 0.65rem;
+    padding: 0.2rem 0.5rem;
+    border-radius: 16px;
+    gap: 0.3rem;
+  }
+  
+  .rp-estado-badge {
+    font-size: 0.65rem;
+    padding: 0.15rem 0.5rem;
+    gap: 0.3rem;
+  }
+  
+  .rp-dot {
+    width: 6px;
+    height: 6px;
+  }
+  
+  .rp-feedback {
+    font-size: 0.65rem;
+  }
+  
+  .rp-label {
+    font-size: 0.6rem;
+  }
+}
+
+/* ── Ajuste para móvil del modo admin ── */
+@media (max-width: 768px) {
+  .rp-page--admin .rp-card {
+    border-color: rgba(239, 68, 68, 0.2) !important;
+  }
+  
+  .rp-page--admin .rp-btn--primary {
+    width: 100% !important;
+  }
 }

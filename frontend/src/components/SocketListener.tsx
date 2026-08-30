@@ -19,12 +19,25 @@ export default function SocketListener() {
   }, [isAuthenticated, user, location.pathname, navigate]);
 
   useEffect(() => {
-    if (!isAuthenticated || !token) return;
+    if (!isAuthenticated || !token) {
+      console.log('⚠️ SocketListener - No autenticado o sin token');
+      return;
+    }
 
+    console.log('🔄 SocketListener - Conectando socket...');
     const socket = io(API, { auth: { token } });
+
+    socket.on('connect', () => {
+      console.log('✅ SocketListener - Socket conectado correctamente');
+    });
+
+    socket.on('connect_error', (err) => {
+      console.error('❌ SocketListener - Error de conexión:', err.message);
+    });
 
     // 🔥 Eventos del Admin
     socket.on('admin-action', (data: { type: string; message: string }) => {
+      console.log('📩 SocketListener - admin-action recibido:', data);
       window.dispatchEvent(new CustomEvent('show-toast', { 
         detail: { 
           type: data.type === 'baneada' ? 'error' 
@@ -42,11 +55,18 @@ export default function SocketListener() {
           navigate('/', { replace: true });
         }
       } else if (data.type === 'rol_actualizado') {
-        // 🔥 Recargamos la página para que el rol se actualice en el localStorage
         setTimeout(() => {
           window.location.reload();
         }, 2000);
       }
+    });
+
+    // 🔥 NUEVO: Escuchar cambios de estado de salas
+    socket.on('sala-estado-cambiado', (data: { salaId: number; cerrada: boolean; nombre: string }) => {
+      console.log('📩 SocketListener - sala-estado-cambiado RECIBIDO:', data);
+      window.dispatchEvent(new CustomEvent('sala-estado-cambiado', {
+        detail: data
+      }));
     });
 
     // 🔥 Eventos de solicitudes de amistad
@@ -54,7 +74,7 @@ export default function SocketListener() {
       window.dispatchEvent(new CustomEvent('show-toast', { 
         detail: { 
           type: 'success', 
-          message: '✅ Tu solicitud de amistad ha sido aceptada.' 
+          message: 'Tu solicitud de amistad ha sido aceptada.' 
         }
       }));
     });
@@ -63,17 +83,16 @@ export default function SocketListener() {
       window.dispatchEvent(new CustomEvent('show-toast', { 
         detail: { 
           type: 'error', 
-          message: '❌ Tu solicitud de amistad ha sido rechazada.' 
+          message: 'Tu solicitud de amistad ha sido rechazada.' 
         }
       }));
     });
 
     socket.on('solicitud-cancelada', (data: any) => {
-      // Esto es para el receptor, pero podemos mostrar un aviso suave
       window.dispatchEvent(new CustomEvent('show-toast', { 
         detail: { 
           type: 'warning', 
-          message: '⚠️ El usuario ha cancelado la solicitud de amistad.' 
+          message: 'El usuario ha cancelado la solicitud de amistad.' 
         }
       }));
     });
@@ -82,12 +101,13 @@ export default function SocketListener() {
       window.dispatchEvent(new CustomEvent('show-toast', { 
         detail: { 
           type: 'info', 
-          message: `📩 Has recibido una solicitud de amistad de ${data.emisor.nickname}.` 
+          message: `Has recibido una solicitud de amistad de ${data.emisor.nickname}.` 
         }
       }));
     });
 
     return () => {
+      console.log('🔌 SocketListener - Desconectando socket');
       socket.disconnect();
     };
   }, [isAuthenticated, token, logout, navigate, location.pathname]);

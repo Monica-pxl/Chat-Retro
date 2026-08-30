@@ -59,19 +59,15 @@ export default function SolicitudesPage() {
       .finally(() => setLoading(false));
   }, [isAuthenticated, token, navigate]);
 
-  /* ── Tiempo real: eventos de solicitudes ── */
   const solicitudHandler = useCallback((tipo: string, data: any) => {
     if (tipo === 'nueva') {
-      // Alguien nos ha enviado una solicitud
       setRecibidas(prev => {
         if (prev.some(s => s.id === data.id)) return prev;
         return [data, ...prev];
       });
     } else if (tipo === 'aceptada' || tipo === 'rechazada') {
-      // Nuestra solicitud fue aceptada o rechazada
       setEnviadas(prev => prev.filter(s => s.id !== data.id));
     } else if (tipo === 'cancelada') {
-      // El emisor canceló su solicitud hacia nosotros
       setRecibidas(prev => prev.filter(s => s.id !== data.id));
     }
   }, []);
@@ -121,7 +117,6 @@ export default function SolicitudesPage() {
       <div className="rs-grid" />
       <AppHeader />
 
-      {/* ── Hero ── */}
       <section className="sq-hero">
         <span className="sq-hero__badge">✦ Amigos</span>
         <h1 className="sq-hero__title">
@@ -132,14 +127,13 @@ export default function SolicitudesPage() {
         </p>
       </section>
 
-      {/* ── Tabs ── */}
       <div className="sq-tabs">
         <button
           className={`sq-tab${tab === 'recibidas' ? ' sq-tab--active' : ''}`}
           onClick={() => setTab('recibidas')}
         >
           <i className="bi bi-inbox-fill" />
-          Recibidas
+          <span>Recibidas</span>
           {recibidas.length > 0 && (
             <span className="sq-tab__badge">{recibidas.length}</span>
           )}
@@ -149,14 +143,13 @@ export default function SolicitudesPage() {
           onClick={() => setTab('enviadas')}
         >
           <i className="bi bi-send-fill" />
-          Enviadas
+          <span>Enviadas</span>
           {enviadas.length > 0 && (
             <span className="sq-tab__badge">{enviadas.length}</span>
           )}
         </button>
       </div>
 
-      {/* ── Contenido ── */}
       <main className="sq-main">
         {loading && (
           <div className="sq-status">
@@ -199,14 +192,14 @@ export default function SolicitudesPage() {
                         disabled={busy.has(sol.id)}
                         onClick={() => aceptar(sol.id)}
                       >
-                        <i className="bi bi-check-lg" /> Aceptar
+                        <i className="bi bi-check-lg" /> <span>Aceptar</span>
                       </button>
                       <button
                         className="sq-btn sq-btn--reject"
                         disabled={busy.has(sol.id)}
                         onClick={() => rechazar(sol.id)}
                       >
-                        <i className="bi bi-x-lg" /> Rechazar
+                        <i className="bi bi-x-lg" /> <span>Rechazar</span>
                       </button>
                     </div>
                   </div>
@@ -240,7 +233,7 @@ export default function SolicitudesPage() {
                         disabled={busy.has(sol.id)}
                         onClick={() => cancelar(sol.id)}
                       >
-                        <i className="bi bi-x-circle" /> Cancelar
+                        <i className="bi bi-x-circle" /> <span>Cancelar</span>
                       </button>
                     </div>
                   </div>

@@ -86,7 +86,7 @@ export default function LandingPage(): JSX.Element {
           </p>
           <div className="rs-hero__actions">
             <button className="rs-btn rs-btn--hero rs-btn--primary" onClick={() => navigate('/salas')}>
-              <i className="bi bi-door-open" /> Explorar salas
+              <i className="bi bi-door-open" /> <span>Explorar salas</span>
             </button>
           </div>
         </div>
@@ -156,7 +156,7 @@ export default function LandingPage(): JSX.Element {
         </div>
       </section>
 
-      {/* ── Línea de tiempo MEJORADA con scroll ── */}
+      {/* ── Línea de tiempo ── */}
       <section className="rs-timeline">
         <div className="rs-timeline__inner">
           <span className="rs-timeline__label">
@@ -183,7 +183,7 @@ export default function LandingPage(): JSX.Element {
           <h2>¿Listo para el viaje?</h2>
           <p>Únete a la comunidad y revive la mejor época del internet</p>
           <button className="rs-btn rs-btn--cta rs-btn--primary" onClick={() => navigate('/registro')}>
-            <i className="bi bi-person-plus" /> Crear cuenta gratis
+            <i className="bi bi-person-plus" /> <span>Crear cuenta gratis</span>
           </button>
         </div>
       </section>

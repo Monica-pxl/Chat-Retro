@@ -63,11 +63,11 @@ export default function AmigosPage() {
       await removeFriend(amigoId);
       setAmigos(prev => prev.filter(a => a.amigo.id !== amigoId));
       window.dispatchEvent(new CustomEvent('show-toast', { 
-        detail: { type: 'success', message: '✅ Amigo eliminado correctamente.' }
+        detail: { type: 'success', message: 'Amigo eliminado correctamente.' }
       }));
     } catch {
       window.dispatchEvent(new CustomEvent('show-toast', { 
-        detail: { type: 'error', message: '❌ Error al eliminar el amigo.' }
+        detail: { type: 'error', message: 'Error al eliminar el amigo.' }
       }));
     } finally {
       setBusyId(amigoId, false);
@@ -98,7 +98,6 @@ export default function AmigosPage() {
           ) : (
             <div className="am-list">
               {amigos.map(a => {
-                // 🔥 Si está baneado O suspendido, bloqueamos el botón de mensaje
                 const estaBloqueado = a.amigo.estado_cuenta === 'baneada' || a.amigo.estado_cuenta === 'suspendida';
 
                 return (
@@ -108,27 +107,26 @@ export default function AmigosPage() {
                       <div className="am-card__nick">
                         <span className={`am-status-dot am-status-dot--${isUserOnline(a.amigo.id) ? 'online' : 'offline'}`} />
                         {a.amigo.nickname}
-                        {estaBloqueado && <span style={{ fontSize: '0.7rem', color: '#f87171', marginLeft: '0.5rem' }}>({a.amigo.estado_cuenta})</span>}
+                        {estaBloqueado && <span className="am-card__bloqueado">({a.amigo.estado_cuenta})</span>}
                       </div>
                       <div className="am-card__time">
                         {isUserOnline(a.amigo.id) ? 'En línea' : 'Desconectado'} · Amigos desde {formatFecha(a.desde)}
                       </div>
                     </div>
                     <div className="am-card__actions">
-                      {/* 🔥 BOTÓN MENSAJE: DESHABILITADO SI ESTÁ BANEADO O SUSPENDIDO */}
                       <button
                         className={`am-btn am-btn--msg ${estaBloqueado ? 'am-btn--disabled' : ''}`}
                         onClick={() => handleMensaje(a.amigo.id)}
                         disabled={estaBloqueado}
                         title={estaBloqueado ? `Usuario ${a.amigo.estado_cuenta}` : "Enviar mensaje"}
                       >
-                        <i className="bi bi-chat-dots-fill" /> Mensaje
+                        <i className="bi bi-chat-dots-fill" /> <span>Mensaje</span>
                       </button>
                       <button className="am-btn am-btn--profile" onClick={() => setPerfilUsuario(a.amigo)} title="Ver perfil">
-                        <i className="bi bi-person-lines-fill" /> Perfil
+                        <i className="bi bi-person-lines-fill" /> <span>Perfil</span>
                       </button>
                       <button className="am-btn am-btn--remove" disabled={busy.has(a.amigo.id)} onClick={() => handleEliminar(a.amigo.id)} title="Eliminar amigo">
-                        {busy.has(a.amigo.id) ? <i className="bi bi-arrow-repeat rs-spin" /> : <i className="bi bi-person-dash-fill" />} Eliminar
+                        {busy.has(a.amigo.id) ? <i className="bi bi-arrow-repeat rs-spin" /> : <i className="bi bi-person-dash-fill" />} <span>Eliminar</span>
                       </button>
                     </div>
                   </div>

@@ -17,7 +17,7 @@ const formatearFecha = (fechaStr: string | null) => {
 };
 
 export default function AdminUsuariosPage() {
-  const { user } = useAuth(); // Solo necesitamos el usuario, no el token
+  const { user } = useAuth();
   const [usuarios, setUsuarios] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -41,7 +41,6 @@ export default function AdminUsuariosPage() {
   }, [toast]);
 
   useEffect(() => {
-    // Usamos el token del localStorage directamente para el socket
     const tokenLocal = localStorage.getItem('rs_token');
     if (!tokenLocal) return;
     
@@ -57,7 +56,6 @@ export default function AdminUsuariosPage() {
     const fetchUsuarios = async () => {
       try {
         setLoading(true);
-        // 🔥 El servicio ya coge el token solo
         const data = await adminService.getUsuarios();
         let listaFinal = data;
         const existeAdmin = data.some(u => u.id === user?.id);
@@ -107,7 +105,6 @@ export default function AdminUsuariosPage() {
     });
   }, [usuarios, busqueda, filtroRol, filtroEstadoCuenta, filtroConexion]);
 
-  // 🔥 AHORA LAS FUNCIONES YA NO PIDEN EL TOKEN
   const cambiarEstado = async (userId: number, nuevoEstado: 'activa' | 'suspendida' | 'baneada') => {
     setAccionando(prev => new Set(prev).add(userId));
     setToast(null);
@@ -262,7 +259,7 @@ export default function AdminUsuariosPage() {
 
                     return (
                       <tr key={u.id} className={`ad-table-row ${esYo ? 'ad-table-row--yo' : ''}`}>
-                        <td>
+                        <td data-label="Nickname">
                           <div className="ad-user-info">
                             <div className="ad-user-avatar">
                               {u.avatar ? <img src={`http://localhost:3000${u.avatar}`} alt="" /> : <i className="bi bi-person-fill" />}
@@ -279,22 +276,22 @@ export default function AdminUsuariosPage() {
                             </div>
                           </div>
                         </td>
-                        <td className="ad-user-email">{u.email}</td>
-                        <td>
+                        <td data-label="Email">{u.email}</td>
+                        <td data-label="Estado">
                           <span className={`ad-badge ad-badge--${u.estado_cuenta}`}>
                             {u.estado_cuenta === 'activa' && <><i className="bi bi-check-circle-fill" /> Activa</>}
                             {u.estado_cuenta === 'suspendida' && <><i className="bi bi-pause-circle-fill" /> Suspendida</>}
                             {u.estado_cuenta === 'baneada' && <><i className="bi bi-shield-slash-fill" /> Baneada</>}
                           </span>
                         </td>
-                        <td>
+                        <td data-label="Rol">
                           <span className={`ad-badge ad-badge--${u.rol}`}>
                             {u.rol === 'admin' ? <><i className="bi bi-shield-fill-check" /> Admin</> : <><i className="bi bi-person-fill" /> User</>}
                           </span>
                         </td>
-                        <td className="ad-table-date">{formatearFecha(u.fecha_creacion)}</td>
-                        <td className="ad-table-date">{formatearFecha(u.ultima_conexion)}</td>
-                        <td>
+                        <td data-label="Registro" className="ad-table-date">{formatearFecha(u.fecha_creacion)}</td>
+                        <td data-label="Última conexión" className="ad-table-date">{formatearFecha(u.ultima_conexion)}</td>
+                        <td data-label="Cambiar Rol">
                           <div className="ad-btn-group-rol">
                             <button 
                               className={`ad-btn-rol ${u.rol === 'user' ? 'ad-btn-rol--active' : ''}`}
@@ -312,7 +309,7 @@ export default function AdminUsuariosPage() {
                             </button>
                           </div>
                         </td>
-                        <td>
+                        <td data-label="Acciones">
                           <div className="ad-btn-group-acciones">
                             <button 
                               className="ad-btn-accion ad-btn-accion--activar"

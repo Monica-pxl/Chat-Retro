@@ -44,14 +44,12 @@ export default function LoginPage() {
       <main className="rs-auth-main">
         <div className="rs-auth-card rs-auth-card--login">
 
-          {/* Cabecera */}
           <div className="rs-auth-card__header">
             <i className="bi bi-lock rs-auth-card__icon" />
             <h1 className="rs-auth-card__title">Iniciar sesión</h1>
             <p className="rs-auth-card__subtitle">Accede a tu cuenta de RetroSocial</p>
           </div>
 
-          {/* Error */}
           {error && (
             <div className="rs-auth-error">
               <i className="bi bi-exclamation-circle" />
@@ -59,7 +57,6 @@ export default function LoginPage() {
             </div>
           )}
 
-          {/* Formulario */}
           <form className="rs-auth-form" onSubmit={handleSubmit}>
             <div className="rs-auth-field">
               <label className="rs-auth-label">Correo electrónico</label>
@@ -93,14 +90,13 @@ export default function LoginPage() {
               disabled={loading}
             >
               {loading ? (
-                <><i className="bi bi-arrow-repeat rs-spin" /> Entrando...</>
+                <><i className="bi bi-arrow-repeat rs-spin" /> <span>Entrando...</span></>
               ) : (
-                <><i className="bi bi-box-arrow-in-right" /> Iniciar sesión</>
+                <><i className="bi bi-box-arrow-in-right" /> <span>Iniciar sesión</span></>
               )}
             </button>
           </form>
 
-          {/* Enlace a registro */}
           <p className="rs-auth-footer-link rs-auth-footer-link--blue">
             ¿No tienes cuenta?{' '}
             <Link to="/registro">Crear cuenta</Link>

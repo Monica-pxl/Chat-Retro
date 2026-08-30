@@ -61,15 +61,15 @@
   z-index: 5;
 }
 
-/* ── Tarjeta - MÁS GRANDE ────────────────────────── */
+/* ── Tarjeta ────────────────────────────────────────── */
 .rs-auth-card {
   width: 100%;
-  max-width: 560px;  /* Antes: 460px */
+  max-width: 560px;
   background: rgba(255, 255, 255, 0.025);
   backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.055);
-  border-radius: 24px;  /* Antes: 20px */
-  padding: 3rem 3.5rem;  /* Antes: 2.5rem */
+  border-radius: 24px;
+  padding: 3rem 3.5rem;
   position: relative;
   overflow: hidden;
 }
@@ -79,7 +79,7 @@
   content: '';
   position: absolute;
   top: 0; left: 0; right: 0;
-  height: 3px;  /* Antes: 2px */
+  height: 3px;
   border-radius: 24px 24px 0 0;
 }
 
@@ -108,13 +108,13 @@
 /* ── Cabecera del card ───────────────────────────── */
 .rs-auth-card__header {
   text-align: center;
-  margin-bottom: 2.5rem;  /* Antes: 2rem */
+  margin-bottom: 2.5rem;
 }
 
 .rs-auth-card__icon {
-  font-size: 2.8rem;  /* Antes: 2.2rem */
+  font-size: 2.8rem;
   display: block;
-  margin-bottom: 1rem;  /* Antes: 0.8rem */
+  margin-bottom: 1rem;
 }
 
 .rs-auth-card--login .rs-auth-card__icon {
@@ -128,7 +128,7 @@
 }
 
 .rs-auth-card__title {
-  font-size: 2rem;  /* Antes: 1.65rem */
+  font-size: 2rem;
   font-weight: 700;
   color: #fff;
   margin: 0 0 0.4rem;
@@ -136,7 +136,7 @@
 }
 
 .rs-auth-card__subtitle {
-  font-size: 1rem;  /* Antes: 0.875rem */
+  font-size: 1rem;
   color: var(--text-muted);
 }
 
@@ -147,42 +147,42 @@
   gap: 0.6rem;
   background: rgba(239, 68, 68, 0.08);
   border: 1px solid rgba(239, 68, 68, 0.22);
-  border-radius: 12px;  /* Antes: 10px */
-  padding: 0.9rem 1.2rem;  /* Antes: 0.7rem 1rem */
-  font-size: 0.95rem;  /* Antes: 0.85rem */
+  border-radius: 12px;
+  padding: 0.9rem 1.2rem;
+  font-size: 0.95rem;
   color: #fca5a5;
-  margin-bottom: 1.5rem;  /* Antes: 1.25rem */
+  margin-bottom: 1.5rem;
 }
 
 /* ── Formulario ──────────────────────────────────── */
 .rs-auth-form {
   display: flex;
   flex-direction: column;
-  gap: 1.2rem;  /* Antes: 1rem */
+  gap: 1.2rem;
 }
 
 .rs-auth-field {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;  /* Antes: 0.35rem */
+  gap: 0.4rem;
 }
 
 .rs-auth-label {
-  font-size: 0.8rem;  /* Antes: 0.72rem */
+  font-size: 0.8rem;
   font-weight: 600;
   letter-spacing: 0.6px;
   color: rgba(255, 255, 255, 0.5);
   text-transform: uppercase;
 }
 
-/* ── Inputs - MÁS GRANDES ────────────────────────── */
+/* ── Inputs ────────────────────────────────────────── */
 .rs-auth-input {
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;  /* Antes: 10px */
-  padding: 0.9rem 1.2rem;  /* Antes: 0.78rem 1rem */
+  border-radius: 12px;
+  padding: 0.9rem 1.2rem;
   color: var(--text-primary);
-  font-size: 1.05rem;  /* Antes: 0.94rem */
+  font-size: 1.05rem;
   font-family: var(--font);
   outline: none;
   transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
@@ -197,22 +197,22 @@
 .rs-auth-input--blue:focus {
   border-color: rgba(59, 130, 246, 0.6);
   background: rgba(59, 130, 246, 0.05);
-  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12);  /* Antes: 3px */
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.12);
 }
 
 .rs-auth-input--purple:focus {
   border-color: rgba(139, 92, 246, 0.6);
   background: rgba(139, 92, 246, 0.05);
-  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.12);  /* Antes: 3px */
+  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.12);
 }
 
-/* ── Botón submit - MÁS GRANDE ───────────────────── */
+/* ── Botón submit ───────────────────────────────────── */
 .rs-auth-submit {
   width: 100%;
-  padding: 1rem 1.5rem;  /* Antes: 0.88rem 1.5rem */
+  padding: 1rem 1.5rem;
   border: none;
-  border-radius: 12px;  /* Antes: 10px */
-  font-size: 1.05rem;  /* Antes: 0.95rem */
+  border-radius: 12px;
+  font-size: 1.05rem;
   font-weight: 600;
   cursor: pointer;
   font-family: var(--font);
@@ -220,7 +220,7 @@
   align-items: center;
   justify-content: center;
   gap: 0.6rem;
-  margin-top: 0.6rem;  /* Antes: 0.4rem */
+  margin-top: 0.6rem;
   transition: filter 0.2s, box-shadow 0.2s, transform 0.15s;
 }
 
@@ -257,8 +257,8 @@
 /* ── Enlace inferior ─────────────────────────────── */
 .rs-auth-footer-link {
   text-align: center;
-  margin-top: 1.8rem;  /* Antes: 1.5rem */
-  font-size: 0.95rem;  /* Antes: 0.875rem */
+  margin-top: 1.8rem;
+  font-size: 0.95rem;
   color: rgba(255, 255, 255, 0.35);
 }
 
@@ -273,7 +273,7 @@
 .rs-auth-footer-link--purple a { color: #a78bfa; }
 .rs-auth-footer-link--purple a:hover { color: #c4b5fd; }
 
-/* ── Usuario en el header (cuando está logueado) ─── */
+/* ── Usuario en el header ─── */
 .rs-header__user {
   display: flex;
   align-items: center;
@@ -284,53 +284,166 @@
   font-weight: 500;
 }
 
-/* ── Responsive ──────────────────────────────────── */
-@media (max-width: 600px) {
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE - AUTH
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Tablets ── */
+@media (max-width: 1024px) {
   .rs-auth-card {
-    padding: 2rem 1.5rem;  /* Antes: 1.75rem 1.25rem */
-    border-radius: 18px;
-    max-width: 100%;
-  }
-
-  .rs-auth-card__title {
-    font-size: 1.6rem;
-  }
-
-  .rs-auth-card__icon {
-    font-size: 2.2rem;
-  }
-
-  .rs-auth-input {
-    font-size: 0.95rem;
-    padding: 0.8rem 1rem;
-  }
-
-  .rs-auth-submit {
-    font-size: 0.95rem;
-    padding: 0.85rem 1.2rem;
-  }
-
-  .rs-auth-main {
-    padding: 2rem 1rem;
+    max-width: 480px;
+    padding: 2.5rem 3rem;
   }
 }
 
-@media (max-width: 400px) {
+/* ── Móviles grandes ── */
+@media (max-width: 768px) {
+  .rs-auth-main {
+    padding: 3rem 1.5rem;
+  }
+  
   .rs-auth-card {
-    padding: 1.5rem 1rem;
+    max-width: 420px;
+    padding: 2rem 2rem;
+    border-radius: 20px;
   }
-
+  
   .rs-auth-card__title {
-    font-size: 1.3rem;
+    font-size: 1.8rem;
   }
+  
+  .rs-auth-card__icon {
+    font-size: 2.4rem;
+  }
+  
+  .rs-auth-card__subtitle {
+    font-size: 0.9rem;
+  }
+  
+  .rs-auth-input {
+    font-size: 0.95rem;
+    padding: 0.8rem 1rem;
+    border-radius: 10px;
+  }
+  
+  .rs-auth-submit {
+    font-size: 0.95rem;
+    padding: 0.85rem 1.2rem;
+    border-radius: 10px;
+  }
+}
 
+/* ── Móviles pequeños ── */
+@media (max-width: 480px) {
+  .rs-auth-main {
+    padding: 2rem 0.8rem;
+  }
+  
+  .rs-auth-card {
+    padding: 1.5rem 1.2rem;
+    border-radius: 16px;
+    max-width: 100%;
+  }
+  
+  .rs-auth-card__header {
+    margin-bottom: 1.5rem;
+  }
+  
+  .rs-auth-card__title {
+    font-size: 1.4rem;
+  }
+  
+  .rs-auth-card__icon {
+    font-size: 2rem;
+    margin-bottom: 0.6rem;
+  }
+  
+  .rs-auth-card__subtitle {
+    font-size: 0.8rem;
+  }
+  
+  .rs-auth-form {
+    gap: 0.8rem;
+  }
+  
+  .rs-auth-label {
+    font-size: 0.65rem;
+  }
+  
   .rs-auth-input {
     font-size: 0.85rem;
     padding: 0.7rem 0.8rem;
+    border-radius: 8px;
   }
-
+  
+  .rs-auth-input::placeholder {
+    font-size: 0.8rem;
+  }
+  
   .rs-auth-submit {
     font-size: 0.85rem;
     padding: 0.7rem 1rem;
+    border-radius: 8px;
+    margin-top: 0.3rem;
+  }
+  
+  .rs-auth-error {
+    font-size: 0.8rem;
+    padding: 0.6rem 0.8rem;
+    border-radius: 8px;
+    gap: 0.4rem;
+    margin-bottom: 1rem;
+  }
+  
+  .rs-auth-footer-link {
+    font-size: 0.8rem;
+    margin-top: 1.2rem;
+  }
+}
+
+/* ── Móviles muy pequeños ── */
+@media (max-width: 380px) {
+  .rs-auth-main {
+    padding: 1.5rem 0.5rem;
+  }
+  
+  .rs-auth-card {
+    padding: 1.2rem 0.8rem;
+    border-radius: 14px;
+  }
+  
+  .rs-auth-card__title {
+    font-size: 1.2rem;
+  }
+  
+  .rs-auth-card__icon {
+    font-size: 1.6rem;
+  }
+  
+  .rs-auth-card__subtitle {
+    font-size: 0.7rem;
+  }
+  
+  .rs-auth-input {
+    font-size: 0.78rem;
+    padding: 0.6rem 0.6rem;
+  }
+  
+  .rs-auth-input::placeholder {
+    font-size: 0.72rem;
+  }
+  
+  .rs-auth-submit {
+    font-size: 0.78rem;
+    padding: 0.6rem 0.8rem;
+  }
+  
+  .rs-auth-error {
+    font-size: 0.72rem;
+    padding: 0.5rem 0.6rem;
+  }
+  
+  .rs-auth-footer-link {
+    font-size: 0.72rem;
   }
 }

@@ -838,47 +838,705 @@
 }
 
 /* ═══════════════════════════════════════════════════════════
-   RESPONSIVE
+   RESPONSIVE - ADMIN (COMPLETO)
    ═══════════════════════════════════════════════════════════ */
+
+/* ── Tablets ── */
 @media (max-width: 1024px) {
-  .ad-grid--4cols { grid-template-columns: repeat(2, 1fr); }
-  .ad-table-wrapper { overflow-x: auto; }
-  .ad-table { min-width: 900px; }
-  .ad-profile-details { grid-template-columns: 1fr; }
-  .ad-profile-actions { grid-column: span 1; }
+  .ad-grid--4cols { 
+    grid-template-columns: repeat(2, 1fr); 
+  }
+  
+  .ad-grid--3cols { 
+    grid-template-columns: repeat(2, 1fr); 
+  }
+  
+  .ad-table-wrapper { 
+    overflow-x: auto; 
+  }
+  
+  .ad-table { 
+    min-width: 750px; 
+  }
+  
+  .ad-profile-details { 
+    grid-template-columns: 1fr; 
+  }
+  
+  .ad-profile-actions { 
+    grid-column: span 1; 
+  }
+  
+  .ad-card {
+    padding: 1.5rem;
+  }
+  
+  .ad-card__number {
+    font-size: 2rem;
+  }
+  
+  .ad-filters-row {
+    gap: 0.8rem;
+  }
+  
+  .ad-filter-group {
+    min-width: 140px;
+  }
+  
+  .ad-main {
+    padding: 0 1.5rem 3rem;
+  }
 }
 
+/* ── Móviles (768px y menos) ── */
 @media (max-width: 768px) {
-  .ad-grid--4cols { grid-template-columns: 1fr; }
-  .ad-grid--3cols { grid-template-columns: 1fr; }
-  .ad-grid--2cols { grid-template-columns: 1fr; }
+  .ad-hero {
+    padding: 2rem 1.5rem 1.5rem;
+  }
   
-  .ad-hero { padding: 2rem 1rem 1.5rem; }
-  .ad-hero--tall { padding-top: 3rem; padding-bottom: 2rem; }
-  .ad-main { padding: 0 1rem 2rem; }
-  .ad-card { padding: 1.2rem; }
-  .ad-card--profile { padding: 1.5rem; }
+  .ad-hero--tall {
+    padding-top: 2.5rem;
+    padding-bottom: 1.5rem;
+  }
+  
+  .ad-hero__title {
+    font-size: clamp(1.8rem, 5vw, 2.4rem);
+  }
+  
+  .ad-hero__sub {
+    font-size: 0.9rem;
+  }
+  
+  /* 🔥 MAIN CON MÁRGENES EN MÓVIL */
+  .ad-main {
+    padding: 0 1.2rem 2rem;
+    max-width: 100%;
+  }
+  
+  .ad-grid--4cols { 
+    grid-template-columns: 1fr 1fr; 
+    gap: 0.8rem;
+  }
+  
+  .ad-grid--3cols { 
+    grid-template-columns: 1fr 1fr; 
+    gap: 0.8rem;
+  }
+  
+  .ad-grid--2cols { 
+    grid-template-columns: 1fr; 
+  }
+  
+  /* 🔥 CARDS CON MÁRGENES INTERNOS */
+  .ad-card {
+    padding: 0.8rem 0.8rem;
+    border-radius: 10px;
+    gap: 0.6rem;
+  }
+  
+  .ad-card__number {
+    font-size: 1.4rem;
+  }
+  
+  .ad-card__label {
+    font-size: 0.7rem;
+  }
+  
+  .ad-card__icon {
+    width: 36px;
+    height: 36px;
+    font-size: 1rem;
+  }
+  
+  .ad-card__sub {
+    font-size: 0.65rem;
+    flex-wrap: wrap;
+  }
+  
+  /* 🔥 SECCIÓN CON MÁRGENES */
+  .ad-section {
+    margin-bottom: 1.5rem;
+  }
+  
+  .ad-section__header {
+    margin-bottom: 0.8rem;
+    padding-bottom: 0.5rem;
+  }
+  
+  .ad-section__header h2 {
+    font-size: 1rem;
+  }
+  
+  .ad-section__header i {
+    font-size: 1rem;
+  }
+  
+  .ad-card--profile {
+    padding: 1.5rem;
+  }
   
   .ad-profile-header {
     flex-direction: column;
     text-align: center;
   }
   
+  .ad-profile-avatar {
+    width: 100px;
+    height: 100px;
+  }
+  
+  .ad-profile-info h2 {
+    font-size: 1.4rem;
+  }
+  
+  /* 🔥 FILTROS EN MÓVIL */
+  .ad-filters-bar {
+    padding: 0.8rem 1rem;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+  }
+  
   .ad-filters-row {
-    gap: 0.8rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+    align-items: end;
   }
-  .ad-filter-group {
-    flex: 1;
-    min-width: 100px;
-  }
+  
   .ad-filter-group--grow {
+    grid-column: 1 / -1;
     min-width: 100%;
     order: -1;
   }
-  .ad-filters-count {
-    margin-left: 0;
+  
+  .ad-filter-group {
+    min-width: 0;
     width: 100%;
+  }
+  
+  .ad-filter-label {
+    font-size: 0.55rem;
+  }
+  
+  .ad-filter-input {
+    font-size: 0.8rem;
+    padding: 0.5rem 0.7rem 0.5rem 2rem;
+    border-radius: 6px;
+  }
+  
+  .ad-filter-select {
+    font-size: 0.75rem;
+    padding: 0.4rem 0.5rem;
+    min-width: 0;
+    width: 100%;
+    border-radius: 6px;
+  }
+  
+  .ad-filter-icon {
+    font-size: 0.8rem;
+    left: 0.6rem;
+  }
+  
+  .ad-filters-count {
+    grid-column: 1 / -1;
     text-align: right;
+    font-size: 0.7rem;
+    margin: 0;
     padding-top: 0.2rem;
+  }
+  
+  /* 🔥 TABLA CONVERTIDA EN TARJETAS EN MÓVIL */
+  .ad-table-wrapper {
+    border-radius: 10px;
+    overflow: hidden;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+  
+  .ad-table {
+    display: block;
+    min-width: 0;
+    width: 100%;
+  }
+  
+  .ad-table thead {
+    display: none;
+  }
+  
+  .ad-table tbody {
+    display: block;
+    width: 100%;
+  }
+  
+  .ad-table tbody tr {
+    display: block;
+    background: rgba(18, 18, 31, 0.8);
+    border: 1px solid rgba(239, 68, 68, 0.15);
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 0.8rem;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  }
+  
+  .ad-table tbody tr:hover {
+    background: rgba(18, 18, 31, 0.9);
+  }
+  
+  .ad-table tbody td {
+    display: flex;
+    align-items: center;
+    padding: 0.3rem 0 !important;
+    border: none !important;
+    font-size: 0.8rem;
+    gap: 0.5rem;
+  }
+  
+  .ad-table tbody td::before {
+    content: attr(data-label);
+    font-weight: 700;
+    color: #f87171;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    min-width: 90px;
+    flex-shrink: 0;
+  }
+  
+  .ad-table tbody td:empty::before,
+  .ad-table tbody td:first-child::before {
+    display: none;
+  }
+  
+  .ad-table tbody td:first-child {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0 0 0.5rem 0 !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+    margin-bottom: 0.5rem;
+  }
+  
+  .ad-table tbody td:first-child .ad-user-info {
+    flex: 1;
+  }
+  
+  .ad-user-avatar {
+    width: 36px;
+    height: 36px;
+    font-size: 0.9rem;
+  }
+  
+  .ad-user-nick {
+    font-size: 0.9rem;
+  }
+  
+  .ad-user-email {
+    font-size: 0.75rem;
+  }
+  
+  .ad-user-status {
+    font-size: 0.65rem;
+  }
+  
+  .ad-badge {
+    font-size: 0.65rem;
+    padding: 0.15rem 0.6rem;
+    gap: 0.2rem;
+  }
+  
+  .ad-badge i {
+    font-size: 0.6rem;
+  }
+  
+  .ad-btn-rol {
+    font-size: 0.6rem;
+    padding: 0.15rem 0.4rem;
+  }
+  
+  .ad-btn-accion {
+    font-size: 0.6rem;
+    padding: 0.15rem 0.4rem;
+  }
+  
+  .ad-btn-accion i {
+    font-size: 0.6rem;
+  }
+  
+  .ad-btn-group-rol {
+    display: flex;
+    flex-direction: row;
+    gap: 0.2rem;
+  }
+  
+  .ad-btn-group-acciones {
+    display: flex;
+    flex-direction: row;
+    gap: 0.2rem;
+  }
+  
+  .ad-table tbody td:last-child {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.3rem;
+    padding-top: 0.3rem !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
+    margin-top: 0.3rem;
+  }
+  
+  .ad-table tbody td:last-child::before {
+    display: none;
+  }
+  
+  .ad-table-empty {
+    display: block !important;
+    text-align: center !important;
+    padding: 2rem 1rem !important;
+    font-size: 0.85rem;
+  }
+  
+  .ad-toast {
+    top: 70px;
+    right: 10px;
+    padding: 0.7rem 1rem;
+    font-size: 0.8rem;
+    max-width: calc(100% - 20px);
+  }
+  
+  .ad-status {
+    padding: 2rem 0;
+    font-size: 0.9rem;
+  }
+  
+  .ad-status i {
+    font-size: 1.8rem;
+  }
+}
+
+/* ── Móviles pequeños (480px) ── */
+@media (max-width: 480px) {
+  .ad-hero {
+    padding: 1.5rem 1rem 1rem;
+  }
+  
+  .ad-hero--tall {
+    padding-top: 2rem;
+    padding-bottom: 1.2rem;
+  }
+  
+  .ad-hero__badge {
+    font-size: 0.55rem;
+    padding: 0.15rem 0.7rem;
+  }
+  
+  .ad-hero__title {
+    font-size: clamp(1.4rem, 4vw, 1.8rem);
+  }
+  
+  .ad-hero__sub {
+    font-size: 0.8rem;
+  }
+  
+  /* 🔥 MAIN CON MÁRGENES EN MÓVIL PEQUEÑO */
+  .ad-main {
+    padding: 0 0.8rem 1.5rem;
+    max-width: 100%;
+  }
+  
+  .ad-grid--4cols { 
+    grid-template-columns: 1fr; 
+    gap: 0.6rem;
+  }
+  
+  .ad-grid--3cols { 
+    grid-template-columns: 1fr; 
+    gap: 0.6rem;
+  }
+  
+  /* 🔥 CARDS COMPACTAS PERO CON ESPACIO */
+  .ad-card {
+    padding: 0.7rem 0.7rem;
+    border-radius: 8px;
+    gap: 0.5rem;
+  }
+  
+  .ad-card__number {
+    font-size: 1.2rem;
+  }
+  
+  .ad-card__label {
+    font-size: 0.65rem;
+  }
+  
+  .ad-card__icon {
+    width: 32px;
+    height: 32px;
+    font-size: 0.9rem;
+  }
+  
+  .ad-card__sub {
+    font-size: 0.6rem;
+  }
+  
+  .ad-filters-bar {
+    padding: 0.5rem 0.6rem;
+    border-radius: 8px;
+  }
+  
+  .ad-filters-row {
+    grid-template-columns: 1fr 1fr;
+    gap: 0.3rem;
+  }
+  
+  .ad-filter-input {
+    font-size: 0.7rem;
+    padding: 0.35rem 0.4rem 0.35rem 1.6rem;
+    border-radius: 5px;
+  }
+  
+  .ad-filter-select {
+    font-size: 0.65rem;
+    padding: 0.3rem 0.3rem;
+    border-radius: 5px;
+  }
+  
+  .ad-filter-icon {
+    font-size: 0.7rem;
+    left: 0.4rem;
+  }
+  
+  .ad-filter-label {
+    font-size: 0.5rem;
+  }
+  
+  .ad-filters-count {
+    font-size: 0.6rem;
+  }
+  
+  .ad-table tbody tr {
+    padding: 0.8rem;
+    border-radius: 10px;
+  }
+  
+  .ad-table tbody td {
+    font-size: 0.7rem;
+    padding: 0.2rem 0 !important;
+  }
+  
+  .ad-table tbody td::before {
+    min-width: 70px;
+    font-size: 0.55rem;
+  }
+  
+  .ad-table tbody td:first-child {
+    padding: 0 0 0.3rem 0 !important;
+  }
+  
+  .ad-user-avatar {
+    width: 30px;
+    height: 30px;
+    font-size: 0.8rem;
+  }
+  
+  .ad-user-nick {
+    font-size: 0.8rem;
+  }
+  
+  .ad-user-email {
+    font-size: 0.65rem;
+  }
+  
+  .ad-badge {
+    font-size: 0.55rem;
+    padding: 0.1rem 0.4rem;
+  }
+  
+  .ad-btn-rol {
+    font-size: 0.55rem;
+    padding: 0.1rem 0.3rem;
+  }
+  
+  .ad-btn-accion {
+    font-size: 0.55rem;
+    padding: 0.1rem 0.3rem;
+  }
+  
+  .ad-btn-group-rol {
+    flex-direction: row;
+    gap: 0.15rem;
+  }
+  
+  .ad-btn-group-acciones {
+    flex-direction: row;
+    gap: 0.15rem;
+  }
+  
+  .ad-table-empty {
+    font-size: 0.75rem;
+    padding: 1.5rem 0.5rem !important;
+  }
+  
+  .ad-section {
+    margin-bottom: 1rem;
+  }
+  
+  .ad-section__header {
+    margin-bottom: 0.6rem;
+    padding-bottom: 0.3rem;
+  }
+  
+  .ad-section__header h2 {
+    font-size: 0.9rem;
+  }
+  
+  .ad-section__header i {
+    font-size: 0.9rem;
+  }
+  
+  .ad-toast {
+    top: 60px;
+    right: 6px;
+    padding: 0.5rem 0.7rem;
+    font-size: 0.7rem;
+    max-width: calc(100% - 12px);
+    border-radius: 8px;
+  }
+  
+  .ad-status {
+    padding: 1rem 0;
+    font-size: 0.8rem;
+  }
+  
+  .ad-status i {
+    font-size: 1.4rem;
+  }
+  
+  .ad-profile-avatar {
+    width: 70px;
+    height: 70px;
+  }
+  
+  .ad-profile-info h2 {
+    font-size: 1.2rem;
+  }
+  
+  .ad-btn {
+    font-size: 0.7rem;
+    padding: 0.4rem 0.8rem;
+  }
+}
+
+/* ── Móviles muy pequeños (380px) ── */
+@media (max-width: 380px) {
+  .ad-hero__title {
+    font-size: clamp(1.2rem, 3vw, 1.4rem);
+  }
+  
+  .ad-hero__sub {
+    font-size: 0.7rem;
+  }
+  
+  .ad-main {
+    padding: 0 0.6rem 1.2rem;
+  }
+  
+  .ad-grid--4cols { 
+    gap: 0.4rem;
+  }
+  
+  .ad-grid--3cols { 
+    gap: 0.4rem;
+  }
+  
+  .ad-card {
+    padding: 0.6rem 0.6rem;
+  }
+  
+  .ad-card__number {
+    font-size: 1rem;
+  }
+  
+  .ad-card__label {
+    font-size: 0.6rem;
+  }
+  
+  .ad-card__icon {
+    width: 28px;
+    height: 28px;
+    font-size: 0.8rem;
+  }
+  
+  .ad-filters-row {
+    grid-template-columns: 1fr;
+    gap: 0.2rem;
+  }
+  
+  .ad-filter-group--grow {
+    order: -1;
+  }
+  
+  .ad-filter-input {
+    font-size: 0.65rem;
+    padding: 0.3rem 0.4rem 0.3rem 1.4rem;
+  }
+  
+  .ad-filter-select {
+    font-size: 0.6rem;
+    padding: 0.25rem 0.3rem;
+  }
+  
+  .ad-filter-icon {
+    font-size: 0.65rem;
+    left: 0.4rem;
+  }
+  
+  .ad-table tbody tr {
+    padding: 0.6rem;
+    border-radius: 8px;
+  }
+  
+  .ad-table tbody td {
+    font-size: 0.65rem;
+    padding: 0.15rem 0 !important;
+  }
+  
+  .ad-table tbody td::before {
+    min-width: 60px;
+    font-size: 0.5rem;
+  }
+  
+  .ad-user-avatar {
+    width: 26px;
+    height: 26px;
+    font-size: 0.7rem;
+  }
+  
+  .ad-user-nick {
+    font-size: 0.7rem;
+  }
+  
+  .ad-badge {
+    font-size: 0.5rem;
+    padding: 0.05rem 0.3rem;
+  }
+  
+  .ad-btn-rol {
+    font-size: 0.5rem;
+    padding: 0.05rem 0.25rem;
+  }
+  
+  .ad-btn-accion {
+    font-size: 0.5rem;
+    padding: 0.05rem 0.25rem;
+  }
+  
+  .ad-section__header h2 {
+    font-size: 0.8rem;
+  }
+  
+  .ad-toast {
+    font-size: 0.6rem;
+    padding: 0.4rem 0.5rem;
   }
 }

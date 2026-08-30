@@ -9,9 +9,7 @@ export default function AppHeader() {
   const navigate = useNavigate();
   const location = useLocation();
   
-  // Detectamos si estamos en una ruta de administración
   const isAdminRoute = location.pathname.startsWith('/admin');
-  
   const mostrarBadgeSolicitudes = pendingReceivedCount > 0 && location.pathname !== '/solicitudes';
 
   const handleLogout = () => {
@@ -21,24 +19,11 @@ export default function AppHeader() {
 
   return (
     <header className="rs-header">
-      {/* 🔥 BANNER DE SUSPENSIÓN (Añadido aquí) */}
+      {/* BANNER DE SUSPENSIÓN */}
       {isAuthenticated && user?.estado_cuenta === 'suspendida' && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          width: '100%',
-          background: 'rgba(251, 191, 36, 0.85)',
-          color: '#000',
-          textAlign: 'center',
-          padding: '6px 0',
-          fontWeight: 'bold',
-          fontSize: '0.9rem',
-          zIndex: 10000,
-          borderBottom: '2px solid #fbbf24',
-          backdropFilter: 'blur(4px)'
-        }}>
-          ⚠️ Tu cuenta está suspendida. No puedes enviar mensajes ni unirte a salas.
+        <div className="rs-suspension-banner">
+          <i className="bi bi-exclamation-triangle-fill" />
+          Tu cuenta está suspendida. No puedes enviar mensajes ni unirte a salas.
         </div>
       )}
 
@@ -51,92 +36,76 @@ export default function AppHeader() {
             <span>Retro</span><span>Chat</span>
           </span>
           {isAdminRoute && (
-            <span style={{
-              marginLeft: '10px',
-              fontSize: '0.65rem',
-              background: '#ef4444',
-              color: '#fff',
-              padding: '2px 10px',
-              borderRadius: '12px',
-              fontWeight: 'bold',
-              textTransform: 'uppercase',
-              letterSpacing: '1px'
-            }}>
-              Admin
-            </span>
+            <span className="rs-logo__badge">Admin</span>
           )}
         </Link>
 
+        {/* ✅ Menú hamburguesa para móvil */}
+        <input type="checkbox" id="menu-toggle" className="rs-menu-toggle" />
+        <label htmlFor="menu-toggle" className="rs-menu-btn">
+          <i className="bi bi-list" />
+        </label>
+
         <nav className="rs-header__nav">
           
-          {/* ──────────────────────────────────────────────
-               MENÚ PARA ADMINISTRADORES (RUTA /admin)
-          ────────────────────────────────────────────── */}
+          {/* ─── MENÚ ADMIN ─── */}
           {isAuthenticated && isAdminRoute ? (
             <>
               <Link to="/admin" className="rs-btn rs-btn--nav rs-btn--admin-active">
-                <i className="bi bi-house-fill" /> Dashboard
+                <i className="bi bi-house-fill" /> <span>Dashboard</span>
               </Link>
               
               <Link to="/admin/usuarios" className="rs-btn rs-btn--nav rs-btn--admin">
-                <i className="bi bi-people-fill" /> Usuarios
+                <i className="bi bi-people-fill" /> <span>Usuarios</span>
               </Link>
               <Link to="/admin/salas" className="rs-btn rs-btn--nav rs-btn--admin">
-                <i className="bi bi-door-open-fill" /> Salas
+                <i className="bi bi-door-open-fill" /> <span>Salas</span>
               </Link>
 
               <Link to="/admin/perfil" className="rs-header__user">
-                  <i className="bi bi-person-circle" />
-                    {user?.nickname}
+                <i className="bi bi-person-circle" />
+                <span>{user?.nickname}</span>
               </Link>
 
-              <button
-                    className="rs-btn rs-btn--nav rs-btn--ghost"
-                    onClick={handleLogout}
-                  >
-                    Cerrar sesión
+              <button className="rs-btn rs-btn--nav rs-btn--ghost" onClick={handleLogout}>
+                <i className="bi bi-box-arrow-right" /> <span>Cerrar sesión</span>
               </button>
             </>
           ) : (
-          /* ──────────────────────────────────────────────
-               MENÚ PARA USUARIOS NORMALES
-          ────────────────────────────────────────────── */
+            /* ─── MENÚ USUARIO NORMAL ─── */
             <>
               {isAuthenticated ? (
                 <>
                   <Link to="/salas" className="rs-btn rs-btn--nav">
-                    <i className="bi bi-grid-3x3-gap" /> Salas
+                    <i className="bi bi-grid-3x3-gap" /> <span>Salas</span>
                   </Link>
                   <UserSearchBar />
                   <Link to="/mensajes" className="rs-btn rs-btn--nav rs-nav-link-wrap">
-                    <i className="bi bi-chat-dots" /> Mensajes
+                    <i className="bi bi-chat-dots" /> <span>Mensajes</span>
                     {totalUnread > 0 && <span className="rs-nav-badge" />}
                   </Link>
                   <Link to="/solicitudes" className="rs-btn rs-btn--nav rs-nav-link-wrap">
-                    <i className="bi bi-person-plus" /> Solicitudes
+                    <i className="bi bi-person-plus" /> <span>Solicitudes</span>
                     {mostrarBadgeSolicitudes && <span className="rs-nav-badge rs-nav-badge--orange" />}
                   </Link>
                   <Link to="/amigos" className="rs-btn rs-btn--nav">
-                    <i className="bi bi-people" /> Amigos
+                    <i className="bi bi-people" /> <span>Amigos</span>
                   </Link>
                   <Link to="/perfil" className="rs-header__user">
                     <i className="bi bi-person-circle" />
-                    {user?.nickname}
+                    <span>{user?.nickname}</span>
                   </Link>
-                  <button
-                    className="rs-btn rs-btn--nav rs-btn--ghost"
-                    onClick={handleLogout}
-                  >
-                    Cerrar sesión
+                  <button className="rs-btn rs-btn--nav rs-btn--ghost" onClick={handleLogout}>
+                    <i className="bi bi-box-arrow-right" /> <span>Cerrar sesión</span>
                   </button>
                 </>
               ) : (
                 <>
                   <Link to="/login" className="rs-btn rs-btn--nav rs-btn--ghost">
-                    Iniciar sesión
+                    <i className="bi bi-box-arrow-in-right" /> <span>Iniciar sesión</span>
                   </Link>
                   <Link to="/registro" className="rs-btn rs-btn--nav rs-btn--primary">
-                    Crear cuenta
+                    <i className="bi bi-person-plus" /> <span>Crear cuenta</span>
                   </Link>
                 </>
               )}

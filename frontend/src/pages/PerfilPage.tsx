@@ -13,14 +13,12 @@ export default function PerfilPage() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // 🔥 DETECTAR SI ES ADMIN
   const isAdminRoute = location.pathname.startsWith('/admin');
 
   const [perfil, setPerfil] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // 🔥 ESTADO SEPARADO PARA EL INPUT
   const [nicknameInput, setNicknameInput] = useState('');
   const [nickSaving, setNickSaving] = useState(false);
   const [nickMsg, setNickMsg] = useState<{ text: string; ok: boolean } | null>(null);
@@ -29,7 +27,6 @@ export default function PerfilPage() {
   const [avatarMsg, setAvatarMsg] = useState<{ text: string; ok: boolean } | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  // Cargar perfil
   useEffect(() => {
     if (!isAuthenticated || !token) {
       navigate('/login');
@@ -40,17 +37,15 @@ export default function PerfilPage() {
       .getMe(token)
       .then(data => {
         setPerfil(data);
-        setNicknameInput(data.nickname); // 🔥 Inicializar input con el nickname
+        setNicknameInput(data.nickname);
         if (data.estado) {
           updateUser({ estado: data.estado });
         }
       })
       .catch(() => setError('No se pudo cargar el perfil'))
       .finally(() => setLoading(false));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated, token]);
 
-  // 🔥 Cuando el perfil cambia (después de actualizar), sincronizar el input
   useEffect(() => {
     if (perfil) {
       setNicknameInput(perfil.nickname);
@@ -82,7 +77,7 @@ export default function PerfilPage() {
       setPerfil(updated);
       setNicknameInput(updated.nickname);
       updateUser({ nickname: updated.nickname });
-      setNickMsg({ text: '✅ Nickname actualizado', ok: true });
+      setNickMsg({ text: 'Nickname actualizado', ok: true });
     } catch (err: any) {
       const msg = err.response?.data?.error || 'Error al guardar';
       setNickMsg({ text: msg, ok: false });
@@ -203,7 +198,6 @@ export default function PerfilPage() {
 
             <h1 className="rp-nombre">{perfil.nickname}</h1>
 
-            {/* Editar nickname - CON ESTADO SEPARADO */}
             <div className="rp-section">
               <label className="rp-label">
                 <i className="bi bi-at" /> Nickname
@@ -225,7 +219,7 @@ export default function PerfilPage() {
                   onClick={handleNickname}
                   disabled={nickSaving || !nicknameInput.trim()}
                 >
-                  {nickSaving ? <i className="bi bi-arrow-repeat rs-spin" /> : 'Guardar'}
+                  {nickSaving ? <i className="bi bi-arrow-repeat rs-spin" /> : <span>Guardar</span>}
                 </button>
               </div>
               {nickMsg && (
@@ -246,7 +240,7 @@ export default function PerfilPage() {
                 <label className="rp-label"><i className="bi bi-shield" /> Rol</label>
                 <div className={`rp-badge ${perfil.rol === 'admin' ? 'rp-badge--admin' : 'rp-badge--user'}`}>
                   <i className={`bi ${perfil.rol === 'admin' ? 'bi-shield-fill' : 'bi-person-fill'}`} />
-                  {perfil.rol}
+                  <span>{perfil.rol}</span>
                 </div>
               </div>
 

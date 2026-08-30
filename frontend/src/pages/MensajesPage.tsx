@@ -45,11 +45,11 @@ const TEMAS = {
     msgMioBg: 'rgba(251, 191, 36, 0.20)'
   },
   rojo: { 
-    accent: '#b91c1c', // Rojo vino intenso
+    accent: '#b91c1c',
     mainBg: '#0a0404',
     glow: 'rgba(185, 28, 28, 0.15)',
     btnBg: 'rgba(185, 28, 28, 0.20)',
-    border: 'rgba(239, 68, 68, 0.50)', // Borde rojo brillante
+    border: 'rgba(239, 68, 68, 0.50)',
     msgMioBg: 'rgba(185, 28, 28, 0.25)'
   },
   morado: { 
@@ -161,7 +161,6 @@ export default function MensajesPage() {
     const uid = searchParams.get('userId');
     if (!uid || !token) return;
     
-    // 🔥 BLOQUEO DE APERTURA DE CHAT SI ESTÁ SUSPENDIDO
     if (user?.estado_cuenta === 'suspendida') {
       navigate('/mensajes');
       return;
@@ -231,7 +230,6 @@ export default function MensajesPage() {
   }, [token, user?.id]);
 
   const enviar = () => {
-    // 🔥 TOAST DE AVISO SI ESTÁ SUSPENDIDO
     if (user?.estado_cuenta === 'suspendida') {
       window.dispatchEvent(new CustomEvent('show-toast', { 
         detail: { 
@@ -279,7 +277,6 @@ export default function MensajesPage() {
     return () => clearTimeout(timeoutId);
   }, [mensajes]);
 
-  // 🔥 SI EL USUARIO ESTÁ SUSPENDIDO, BLOQUEAMOS LA PÁGINA POR COMPLETO
   if (user?.estado_cuenta === 'suspendida') {
     return (
       <div className="mp-page">
@@ -362,7 +359,7 @@ export default function MensajesPage() {
 
       <section className="mp-hero">
         
-        {/* 🔥 SELECTOR DE TEMAS EN COLUMNA (CON ESTILOS DIRECTOS) */}
+        {/* 🔥 SELECTOR DE TEMAS EN COLUMNA */}
         <div className="mp-theme-selector-wrapper">
           <button 
             className="mp-theme-toggle"
@@ -373,17 +370,7 @@ export default function MensajesPage() {
           </button>
           
           {selectorVisible && (
-            <div 
-              style={{
-                display: 'flex',
-                gap: '8px',
-                background: 'rgba(0, 0, 0, 0.5)',
-                padding: '6px 10px',
-                borderRadius: '30px',
-                border: '1px solid rgba(255, 255, 255, 0.05)',
-                backdropFilter: 'blur(10px)'
-              }}
-            >
+            <div className="mp-theme-options">
               {(Object.keys(TEMAS) as TemaKey[]).map(key => {
                 const isActive = tema === key;
                 const color = TEMAS[key].accent;
@@ -392,17 +379,8 @@ export default function MensajesPage() {
                     key={key}
                     onClick={() => cambiarTema(key)}
                     title={key}
-                    style={{
-                      width: '22px',
-                      height: '22px',
-                      borderRadius: '50%',
-                      backgroundColor: color,
-                      border: isActive ? '2px solid #fff' : key === 'rojo' ? '2px solid rgba(255,255,255,0.3)' : '2px solid transparent',
-                      boxShadow: isActive ? `0 0 12px ${color}` : 'none',
-                      cursor: 'pointer',
-                      padding: 0,
-                      transition: 'all 0.2s'
-                    }}
+                    className={`mp-theme-btn${isActive ? ' mp-theme-btn--active' : ''}`}
+                    style={{ backgroundColor: color }}
                   />
                 );
               })}
@@ -410,7 +388,6 @@ export default function MensajesPage() {
           )}
         </div>
 
-        {/* 🔥 TÍTULO Y BADGE CENTRADOS */}
         <div className="mp-hero-center">
           <span className="mp-hero__badge">✦ Privado</span>
           <h1 className="mp-hero__title">Mensajes</h1>
