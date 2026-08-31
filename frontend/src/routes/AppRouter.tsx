@@ -1,5 +1,9 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ReactNode } from 'react';
+import AcercaDe from '../pages/AcercaDe';
+import Normas from '../pages/Normas';
+import Privacidad from '../pages/Privacidad';
+import Terminos from '../pages/Terminos';
 import LandingPage from '../pages/LandingPage';
 import LoginPage from '../pages/LoginPage';
 import RegisterPage from '../pages/RegisterPage';
@@ -13,6 +17,7 @@ import PerfilPage from '../pages/PerfilPage';
 import MensajesPage from '../pages/MensajesPage';
 import SolicitudesPage from '../pages/SolicitudesPage';
 import AmigosPage from '../pages/AmigosPage';
+import ScrollToTop from '../components/ScrollToTop';
 
 interface AppRouterProps {
   children?: ReactNode;
@@ -22,6 +27,7 @@ export default function AppRouter({ children }: AppRouterProps) {
   return (
     <BrowserRouter>
       {children}
+      <ScrollToTop />
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
@@ -32,6 +38,10 @@ export default function AppRouter({ children }: AppRouterProps) {
         <Route path="/mensajes" element={<MensajesPage />} />
         <Route path="/solicitudes" element={<SolicitudesPage />} />
         <Route path="/amigos" element={<AmigosPage />} />
+        <Route path="/acerca-de" element={<AcercaDe />} />
+        <Route path="/normas" element={<Normas />} />
+        <Route path="/privacidad" element={<Privacidad />} />
+        <Route path="/terminos" element={<Terminos />} />
 
         {/* Rutas protegidas de Admin */}
         <Route

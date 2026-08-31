@@ -1,4 +1,6 @@
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import AppHeader from '../components/AppHeader';
 import AppFooter from '../components/AppFooter';
 
@@ -65,7 +67,15 @@ for (let y = 1990; y <= 2009; y++) {
 }
 
 export default function LandingPage(): JSX.Element {
+  const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isAuthenticated && user?.rol === 'admin') {
+      navigate('/admin', { replace: true });
+    }
+  }, [isAuthenticated, user, navigate]);
+  
   return (
     <div className="rs-landing">
 

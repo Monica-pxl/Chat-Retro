@@ -57,18 +57,20 @@ export default function AppFooter() {
           </ul>
         </div>
 
-        {/* Columna 3 — Información */}
-        <div className="rs-footer__col">
-          <h4>Información</h4>
-          <ul>
-            <li><a href="#">Acerca de</a></li>
-            <li><a href="#">Normas de la comunidad</a></li>
-            <li><a href="#">Política de privacidad</a></li>
-            <li><a href="#">Términos de uso</a></li>
-          </ul>
-        </div>
+        {/* Columna 3 — Información (SOLO SI NO ESTÁS EN ADMIN) */}
+        {!isAdminRoute && (
+          <div className="rs-footer__col">
+            <h4>Información</h4>
+            <ul>
+              <li><Link to="/acerca-de">Acerca de</Link></li>
+              <li><Link to="/normas">Normas de la comunidad</Link></li>
+              <li><Link to="/privacidad">Política de privacidad</Link></li>
+              <li><Link to="/terminos">Términos de uso</Link></li>
+            </ul>
+          </div>
+        )}
 
-        {/* Columna 4 — Contacto */}
+        {/* Columna 4 — Contacto (siempre visible) */}
         <div className="rs-footer__col">
           <h4>Contacto</h4>
           <ul>
