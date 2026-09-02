@@ -91,6 +91,11 @@ export default function SalaPage() {
   const usuarioSeleccionadoRef = useRef<UsuarioSala | null>(null);
   const fileInputPrivadoRef = useRef<HTMLInputElement>(null);
 
+  // 🔥 MÚSICA
+  const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
+  const [currentSongIndex, setCurrentSongIndex] = useState(0);
+  const [playlist, setPlaylist] = useState<string[]>([]);
+
   const socketRef = useRef<Socket | null>(null);
   const messagesEnd = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -98,7 +103,7 @@ export default function SalaPage() {
 
   const salaId = Number(id);
 
-  // 🚨 REDIRECCIÓN Y TOAST SI ESTÁ SUSPENDIDO (SE EJECUTA ANTES DE RENDERIZAR NADA)
+  // 🚨 REDIRECCIÓN Y TOAST SI ESTÁ SUSPENDIDO
   useLayoutEffect(() => {
     if (user?.estado_cuenta === 'suspendida') {
       window.dispatchEvent(new CustomEvent('show-toast', { 
@@ -112,6 +117,44 @@ export default function SalaPage() {
   }, [user, navigate]);
 
   const esTvShow = sala?.tematica?.nombre?.toLowerCase().includes('tv shows') || false;
+
+  // ── FUNCIÓN PARA OBTENER CANCIONES DE LA SALA (90s y 2000s) ──
+  const getSongsForSala = (sala: Sala | null): string[] => {
+    if (!sala) return [];
+    
+    // Mapa de canciones por año (90s en carpeta 1990, 2000s en carpeta 2000)
+    const songsMap: { [key: number]: string[] } = {
+      // 90s (carpeta 1990)
+      1990: ['/music/1990/1990-1.mp3', '/music/1990/1990-2.mp3'],
+      1991: ['/music/1990/1991-1.mp3', '/music/1990/1991-2.mp3'],
+      1992: ['/music/1990/1992-1.mp3', '/music/1990/1992-2.mp3'],
+      1993: ['/music/1990/1993-1.mp3', '/music/1990/1993-2.mp3'],
+      1994: ['/music/1990/1994-1.mp3', '/music/1990/1994-2.mp3'],
+      1995: ['/music/1990/1995-1.mp3', '/music/1990/1995-2.mp3'],
+      1996: ['/music/1990/1996-1.mp3', '/music/1990/1996-2.mp3'],
+      1997: ['/music/1990/1997-1.mp3', '/music/1990/1997-2.mp3'],
+      1998: ['/music/1990/1998-1.mp3', '/music/1990/1998-2.mp3'],
+      1999: ['/music/1990/1999-1.mp3', '/music/1990/1999-2.mp3'],
+      
+      // 2000s (carpeta 2000)
+      2000: ['/music/2000/2000-1.mp3', '/music/2000/2000-2.mp3'],
+      2001: ['/music/2000/2001-1.mp3', '/music/2000/2001-2.mp3'],
+      2002: ['/music/2000/2002-1.mp3', '/music/2000/2002-2.mp3', '/music/2000/2002-3.mp3'],
+      2003: ['/music/2000/2003-1.mp3'],
+      2004: ['/music/2000/2004-1.mp3', '/music/2000/2004-2.mp3'],
+      2005: ['/music/2000/2005-1.mp3'],
+      2006: [], // No hay canciones para 2006
+      2007: ['/music/2000/2007-1.mp3', '/music/2000/2007-2.mp3'],
+      2008: ['/music/2000/2008-1.mp3', '/music/2000/2008-2.mp3'],
+      2009: ['/music/2000/2009-1.mp3', '/music/2000/2009-2.mp3'],
+    };
+    
+    if (sala.ano && songsMap[sala.ano]) {
+      return songsMap[sala.ano];
+    }
+    
+    return [];
+  };
 
   /* ── Cargar info ── */
   useEffect(() => {
@@ -162,6 +205,49 @@ export default function SalaPage() {
     setFiltroNavegador(nuevoFiltro);
   }, [sala]);
 
+  /* ── MÚSICA DE LA SALA ── */
+  useEffect(() => {
+    if (!sala) return;
+    
+    const songs = getSongsForSala(sala);
+    if (songs.length === 0) {
+      console.log('🎵 No hay canciones para esta sala');
+      return;
+    }
+    
+    console.log('🎵 Playlist cargada:', songs);
+    setPlaylist(songs);
+    
+    const randomIndex = Math.floor(Math.random() * songs.length);
+    setCurrentSongIndex(randomIndex);
+    
+    const audioElement = new Audio(songs[randomIndex]);
+    audioElement.loop = false;
+    audioElement.volume = 0.3;
+    
+    if (musicOn) {
+      audioElement.play().catch(() => {});
+    }
+    
+    audioElement.onended = () => {
+      const nextIndex = (randomIndex + 1) % songs.length;
+      setCurrentSongIndex(nextIndex);
+      audioElement.src = songs[nextIndex];
+      if (musicOn) {
+        audioElement.play().catch(() => {});
+      }
+      console.log('🎵 Siguiente canción:', songs[nextIndex]);
+    };
+    
+    setAudio(audioElement);
+    
+    return () => {
+      audioElement.pause();
+      audioElement.src = '';
+      setAudio(null);
+    };
+  }, [sala]);
+
   /* ── Socket ── */
   useEffect(() => {
     if (!isAuthenticated || !token) return;
@@ -191,7 +277,6 @@ export default function SalaPage() {
       setUsuarios(users);
     });
 
-    // 🔥 Escuchar mensajes privados
     socket.on('receive-private-message', (msg: { 
       chatId: number; 
       user: { id: number; nickname: string; avatar: string | null };
@@ -200,9 +285,6 @@ export default function SalaPage() {
       tipo?: string;
       fecha: string 
     }) => {
-      // El "partner" de este usuario en la conversación:
-      // - Si soy el emisor (msg.user.id === mi id), el partner es el destinatario
-      // - Si soy el receptor, el partner es el emisor (msg.user.id)
       const soyEmisor = msg.user.id === user?.id;
       const partnerId = soyEmisor ? msg.destinatarioId : msg.user.id;
 
@@ -217,10 +299,8 @@ export default function SalaPage() {
           fecha: msg.fecha,
           tipo: (msg.tipo as any) || 'texto'
         }]);
-        // Chat activo: limpiar no leído del contexto global
         clearUnread(msg.chatId);
       } else if (!soyEmisor) {
-        // Solo notificar pendiente al receptor, nunca al propio emisor
         setMensajesPendientes(prev => new Set(prev).add(partnerId));
       }
     });
@@ -241,7 +321,7 @@ export default function SalaPage() {
     messagesEnd.current?.scrollIntoView({ behavior: 'smooth' });
   }, [mensajes]);
 
-  /* ── Auto-scroll Chat Privado (CORREGIDO) ── */
+  /* ── Auto-scroll Chat Privado ── */
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       if (privadoMessagesEnd.current) {
@@ -357,8 +437,16 @@ export default function SalaPage() {
     });
   };
 
+  /* ── Toggle música ── */
   const toggleMusic = () => {
     setMusicOn(!musicOn);
+    if (audio) {
+      if (musicOn) {
+        audio.pause();
+      } else {
+        audio.play().catch(() => {});
+      }
+    }
   };
 
   /* ── Amistad desde la lista de usuarios de la sala ── */
@@ -389,7 +477,6 @@ export default function SalaPage() {
       alert('No puedes chatear contigo mismo');
       return;
     }
-    // Actualizar ref inmediatamente para que el socket handler no pierda mensajes
     usuarioSeleccionadoRef.current = usuario;
     setUsuarioSeleccionado(usuario);
     setChatPrivadoAbierto(true);
@@ -400,11 +487,9 @@ export default function SalaPage() {
       return next;
     });
 
-    // Cargar historial
     if (token) {
       try {
         const chat = await salasService.getChatPrivado(usuario.id, token);
-        // Limpiar badge de no leído del contexto global para este chat
         clearUnread(chat.id);
         const historial = chat.mensajes.map((m: MensajePrivadoAPI) => ({
           id: m.id,
@@ -414,8 +499,6 @@ export default function SalaPage() {
           fecha: m.fecha_creacion,
           tipo: (m.tipo as any) || 'texto',
         }));
-        // Fusionar historial con mensajes en tiempo real que pudieran haber llegado
-        // durante la carga (evitar duplicados por id)
         setMensajesPrivados(prev => {
           const ids = new Set(historial.map((m: MensajePrivadoUI) => m.id));
           const soloNuevos = prev.filter(m => !ids.has(m.id));

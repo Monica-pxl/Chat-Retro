@@ -720,9 +720,9 @@
   --sala-bg-pattern: none;
   
   /* Variables para los paneles (izquierda/derecha) - CORREGIDAS */
-  --sala-panel-bg: rgba(15, 15, 25, 0.9); /* Fondo más sólido y oscuro */
-  --sala-panel-border: rgba(255, 255, 255, 0.05);
-  --sala-panel-header-bg: rgba(255, 255, 255, 0.06);
+  --sala-panel-bg: rgba(20, 20, 35, 0.95); /* 🔥 CAMBIADO: fondo más claro para mejor contraste */
+  --sala-panel-border: rgba(255, 255, 255, 0.08);
+  --sala-panel-header-bg: rgba(255, 255, 255, 0.08);
 }
 
 .rs-sala-page {
@@ -1098,8 +1098,8 @@
   width: 240px;
   min-width: 200px;
   max-width: 280px;
-  background: var(--sala-panel-bg); /* Fondo más sólido */
-  border-right: 2px solid var(--sala-panel-border); /* Borde del panel */
+  background: var(--sala-panel-bg);
+  border-right: 2px solid var(--sala-panel-border);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -1107,7 +1107,7 @@
 }
 .rs-sala-users__header {
   display: flex; align-items: center; gap: 0.6rem; padding: 0.7rem 1rem;
-  font-size: 0.75rem; font-weight: 700; color: #eee; /* 🔥 MÁS BLANCO */
+  font-size: 0.75rem; font-weight: 700; color: #ffffff; /* 🔥 BLANCO PURO */
   border-bottom: 1px solid var(--sala-panel-border);
   background: var(--sala-panel-header-bg);
   flex-shrink: 0; text-transform: uppercase; letter-spacing: 1px;
@@ -1118,10 +1118,19 @@
 .rs-sala-users__list::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 99px; }
 .rs-sala-users__empty { display: flex; align-items: center; justify-content: center; height: 100%; color: #999; font-size: 0.75rem; padding: 2rem 0; }
 .rs-sala-users__item { display: flex; align-items: center; gap: 0.6rem; padding: 0.35rem 0.6rem; border-radius: 6px; transition: background 0.15s; }
-.rs-sala-users__item:hover { background: rgba(255, 255, 255, 0.08); }
+.rs-sala-users__item:hover { background: rgba(255, 255, 255, 0.12); } /* 🔥 MÁS BRILLO */
 .rs-sala-users__avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--sala-glow); border: 1px solid var(--sala-border); display: flex; align-items: center; justify-content: center; font-size: 0.6rem; font-weight: 700; color: var(--sala-primary); flex-shrink: 0; text-transform: uppercase; overflow: hidden; }
 .rs-sala-users__avatar img { width: 100%; height: 100%; object-fit: cover; }
-.rs-sala-users__name { font-size: 0.85rem; color: #eee; /* 🔥 MÁS BLANCO */ flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.rs-sala-users__name { 
+  font-size: 0.85rem; 
+  color: #ffffff; /* 🔥 BLANCO PURO */
+  flex: 1; 
+  white-space: nowrap; 
+  overflow: hidden; 
+  text-overflow: ellipsis; 
+  font-weight: 500; /* 🔥 UN POCO MÁS DE PESO */
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* 🔥 SOMBRA PARA LEGIBILIDAD */
+}
 .rs-sala-users__dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent-green); flex-shrink: 0; box-shadow: 0 0 8px rgba(105, 240, 174, 0.3); }
 
 
@@ -1133,9 +1142,9 @@
    ══════════════════════════════════════════════════ */
 
 .rs-sala-navegador {
-  width: 280px; /* 🔥 ANTES: 240px */
-  min-width: 220px; /* 🔥 ANTES: 190px */
-  max-width: 320px; /* 🔥 ANTES: 280px */
+  width: 280px;
+  min-width: 220px;
+  max-width: 320px;
   background: var(--sala-panel-bg);
   border-left: 2px solid var(--sala-panel-border);
   display: flex;
@@ -1151,7 +1160,7 @@
   padding: 0.7rem 1rem;
   font-size: 0.75rem;
   font-weight: 700;
-  color: #eee; /* 🔥 MÁS BLANCO */
+  color: #ffffff; /* 🔥 BLANCO PURO */
   border-bottom: 1px solid var(--sala-panel-border);
   background: var(--sala-panel-header-bg);
   flex-shrink: 0;
@@ -1183,7 +1192,7 @@
   border-radius: 6px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.05);
-  color: #bbb; /* 🔥 MÁS CLARO */
+  color: #ccc; /* 🔥 MÁS CLARO */
   font-size: 0.6rem;
   font-weight: 700;
   font-family: var(--font);
@@ -1241,11 +1250,11 @@
   align-items: flex-start;
   gap: 0.15rem;
   width: 100%;
-  padding: 0.6rem 0.8rem; /* 🔥 MÁS PADDING */
+  padding: 0.6rem 0.8rem;
   border-radius: 8px;
   background: transparent;
   border: 1px solid transparent;
-  color: #eee; /* 🔥 MÁS BLANCO */
+  color: #eee;
   font-family: var(--font);
   cursor: pointer;
   transition: all 0.2s;
@@ -1281,9 +1290,9 @@
 }
 
 .rs-sala-navegador__nombre {
-  font-size: 0.85rem; /* 🔥 MÁS GRANDE */
+  font-size: 0.85rem;
   font-weight: 600;
-  color: #fff;
+  color: #ffffff; /* 🔥 BLANCO PURO */
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1310,7 +1319,7 @@
 }
 
 .rs-sala-navegador__ano {
-  font-size: 0.65rem; /* 🔥 MÁS GRANDE */
+  font-size: 0.65rem;
   font-weight: 700;
   color: var(--sala-primary);
   opacity: 0.8;
@@ -1320,7 +1329,7 @@
 }
 
 .rs-sala-navegador__tag {
-  font-size: 0.6rem; /* 🔥 MÁS GRANDE */
+  font-size: 0.6rem;
   font-weight: 500;
   color: #888;
   opacity: 0.8;
@@ -1329,7 +1338,7 @@
 }
 
 .rs-sala-navegador__cerrada {
-  font-size: 0.6rem; /* 🔥 MÁS GRANDE */
+  font-size: 0.6rem;
   font-weight: 700;
   color: #666;
   text-transform: uppercase;
@@ -1400,7 +1409,7 @@
 
 .rs-sala-users__header {
   display: flex; align-items: center; gap: 0.6rem; padding: 0.7rem 1rem;
-  font-size: 0.75rem; font-weight: 700; color: #aaa;
+  font-size: 0.75rem; font-weight: 700; color: #ffffff; /* 🔥 BLANCO PURO */
   border-bottom: 1px solid var(--sala-panel-border);
   background: var(--sala-panel-header-bg);
   flex-shrink: 0; text-transform: uppercase; letter-spacing: 1px;
@@ -1448,7 +1457,7 @@
 }
 
 .rs-sala-users__item--yo .rs-sala-users__name {
-  color: var(--text-muted);
+  color: rgba(255, 255, 255, 0.5); /* 🔥 UN POCO MÁS VISIBLE */
 }
 
 /* ── Botón de solicitud de amistad en la lista de usuarios ── */
@@ -1501,12 +1510,14 @@
 }
 
 .rs-sala-users__name {
-  font-size: 0.8rem;
-  color: #ccc;
+  font-size: 0.85rem;
+  color: #ffffff; /* 🔥 BLANCO PURO */
   flex: 1;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  font-weight: 500;
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
 
 .rs-sala-users__dot {
@@ -1688,7 +1699,7 @@
 }
 
 .rs-msg-privado__time {
-  font-size: 0.6rem; /* 🔥 Igual que sala pública */
+  font-size: 0.6rem;
   color: #555;
   padding: 0.1rem 0.3rem 0;
   opacity: 0.6;
@@ -3008,3 +3019,6 @@
   .rs-sala-topbar__users .rs-sala-topbar__user-label { display: none; }
   .rs-sala-music-btn { width: 32px; height: 32px; font-size: 0.9rem; }
 }
+
+
+
