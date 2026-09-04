@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AppHeader from '../components/AppHeader';
 import AppFooter from '../components/AppFooter';
+import { useAuth } from '../context/AuthContext';
 import { salasService, type Sala } from '../services/salas.service';
 import '../styles/salas.css';
 
@@ -17,6 +18,8 @@ function getAccent(sala: Sala): string {
 }
 
 export default function SalasPage() {
+  const { user } = useAuth();
+  const estaSuspendido = user?.estado_cuenta === 'suspendida';
   const [salas, setSalas]         = useState<Sala[]>([]);
   const [loading, setLoading]     = useState(true);
   const [error, setError]         = useState('');
@@ -30,6 +33,16 @@ export default function SalasPage() {
       .then(setSalas)
       .catch(() => setError('No se pudieron cargar las salas'))
       .finally(() => setLoading(false));
+  }, []);
+
+  // 🔥 Actualiza el estado abierta/cerrada en tiempo real cuando un admin la cambia
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const { salaId, cerrada } = (e as CustomEvent).detail as { salaId: number; cerrada: boolean; nombre: string };
+      setSalas(prev => prev.map(s => s.id === salaId ? { ...s, cerrada } : s));
+    };
+    window.addEventListener('sala-estado-cambiado', handler as EventListener);
+    return () => window.removeEventListener('sala-estado-cambiado', handler as EventListener);
   }, []);
 
   const salasFiltradas = salas.filter(s => {
@@ -115,7 +128,8 @@ export default function SalasPage() {
                 key={sala.id}
                 className={`rs-sala-card${sala.cerrada ? ' rs-sala-card--cerrada' : ''}`}
                 style={{ '--sala-accent': getAccent(sala) } as React.CSSProperties}
-                onClick={() => !sala.cerrada && navigate(`/salas/${sala.id}`)}
+                onClick={() => !sala.cerrada && !estaSuspendido && navigate(`/salas/${sala.id}`)}
+                title={estaSuspendido ? 'Cuenta suspendida: no puedes entrar a las salas' : undefined}
               >
                 <div className="rs-sala-card__glow" />
 
@@ -165,12 +179,15 @@ export default function SalasPage() {
                     className="rs-sala-enter-btn"
                     onClick={(e) => {
                       e.stopPropagation();
-                      if (!sala.cerrada) navigate(`/salas/${sala.id}`);
+                      if (!sala.cerrada && !estaSuspendido) navigate(`/salas/${sala.id}`);
                     }}
-                    disabled={sala.cerrada}
+                    disabled={sala.cerrada || estaSuspendido}
+                    title={estaSuspendido ? 'Cuenta suspendida: no puedes entrar a las salas' : undefined}
                   >
                     {sala.cerrada
                       ? <><i className="bi bi-lock" /> No disponible</>
+                      : estaSuspendido
+                      ? <><i className="bi bi-lock" /> Cuenta suspendida</>
                       : <><i className="bi bi-door-open" /> Entrar a la sala</>
                     }
                   </button>

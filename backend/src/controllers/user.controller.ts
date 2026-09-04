@@ -133,7 +133,7 @@ export const searchUsers = async (req: Request, res: Response) => {
         rol: { not: 'admin' },
         estado_cuenta: { in: ['activa', 'suspendida'] },
       },
-      select: { id: true, nickname: true, avatar: true, estado: true },
+      select: { id: true, nickname: true, avatar: true, estado: true, estado_cuenta: true },
       take: 8,
     });
 

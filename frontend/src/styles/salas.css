@@ -956,6 +956,12 @@
   color: var(--sala-primary); font-size: 0.85rem; font-weight: 700;
   display: flex; align-items: center; justify-content: center; text-transform: uppercase;
   margin-top: 2px;
+  overflow: hidden;
+}
+.rs-msg__avatar img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
 }
 
 /* ── Columna de contenido ── */

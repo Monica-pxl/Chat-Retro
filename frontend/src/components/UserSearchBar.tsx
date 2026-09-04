@@ -25,6 +25,7 @@ export function UserProfileModal({
   onClose: () => void;
 }) {
   const navigate = useNavigate();
+  const { user: propioUsuario } = useAuth();
   const { getFriendStatus, isUserOnline, sendFriendRequest, cancelFriendRequest, acceptFriendRequest } = usePrivateMessages();
   const [busy, setBusy] = useState(false);
   const [feedback, setFeedback] = useState<{ text: string; err: boolean } | null>(null);
@@ -33,6 +34,8 @@ export function UserProfileModal({
 
   // 🔥 DETECTAMOS SI EL USUARIO DEL PERFIL ESTÁ SUSPENDIDO
   const estaSuspendido = user.estado_cuenta === 'suspendida';
+  // 🔥 DETECTAMOS SI EL PROPIO USUARIO ESTÁ SUSPENDIDO (no puede realizar acciones)
+  const yoSuspendido = propioUsuario?.estado_cuenta === 'suspendida';
 
   // Cerrar con Escape
   useEffect(() => {
@@ -112,11 +115,12 @@ export function UserProfileModal({
         {/* Acciones */}
         <div className="rs-modal-actions">
           
-          {/* 🔥 MENSAJE: Deshabilitado si está suspendido */}
+          {/* 🔥 MENSAJE: Deshabilitado si está suspendido (perfil o propio usuario) */}
           <button 
             className="rs-modal-btn rs-modal-btn--msg" 
             onClick={handleMensaje}
-            disabled={estaSuspendido}
+            disabled={estaSuspendido || yoSuspendido}
+            title={yoSuspendido ? "Cuenta suspendida: no puedes enviar mensajes" : undefined}
           >
             <i className="bi bi-chat-dots-fill" /> Mensaje
           </button>
@@ -131,7 +135,8 @@ export function UserProfileModal({
             <button
               className="rs-modal-btn rs-modal-btn--add"
               onClick={handleCancelFriend}
-              disabled={busy}
+              disabled={busy || yoSuspendido}
+              title={yoSuspendido ? "Cuenta suspendida: no puedes cancelar solicitudes" : undefined}
             >
               {busy
                 ? <><i className="bi bi-arrow-repeat rs-spin" /> Cancelando…</>
@@ -157,7 +162,8 @@ export function UserProfileModal({
             <button
               className="rs-modal-btn rs-modal-btn--add"
               onClick={handleAddFriend}
-              disabled={busy || estaSuspendido}
+              disabled={busy || estaSuspendido || yoSuspendido}
+              title={yoSuspendido ? "Cuenta suspendida: no puedes añadir amigos" : undefined}
             >
               {busy
                 ? <><i className="bi bi-arrow-repeat rs-spin" /> Enviando…</>

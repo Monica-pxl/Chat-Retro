@@ -19,3 +19,19 @@ export const authMiddleware = (req: Request, res: Response, next: NextFunction) 
     return res.status(401).json({ error: "Token inválido o expirado" });
   }
 };
+
+// Igual que authMiddleware pero no bloquea rutas públicas: si hay token válido identifica al usuario, si no, continúa como anónimo
+export const optionalAuthMiddleware = (req: Request, res: Response, next: NextFunction) => {
+  const authHeader = req.headers.authorization;
+  if (!authHeader) return next();
+
+  const token = authHeader.split(" ")[1];
+
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    (req as any).user = decoded;
+  } catch {
+    // Token inválido o expirado: se ignora y sigue como anónimo
+  }
+  next();
+};

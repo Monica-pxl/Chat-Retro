@@ -6,17 +6,9 @@ import { io } from 'socket.io-client';
 const API = 'http://localhost:3000';
 
 export default function SocketListener() {
-  const { isAuthenticated, token, user, logout } = useAuth();
+  const { isAuthenticated, token, logout, updateUser } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-
-  useEffect(() => {
-    if (!isAuthenticated || !user) return;
-
-    if (user.estado_cuenta === 'suspendida' && location.pathname !== '/') {
-      navigate('/', { replace: true });
-    }
-  }, [isAuthenticated, user, location.pathname, navigate]);
 
   useEffect(() => {
     if (!isAuthenticated || !token) {
@@ -42,6 +34,7 @@ export default function SocketListener() {
         detail: { 
           type: data.type === 'baneada' ? 'error' 
                 : data.type === 'rol_actualizado' ? 'success' 
+                : data.type === 'activa' ? 'success'
                 : 'warning', 
           message: data.message 
         }
@@ -51,9 +44,14 @@ export default function SocketListener() {
         logout();
         navigate('/', { replace: true });
       } else if (data.type === 'suspendida') {
+        // 🔥 Actualiza el estado local YA, para que los checks de la UI (botones, salas, mensajes) reaccionen al instante
+        updateUser({ estado_cuenta: 'suspendida' });
         if (location.pathname !== '/') {
           navigate('/', { replace: true });
         }
+      } else if (data.type === 'activa') {
+        // 🔥 El admin quitó la suspensión: reflejarlo YA, sin esperar a un nuevo login
+        updateUser({ estado_cuenta: 'activa' });
       } else if (data.type === 'rol_actualizado') {
         setTimeout(() => {
           window.location.reload();
@@ -110,7 +108,7 @@ export default function SocketListener() {
       console.log('🔌 SocketListener - Desconectando socket');
       socket.disconnect();
     };
-  }, [isAuthenticated, token, logout, navigate, location.pathname]);
+  }, [isAuthenticated, token, logout, updateUser, navigate, location.pathname]);
 
   return null;
 }

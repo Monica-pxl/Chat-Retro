@@ -76,17 +76,6 @@ export default function Normas() {
               </div>
             </div>
 
-            <div className="fp-rule">
-              <span className="fp-rule-number">06</span>
-              <div>
-                <h3>Reporta comportamientos inapropiados</h3>
-                <p>
-                  Si ves a alguien incumpliendo las normas, utiliza el sistema de 
-                  reporte para notificarlo a los administradores.
-                </p>
-              </div>
-            </div>
-
             <div className="fp-rule-note">
               <i className="bi bi-info-circle" />
               <p>

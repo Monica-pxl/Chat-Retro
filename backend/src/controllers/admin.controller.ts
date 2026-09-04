@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
-import { emitToUser } from "../helpers/socketStore";
+import { emitToUser, getIo } from "../helpers/socketStore";
 
 const prisma = new PrismaClient();
 
@@ -92,6 +92,11 @@ export const updateEstadoCuenta = async (req: Request, res: Response) => {
       emitToUser(targetId, "admin-action", {
         type: "suspendida",
         message: "Tu cuenta ha sido suspendida temporalmente.",
+      });
+    } else if (updated.estado_cuenta === 'activa') {
+      emitToUser(targetId, "admin-action", {
+        type: "activa",
+        message: "Tu cuenta ha sido reactivada. Ya puedes usar RetroChat con normalidad.",
       });
     }
 
@@ -198,6 +203,15 @@ export const cerrarSala = async (req: Request, res: Response) => {
       },
     });
 
+    // 🔥 Expulsa en tiempo real a quien esté dentro y avisa del cierre a todo el mundo
+    const io = getIo();
+    if (io) {
+      io.to(`room-${salaId}`).emit("sala-cerrada", {
+        message: `La sala "${updated.nombre}" ha sido cerrada por un administrador.`,
+      });
+      io.emit("sala-estado-cambiado", { salaId, cerrada: true, nombre: updated.nombre });
+    }
+
     return res.json(updated);
   } catch {
     return res.status(500).json({ error: "Error al cerrar la sala" });
@@ -241,6 +255,9 @@ export const abrirSala = async (req: Request, res: Response) => {
         cerrada: true,
       },
     });
+
+    // 🔥 Avisa en tiempo real de que la sala ha vuelto a abrirse
+    getIo()?.emit("sala-estado-cambiado", { salaId, cerrada: false, nombre: updated.nombre });
 
     return res.json(updated);
   } catch {

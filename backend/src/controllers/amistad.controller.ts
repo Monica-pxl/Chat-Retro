@@ -446,6 +446,7 @@ export const listarAmigos = async (req: Request, res: Response) => {
             nickname: true,
             avatar: true,
             estado: true,
+            estado_cuenta: true,
             ultima_conexion: true
           }
         },
@@ -455,6 +456,7 @@ export const listarAmigos = async (req: Request, res: Response) => {
             nickname: true,
             avatar: true,
             estado: true,
+            estado_cuenta: true,
             ultima_conexion: true
           }
         }

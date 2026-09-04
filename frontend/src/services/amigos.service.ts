@@ -34,15 +34,15 @@ export interface MensajePrivado {
 
 export interface ChatCompleto {
   id: number;
-  usuario1: { id: number; nickname: string; avatar: string | null };
-  usuario2: { id: number; nickname: string; avatar: string | null };
+  usuario1: { id: number; nickname: string; avatar: string | null; estado_cuenta: string };
+  usuario2: { id: number; nickname: string; avatar: string | null; estado_cuenta: string };
   mensajes: MensajePrivado[];
 }
 
 export interface ChatResumen {
   id: number;
-  usuario1: { id: number; nickname: string; avatar: string | null };
-  usuario2: { id: number; nickname: string; avatar: string | null };
+  usuario1: { id: number; nickname: string; avatar: string | null; estado_cuenta: string };
+  usuario2: { id: number; nickname: string; avatar: string | null; estado_cuenta: string };
   mensajes: Array<{
     id: number;
     contenido: string;

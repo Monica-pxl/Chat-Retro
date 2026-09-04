@@ -386,6 +386,23 @@
   padding: 0 0.2rem;
 }
 
+/* ── Aviso de cuenta suspendida ── */
+.mp-suspend-notice {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0 auto 1rem;
+  max-width: 900px;
+  padding: 0.7rem 1.1rem;
+  border-radius: 10px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #f87171;
+  font-size: 0.85rem;
+  position: relative;
+  z-index: 1;
+}
+
 /* ── Input area ── */
 .mp-input-area {
   display: flex;

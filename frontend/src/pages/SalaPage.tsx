@@ -186,7 +186,17 @@ export default function SalaPage() {
           setUserCount((countData as { count: number }).count);
         }
       })
-      .catch(() => setError('No se pudo cargar la sala'))
+      .catch((err) => {
+        // 🔥 El backend rechaza la carga si la cuenta está suspendida: expulsamos igual que si nos suspendieran estando dentro
+        if (err?.response?.status === 403 && err?.response?.data?.error?.includes('suspendida')) {
+          window.dispatchEvent(new CustomEvent('show-toast', {
+            detail: { type: 'warning', message: 'Cuenta suspendida. No puedes ver esta sala.' }
+          }));
+          navigate('/salas', { replace: true });
+          return;
+        }
+        setError('No se pudo cargar la sala');
+      })
       .finally(() => setLoading(false));
   }, [salaId, token, isAuthenticated]);
 
@@ -271,6 +281,14 @@ export default function SalaPage() {
 
     socket.on('room-error', ({ message }: { message: string }) => {
       setRoomError(message);
+    });
+
+    // 🔥 El admin cerró esta sala mientras estábamos dentro: se nos expulsa con aviso
+    socket.on('sala-cerrada', ({ message }: { message: string }) => {
+      window.dispatchEvent(new CustomEvent('show-toast', {
+        detail: { type: 'warning', message }
+      }));
+      navigate('/salas', { replace: true });
     });
 
     socket.on('room-users', ({ users }: { users: UsuarioSala[] }) => {
@@ -846,7 +864,11 @@ export default function SalaPage() {
                     className={`rs-msg${isOwn ? ' rs-msg--own' : ' rs-msg--other'}`}
                   >
                     <div className="rs-msg__avatar" title={msg.nickname}>
-                      {msg.nickname.charAt(0).toUpperCase()}
+                      {msg.avatar ? (
+                        <img src={`${API}${msg.avatar}`} alt={msg.nickname} />
+                      ) : (
+                        msg.nickname.charAt(0).toUpperCase()
+                      )}
                     </div>
                     <div className="rs-msg__content">
                       <div className="rs-msg__header">

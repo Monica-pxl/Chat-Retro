@@ -58,8 +58,8 @@ export const getOrCreateChat = async (req: Request, res: Response) => {
           },
         },
       },
-      usuario1: { select: { id: true, nickname: true, avatar: true } },
-      usuario2: { select: { id: true, nickname: true, avatar: true } },
+      usuario1: { select: { id: true, nickname: true, avatar: true, estado_cuenta: true } },
+      usuario2: { select: { id: true, nickname: true, avatar: true, estado_cuenta: true } },
     };
 
     // Buscar un chat existente entre ambos usuarios
@@ -111,8 +111,8 @@ export const listarChats = async (req: Request, res: Response) => {
         mensajes: { some: {} },
       },
       include: {
-        usuario1: { select: { id: true, nickname: true, avatar: true } },
-        usuario2: { select: { id: true, nickname: true, avatar: true } },
+        usuario1: { select: { id: true, nickname: true, avatar: true, estado_cuenta: true } },
+        usuario2: { select: { id: true, nickname: true, avatar: true, estado_cuenta: true } },
         mensajes: {
           orderBy: { fecha_creacion: "desc" },
           take: 1,

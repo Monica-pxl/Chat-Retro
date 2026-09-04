@@ -4,6 +4,7 @@ let _io: Server | null = null;
 const _onlineUsers = new Map<number, Set<string>>();
 
 export const setIo = (io: Server): void => { _io = io; };
+export const getIo = (): Server | null => _io;
 
 export const addUserSocket = (userId: number, socketId: string): void => {
   const s = _onlineUsers.get(userId) ?? new Set<string>();

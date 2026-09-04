@@ -200,6 +200,13 @@ export const socketHandler = (io: Server) => {
         return; // 🔥 SE CORTA AQUÍ, NO SE GUARDA EN LA BD
       }
 
+      // 🔥 BLOQUEO SI EL DESTINATARIO ESTÁ SUSPENDIDO O BANEADO
+      const destinatario = await prisma.user.findUnique({ where: { id: destinatarioId } });
+      if (destinatario?.estado_cuenta !== 'activa') {
+        socket.emit("private-message-error", { message: "No puedes enviar mensajes a este usuario porque su cuenta está suspendida o baneada." });
+        return;
+      }
+
       try {
         let chat = await prisma.chatPrivado.findFirst({
           where: {

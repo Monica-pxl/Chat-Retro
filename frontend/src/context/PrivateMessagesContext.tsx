@@ -98,6 +98,13 @@ export function PrivateMessagesProvider({ children }: { children: ReactNode }) {
       handlersRef.current.forEach(h => h(data));
     });
 
+    // 🔥 Si el mensaje privado es rechazado (p. ej. cuenta suspendida), avisamos al usuario
+    socket.on('private-message-error', (data: { message: string }) => {
+      window.dispatchEvent(new CustomEvent('show-toast', {
+        detail: { type: 'warning', message: data.message }
+      }));
+    });
+
     // Lista global de usuarios conectados (emitida en cada conexión/desconexión)
     socket.on('online-users', (ids: number[]) => {
       setOnlineUserIds(new Set(ids));

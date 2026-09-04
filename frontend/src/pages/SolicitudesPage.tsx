@@ -33,8 +33,9 @@ function formatFecha(iso: string) {
 }
 
 export default function SolicitudesPage() {
-  const { isAuthenticated, token } = useAuth();
+  const { isAuthenticated, token, user } = useAuth();
   const { subscribeSolicitud, refreshAmistades } = usePrivateMessages();
+  const estaSuspendido = user?.estado_cuenta === 'suspendida';
   const navigate = useNavigate();
 
   const [tab, setTab] = useState<Tab>('recibidas');
@@ -230,8 +231,9 @@ export default function SolicitudesPage() {
                     <div className="sq-card__actions">
                       <button
                         className="sq-btn sq-btn--cancel"
-                        disabled={busy.has(sol.id)}
+                        disabled={busy.has(sol.id) || estaSuspendido}
                         onClick={() => cancelar(sol.id)}
+                        title={estaSuspendido ? "Cuenta suspendida: no puedes cancelar solicitudes" : undefined}
                       >
                         <i className="bi bi-x-circle" /> <span>Cancelar</span>
                       </button>

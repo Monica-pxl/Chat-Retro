@@ -32,9 +32,11 @@ function formatFecha(iso: string) {
 }
 
 export default function AmigosPage() {
-  const { isAuthenticated, token } = useAuth();
+  const { isAuthenticated, token, user } = useAuth();
   const { friends, removeFriend, isUserOnline } = usePrivateMessages();
   const navigate = useNavigate();
+
+  const estaSuspendido = user?.estado_cuenta === 'suspendida';
 
   const [amigos, setAmigos] = useState<AmigoItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -115,17 +117,22 @@ export default function AmigosPage() {
                     </div>
                     <div className="am-card__actions">
                       <button
-                        className={`am-btn am-btn--msg ${estaBloqueado ? 'am-btn--disabled' : ''}`}
+                        className={`am-btn am-btn--msg ${estaBloqueado || estaSuspendido ? 'am-btn--disabled' : ''}`}
                         onClick={() => handleMensaje(a.amigo.id)}
-                        disabled={estaBloqueado}
-                        title={estaBloqueado ? `Usuario ${a.amigo.estado_cuenta}` : "Enviar mensaje"}
+                        disabled={estaBloqueado || estaSuspendido}
+                        title={estaSuspendido ? "Cuenta suspendida: no puedes enviar mensajes" : estaBloqueado ? `Usuario ${a.amigo.estado_cuenta}` : "Enviar mensaje"}
                       >
                         <i className="bi bi-chat-dots-fill" /> <span>Mensaje</span>
                       </button>
                       <button className="am-btn am-btn--profile" onClick={() => setPerfilUsuario(a.amigo)} title="Ver perfil">
                         <i className="bi bi-person-lines-fill" /> <span>Perfil</span>
                       </button>
-                      <button className="am-btn am-btn--remove" disabled={busy.has(a.amigo.id)} onClick={() => handleEliminar(a.amigo.id)} title="Eliminar amigo">
+                      <button
+                        className="am-btn am-btn--remove"
+                        disabled={busy.has(a.amigo.id) || estaSuspendido}
+                        onClick={() => handleEliminar(a.amigo.id)}
+                        title={estaSuspendido ? "Cuenta suspendida: no puedes eliminar amigos" : "Eliminar amigo"}
+                      >
                         {busy.has(a.amigo.id) ? <i className="bi bi-arrow-repeat rs-spin" /> : <i className="bi bi-person-dash-fill" />} <span>Eliminar</span>
                       </button>
                     </div>
