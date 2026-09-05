@@ -3,6 +3,7 @@ import { PrivateMessagesProvider } from './context/PrivateMessagesContext';
 import AppRouter from './routes/AppRouter';
 import SocketListener from './components/SocketListener';
 import ToastManager from './components/ToastManager';
+import AlertModal from './components/AlertModal';
 
 export default function App() {
   return (
@@ -11,6 +12,7 @@ export default function App() {
         <AppRouter>
           <SocketListener />
           <ToastManager />
+          <AlertModal />
         </AppRouter>
       </PrivateMessagesProvider>
     </AuthProvider>

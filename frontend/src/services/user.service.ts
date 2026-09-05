@@ -43,4 +43,10 @@ export const userService = {
       })
       .then(r => r.data);
   },
+  deleteAvatar: async (token: string): Promise<UserProfile> => {
+  const { data } = await api.delete('/api/users/me/avatar', {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  return data;
+}
 };

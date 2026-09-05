@@ -138,6 +138,12 @@ export const cambiarRol = async (req: Request, res: Response) => {
       return res.status(404).json({ error: "Usuario no encontrado" });
     }
 
+    if (target.rol === "admin") {
+      return res.status(403).json({
+        error: "No puedes cambiar el rol de otro administrador",
+      });
+    }
+
     const updated = await prisma.user.update({
       where: { id: targetId },
       data: { rol },
@@ -151,7 +157,7 @@ export const cambiarRol = async (req: Request, res: Response) => {
     // 🔥 ENVIAR EVENTO DE CAMBIO DE ROL CON EL MENSAJE EXACTO
     emitToUser(targetId, "admin-action", {
       type: "rol_actualizado",
-      message: "Tu rol ha cambiado. Por favor, recarga la página.",
+      message: "Un administrador ha actualizado tu rol. Cierra sesión y vuelve a iniciarla para que el cambio se aplique correctamente.",
     });
 
     return res.json(updated);

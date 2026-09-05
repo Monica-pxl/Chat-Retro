@@ -82,6 +82,10 @@ export default function SalaPage() {
   const [salasList, setSalasList] = useState<Sala[]>([]);
   const [filtroNavegador, setFiltroNavegador] = useState<FiltroNavegador>('90s');
 
+  // 📱 Paneles deslizantes en móvil
+  const [usuariosMovilAbierto, setUsuariosMovilAbierto] = useState(false);
+  const [navegadorMovilAbierto, setNavegadorMovilAbierto] = useState(false);
+
   // 🔥 CHAT PRIVADO
   const [chatPrivadoAbierto, setChatPrivadoAbierto] = useState(false);
   const [usuarioSeleccionado, setUsuarioSeleccionado] = useState<UsuarioSala | null>(null);
@@ -118,9 +122,30 @@ export default function SalaPage() {
 
   const esTvShow = sala?.tematica?.nombre?.toLowerCase().includes('tv shows') || false;
 
-  // ── FUNCIÓN PARA OBTENER CANCIONES DE LA SALA (90s y 2000s) ──
+  // ── FUNCIÓN PARA OBTENER CANCIONES DE LA SALA (incluye Fi estas) ──
   const getSongsForSala = (sala: Sala | null): string[] => {
     if (!sala) return [];
+    
+    // 🔥 SALAS DE FIESTA
+    if (sala.nombre === 'Fiesta 90s') {
+      return [
+        '/music/1990/90-fiesta-1.mp3',
+        '/music/1990/90-fiesta-2.mp3',
+        '/music/1990/90-fiesta-3.mp3',
+        '/music/1990/90-fiesta-4.mp3',
+        '/music/1990/90-fiesta-5.mp3',
+        '/music/1990/90-fiesta-6.mp3',
+      ];
+    }
+    
+    if (sala.nombre === 'Fiesta 2000s') {
+      return [
+        '/music/2000/2000-fiesta-1.mp3',
+        '/music/2000/2000-fiesta-2.mp3',
+        '/music/2000/2000-fiesta-3.mp3',
+        '/music/2000/2000-fiesta-4.mp3',
+      ];
+    }
     
     // Mapa de canciones por año (90s en carpeta 1990, 2000s en carpeta 2000)
     const songsMap: { [key: number]: string[] } = {
@@ -143,7 +168,7 @@ export default function SalaPage() {
       2003: ['/music/2000/2003-1.mp3'],
       2004: ['/music/2000/2004-1.mp3', '/music/2000/2004-2.mp3'],
       2005: ['/music/2000/2005-1.mp3'],
-      2006: [], // No hay canciones para 2006
+      2006: [],
       2007: ['/music/2000/2007-1.mp3', '/music/2000/2007-2.mp3'],
       2008: ['/music/2000/2008-1.mp3', '/music/2000/2008-2.mp3'],
       2009: ['/music/2000/2009-1.mp3', '/music/2000/2009-2.mp3'],
@@ -187,7 +212,6 @@ export default function SalaPage() {
         }
       })
       .catch((err) => {
-        // 🔥 El backend rechaza la carga si la cuenta está suspendida: expulsamos igual que si nos suspendieran estando dentro
         if (err?.response?.status === 403 && err?.response?.data?.error?.includes('suspendida')) {
           window.dispatchEvent(new CustomEvent('show-toast', {
             detail: { type: 'warning', message: 'Cuenta suspendida. No puedes ver esta sala.' }
@@ -283,10 +307,14 @@ export default function SalaPage() {
       setRoomError(message);
     });
 
-    // 🔥 El admin cerró esta sala mientras estábamos dentro: se nos expulsa con aviso
     socket.on('sala-cerrada', ({ message }: { message: string }) => {
-      window.dispatchEvent(new CustomEvent('show-toast', {
-        detail: { type: 'warning', message }
+      window.dispatchEvent(new CustomEvent('show-alert-modal', {
+        detail: {
+          variant: 'warning',
+          icon: 'bi-door-closed-fill',
+          title: 'Sala cerrada',
+          message: `${message} Has sido devuelto a la lista de salas.`,
+        }
       }));
       navigate('/salas', { replace: true });
     });
@@ -499,6 +527,7 @@ export default function SalaPage() {
     setUsuarioSeleccionado(usuario);
     setChatPrivadoAbierto(true);
     setMensajesPrivados([]);
+    setUsuariosMovilAbierto(false);
     setMensajesPendientes(prev => {
       const next = new Set(prev);
       next.delete(usuario.id);
@@ -639,6 +668,23 @@ export default function SalaPage() {
           <i className={`bi ${musicOn ? 'bi-music-note-beamed' : 'bi-music-note'}`} />
         </button>
 
+        <button
+          className="rs-sala-mobile-toggle"
+          onClick={() => setUsuariosMovilAbierto(true)}
+          title="Ver usuarios"
+        >
+          <i className="bi bi-people-fill" />
+          {userCount > 0 && <span className="rs-sala-mobile-toggle__badge">{userCount}</span>}
+        </button>
+
+        <button
+          className="rs-sala-mobile-toggle"
+          onClick={() => setNavegadorMovilAbierto(true)}
+          title="Cambiar sala"
+        >
+          <i className="bi bi-grid-3x3-gap-fill" />
+        </button>
+
         <div className="rs-sala-topbar__users">
           <i className="bi bi-people-fill" />
           <span className="rs-sala-topbar__user-count">{userCount}</span>
@@ -648,11 +694,26 @@ export default function SalaPage() {
 
       <div className="rs-sala-layout">
 
+        {/* 📱 Fondo oscuro al abrir un panel deslizante en móvil */}
+        {(usuariosMovilAbierto || navegadorMovilAbierto) && (
+          <div
+            className="rs-sala-overlay"
+            onClick={() => { setUsuariosMovilAbierto(false); setNavegadorMovilAbierto(false); }}
+          />
+        )}
+
         {/* ── Columna 1: Usuarios (izquierda) ── */}
-        <div className="rs-sala-users">
+        <div className={`rs-sala-users ${usuariosMovilAbierto ? 'rs-sala-users--open' : ''}`}>
           <div className="rs-sala-users__header">
             <i className="bi bi-people" />
             <span>{userCount} usuarios</span>
+            <button
+              className="rs-sala-drawer-close"
+              onClick={() => setUsuariosMovilAbierto(false)}
+              title="Cerrar"
+            >
+              <i className="bi bi-x-lg" />
+            </button>
           </div>
           <div className="rs-sala-users__list">
             {usuarios.length === 0 ? (
@@ -959,10 +1020,17 @@ export default function SalaPage() {
         </div>
 
         {/* ── Columna 4: Navegador de salas (derecha) ── */}
-        <div className="rs-sala-navegador">
+        <div className={`rs-sala-navegador ${navegadorMovilAbierto ? 'rs-sala-navegador--open' : ''}`}>
           <div className="rs-sala-navegador__header">
             <i className="bi bi-grid-3x3-gap-fill" />
             <span>Cambiar sala</span>
+            <button
+              className="rs-sala-drawer-close"
+              onClick={() => setNavegadorMovilAbierto(false)}
+              title="Cerrar"
+            >
+              <i className="bi bi-x-lg" />
+            </button>
           </div>
 
           <div className="rs-sala-navegador__filtros">

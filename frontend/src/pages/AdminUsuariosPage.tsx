@@ -256,6 +256,7 @@ export default function AdminUsuariosPage() {
                     const ocupado = accionando.has(u.id);
                     const isOnline = u.estado === 'en_linea';
                     const esYo = user?.id === u.id;
+                    const esOtroAdmin = u.rol === 'admin' && !esYo;
 
                     return (
                       <tr key={u.id} className={`ad-table-row ${esYo ? 'ad-table-row--yo' : ''}`}>
@@ -296,14 +297,16 @@ export default function AdminUsuariosPage() {
                             <button 
                               className={`ad-btn-rol ${u.rol === 'user' ? 'ad-btn-rol--active' : ''}`}
                               onClick={() => cambiarRol(u.id, 'user')}
-                              disabled={ocupado || u.rol === 'user' || esYo}
+                              disabled={ocupado || u.rol === 'user' || esYo || esOtroAdmin}
+                              title={esOtroAdmin ? 'No puedes cambiar el rol de otro administrador' : undefined}
                             >
                               User
                             </button>
                             <button 
                               className={`ad-btn-rol ${u.rol === 'admin' ? 'ad-btn-rol--active' : ''}`}
                               onClick={() => cambiarRol(u.id, 'admin')}
-                              disabled={ocupado || u.rol === 'admin' || esYo}
+                              disabled={ocupado || u.rol === 'admin' || esYo || esOtroAdmin}
+                              title={esOtroAdmin ? 'No puedes cambiar el rol de otro administrador' : undefined}
                             >
                               Admin
                             </button>
@@ -314,24 +317,24 @@ export default function AdminUsuariosPage() {
                             <button 
                               className="ad-btn-accion ad-btn-accion--activar"
                               onClick={() => cambiarEstado(u.id, 'activa')}
-                              disabled={ocupado || u.estado_cuenta === 'activa' || esYo}
-                              title="Activar cuenta"
+                              disabled={ocupado || u.estado_cuenta === 'activa' || esYo || esOtroAdmin}
+                              title={esOtroAdmin ? 'No puedes modificar el estado de otro administrador' : 'Activar cuenta'}
                             >
                               <i className="bi bi-check-circle" />
                             </button>
                             <button 
                               className="ad-btn-accion ad-btn-accion--suspender"
                               onClick={() => cambiarEstado(u.id, 'suspendida')}
-                              disabled={ocupado || u.estado_cuenta === 'suspendida' || esYo}
-                              title="Suspender cuenta"
+                              disabled={ocupado || u.estado_cuenta === 'suspendida' || esYo || esOtroAdmin}
+                              title={esOtroAdmin ? 'No puedes modificar el estado de otro administrador' : 'Suspender cuenta'}
                             >
                               <i className="bi bi-pause-circle" />
                             </button>
                             <button 
                               className="ad-btn-accion ad-btn-accion--banear"
                               onClick={() => cambiarEstado(u.id, 'baneada')}
-                              disabled={ocupado || u.estado_cuenta === 'baneada' || esYo}
-                              title="Banear cuenta"
+                              disabled={ocupado || u.estado_cuenta === 'baneada' || esYo || esOtroAdmin}
+                              title={esOtroAdmin ? 'No puedes modificar el estado de otro administrador' : 'Banear cuenta'}
                             >
                               <i className="bi bi-shield-slash" />
                             </button>

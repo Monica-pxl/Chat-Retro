@@ -25,6 +25,7 @@ export default function PerfilPage() {
 
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [avatarMsg, setAvatarMsg] = useState<{ text: string; ok: boolean } | null>(null);
+  const [deletingAvatar, setDeletingAvatar] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -100,6 +101,27 @@ export default function PerfilPage() {
     } finally {
       setAvatarUploading(false);
       e.target.value = '';
+    }
+  };
+
+  // 🔥 NUEVO: Función para eliminar avatar
+  const handleDeleteAvatar = async () => {
+    if (!token) return;
+    if (!perfil?.avatar) return;
+    
+    if (!confirm('¿Seguro que quieres eliminar tu avatar?')) return;
+    
+    setDeletingAvatar(true);
+    setAvatarMsg(null);
+    try {
+      const updated = await userService.deleteAvatar(token);
+      setPerfil(updated);
+      updateUser({ avatar: null });
+      setAvatarMsg({ text: 'Avatar eliminado correctamente', ok: true });
+    } catch (err: any) {
+      setAvatarMsg({ text: err.response?.data?.error || 'Error al eliminar', ok: false });
+    } finally {
+      setDeletingAvatar(false);
     }
   };
 
@@ -181,6 +203,19 @@ export default function PerfilPage() {
               style={{ display: 'none' }}
               onChange={handleAvatar}
             />
+            
+            {/* 🔥 Botón para eliminar avatar (solo si tiene avatar) */}
+            {perfil.avatar && (
+              <button
+                className="rp-btn rp-btn--delete-avatar"
+                onClick={handleDeleteAvatar}
+                disabled={deletingAvatar}
+              >
+                {deletingAvatar ? <i className="bi bi-arrow-repeat rs-spin" /> : <i className="bi bi-trash" />}
+                <span>Eliminar avatar</span>
+              </button>
+            )}
+
             {avatarMsg && (
               <p className={`rp-feedback ${avatarMsg.ok ? 'rp-feedback--ok' : 'rp-feedback--err'}`}>
                 {avatarMsg.ok ? <i className="bi bi-check-circle" /> : <i className="bi bi-x-circle" />}

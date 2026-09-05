@@ -30,10 +30,23 @@ export default function SocketListener() {
     // 🔥 Eventos del Admin
     socket.on('admin-action', (data: { type: string; message: string }) => {
       console.log('📩 SocketListener - admin-action recibido:', data);
+
+      if (data.type === 'rol_actualizado') {
+        // 🔥 Mensaje persistente en el centro de la pantalla: nada de recargar solo, el usuario debe cerrar sesión y volver a entrar
+        window.dispatchEvent(new CustomEvent('show-alert-modal', {
+          detail: {
+            variant: 'info',
+            icon: 'bi-shield-lock-fill',
+            title: 'Tu rol ha cambiado',
+            message: data.message,
+          }
+        }));
+        return;
+      }
+
       window.dispatchEvent(new CustomEvent('show-toast', { 
         detail: { 
           type: data.type === 'baneada' ? 'error' 
-                : data.type === 'rol_actualizado' ? 'success' 
                 : data.type === 'activa' ? 'success'
                 : 'warning', 
           message: data.message 
@@ -52,10 +65,6 @@ export default function SocketListener() {
       } else if (data.type === 'activa') {
         // 🔥 El admin quitó la suspensión: reflejarlo YA, sin esperar a un nuevo login
         updateUser({ estado_cuenta: 'activa' });
-      } else if (data.type === 'rol_actualizado') {
-        setTimeout(() => {
-          window.location.reload();
-        }, 2000);
       }
     });
 

@@ -701,3 +701,31 @@
     width: 100% !important;
   }
 }
+
+
+
+/* ── Botón eliminar avatar ── */
+.rp-btn--delete-avatar {
+  background: rgba(239, 68, 68, 0.1);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  padding: 0.4rem 1rem;
+  font-size: 0.8rem;
+  border-radius: 8px;
+  transition: all 0.18s;
+}
+
+.rp-btn--delete-avatar:hover:not(:disabled) {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.4);
+  box-shadow: 0 0 15px rgba(239, 68, 68, 0.15);
+}
+
+.rp-btn--delete-avatar:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.rp-btn--delete-avatar i {
+  font-size: 0.9rem;
+}

@@ -116,6 +116,50 @@ export const uploadAvatar = async (req: Request, res: Response) => {
   }
 };
 
+/* ─────────────────────────────
+   DELETE /api/users/me/avatar
+───────────────────────────── */
+export const deleteAvatar = async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user.userId;
+
+    // Obtener el usuario para saber si tiene avatar
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { avatar: true }
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: "Usuario no encontrado" });
+    }
+
+    if (!user.avatar) {
+      return res.status(400).json({ error: "No tienes avatar para eliminar" });
+    }
+
+    // Eliminar el avatar de la BD
+    const updated = await prisma.user.update({
+      where: { id: userId },
+      data: { avatar: null },
+      select: {
+        id: true,
+        email: true,
+        nickname: true,
+        avatar: true,
+        estado: true,
+        rol: true,
+        estado_cuenta: true,
+        fecha_creacion: true,
+        ultima_conexion: true,
+      },
+    });
+
+    return res.json(updated);
+  } catch {
+    return res.status(500).json({ error: "Error al eliminar el avatar" });
+  }
+};
+
 /* ───────────────────────────────
    GET /api/users/search?q=nickname
 ─────────────────────────────── */

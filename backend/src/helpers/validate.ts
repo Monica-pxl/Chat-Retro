@@ -3,7 +3,7 @@ export const validateRegister = (email: string, password: string, nickname: stri
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const nicknameRegex = /^[a-zA-Z0-9_]{3,20}$/;
-  const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d).{8,64}$/;
+  const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d).{8,15}$/;
 
   if (!email) errors.push("El email es obligatorio");
   else if (!emailRegex.test(email)) errors.push("El formato del email es inválido");
