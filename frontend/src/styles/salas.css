@@ -3100,3 +3100,268 @@
 }
 
 
+
+
+
+
+/* ═══════════════════════════════════════════════════════════
+   🔥 MEJORAS PARA SALAS ESPECÍFICAS (1990, 1993, 1996, 2001)
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── 1990: VINTAGE PAPEL MEJORADO ── */
+.rs-sala-page[data-tema="1990"] {
+  --sala-primary: #b8860b;
+  --sala-secondary: #d4a54a;
+  --sala-glow: rgba(184, 134, 11, 0.5);
+  --sala-border: rgba(184, 134, 11, 0.6);
+  --sala-year-color: #e8c39e;
+}
+
+/* Texto del año con glow cálido */
+.rs-sala-page[data-tema="1990"] .rs-sala-year__number {
+  font-family: 'Courier New', monospace !important;
+  text-shadow: 
+    0 0 10px rgba(184, 134, 11, 0.4),
+    0 0 20px rgba(184, 134, 11, 0.2),
+    2px 2px 0 #000,
+    4px 4px 0 rgba(184, 134, 11, 0.3) !important;
+  opacity: 1 !important;
+  animation: paperGlow 3s ease-in-out infinite;
+}
+
+@keyframes paperGlow {
+  0%, 100% {
+    text-shadow: 0 0 10px rgba(184, 134, 11, 0.3), 2px 2px 0 #000, 4px 4px 0 rgba(184, 134, 11, 0.3);
+  }
+  50% {
+    text-shadow: 0 0 20px rgba(184, 134, 11, 0.6), 2px 2px 0 #000, 4px 4px 0 rgba(184, 134, 11, 0.5), 0 0 40px rgba(184, 134, 11, 0.2);
+  }
+}
+
+/* Fondo del chat con textura de papel más visible */
+.rs-sala-page[data-tema="1990"] .rs-sala-chat {
+  background-image: 
+    repeating-linear-gradient(0deg, 
+      rgba(184, 134, 11, 0.03) 0px, 
+      rgba(184, 134, 11, 0.03) 2px, 
+      transparent 2px, 
+      transparent 6px
+    ),
+    url("data:image/svg+xml,%3Csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.12'/%3E%3C/svg%3E") !important;
+  background-size: 100% 100%, 200px 200px !important;
+}
+
+/* Borde del layout con efecto desgastado */
+.rs-sala-page[data-tema="1990"] .rs-sala-layout {
+  border: 4px solid #3b2b15 !important;
+  box-shadow: 
+    inset 0 0 100px rgba(0,0,0,0.8),
+    0 0 30px rgba(184, 134, 11, 0.1) !important;
+}
+
+/* ── 1993: DARKWAVE MEJORADO (MÁS BRILLO Y HUMO) ── */
+.rs-sala-page[data-tema="1993"] {
+  --sala-primary: #7c3aed;
+  --sala-secondary: #a78bfa;
+  --sala-glow: rgba(124, 58, 237, 0.5);
+  --sala-border: rgba(124, 58, 237, 0.6);
+  --sala-year-color: #c4b5fd;
+}
+
+/* Texto del año con glow fantasmal */
+.rs-sala-page[data-tema="1993"] .rs-sala-year__number {
+  font-family: 'Georgia', serif !important;
+  color: #c4b5fd !important;
+  font-size: 5rem !important;
+  text-shadow: 
+    0 0 10px #7c3aed,
+    0 0 20px #7c3aed,
+    0 0 40px #4a1a6b,
+    0 0 80px rgba(124, 58, 237, 0.3) !important;
+  opacity: 1 !important;
+  animation: darkwaveGlow 3s ease-in-out infinite;
+}
+
+@keyframes darkwaveGlow {
+  0%, 100% {
+    text-shadow: 0 0 10px #7c3aed, 0 0 20px #7c3aed, 0 0 40px #4a1a6b;
+    opacity: 0.8;
+  }
+  50% {
+    text-shadow: 0 0 20px #7c3aed, 0 0 40px #7c3aed, 0 0 80px #4a1a6b, 0 0 120px rgba(124, 58, 237, 0.3);
+    opacity: 1;
+  }
+}
+
+/* Fondo del chat con humo más denso */
+.rs-sala-page[data-tema="1993"] .rs-sala-chat {
+  background: 
+    radial-gradient(ellipse at 30% 40%, rgba(80, 20, 120, 0.3) 0%, transparent 50%),
+    radial-gradient(ellipse at 70% 60%, rgba(60, 10, 100, 0.2) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, rgba(40, 10, 80, 0.25) 0%, transparent 40%),
+    rgba(10, 4, 16, 1) !important;
+  box-shadow: 
+    inset 0 -80px 120px rgba(26, 4, 42, 0.7),
+    inset 0 80px 120px rgba(26, 4, 42, 0.5) !important;
+}
+
+/* Panel de usuarios con degradado más dramático */
+.rs-sala-page[data-tema="1993"] .rs-sala-users {
+  background: linear-gradient(to bottom, rgba(10, 4, 16, 1), rgba(26, 4, 42, 0.9), rgba(40, 10, 60, 0.8)) !important;
+}
+
+/* ── 1996: MTV GOLDEN AGE MEJORADO ── */
+.rs-sala-page[data-tema="1996"] {
+  --sala-primary: #ff3b30;
+  --sala-secondary: #ff9500;
+  --sala-glow: rgba(255, 59, 48, 0.5);
+  --sala-border: rgba(255, 59, 48, 0.6);
+  --sala-year-color: #ff3b30;
+}
+
+/* Texto del año con glow rojo/naranja intenso */
+.rs-sala-page[data-tema="1996"] .rs-sala-year__number {
+  color: #ff3b30 !important;
+  font-size: 6rem !important;
+  font-weight: 900 !important;
+  text-shadow: 
+    0 0 20px #ff3b30,
+    0 0 40px #ff9500,
+    0 0 80px #ff3b30 !important;
+  opacity: 1 !important;
+  animation: mtvGlow 1.2s ease-in-out infinite;
+}
+
+@keyframes mtvGlow {
+  0%, 100% {
+    text-shadow: 0 0 20px #ff3b30, 0 0 40px #ff9500;
+  }
+  50% {
+    text-shadow: 0 0 40px #ff3b30, 0 0 80px #ff9500, 0 0 120px #ff3b30, 0 0 160px #ff9500;
+  }
+}
+
+/* Fondo del chat con estática animada y colores saturados */
+.rs-sala-page[data-tema="1996"] .rs-sala-chat {
+  background: 
+    repeating-linear-gradient(
+      -45deg, 
+      rgba(255, 59, 48, 0.06) 0px, 
+      rgba(255, 59, 48, 0.06) 3px, 
+      rgba(255, 149, 0, 0.06) 3px, 
+      rgba(255, 149, 0, 0.06) 6px
+    ),
+    repeating-linear-gradient(0deg, 
+      rgba(255, 255, 255, 0.03) 0px, 
+      rgba(255, 255, 255, 0.03) 2px, 
+      transparent 2px, 
+      transparent 5px
+    ),
+    radial-gradient(ellipse at 30% 30%, rgba(255, 59, 48, 0.08) 0%, transparent 40%),
+    radial-gradient(ellipse at 70% 70%, rgba(255, 149, 0, 0.08) 0%, transparent 40%) !important;
+}
+
+/* Borde con glow rojo intenso */
+.rs-sala-page[data-tema="1996"] .rs-sala-layout {
+  border: 4px solid #ff3b30 !important;
+  box-shadow: 
+    0 0 30px rgba(255, 59, 48, 0.3),
+    inset 0 0 60px rgba(255, 59, 48, 0.05) !important;
+}
+
+/* ── 2001: NU-METAL MEJORADO ── */
+.rs-sala-page[data-tema="2001"] {
+  --sala-primary: #cc7722;
+  --sala-secondary: #888888;
+  --sala-glow: rgba(204, 119, 34, 0.5);
+  --sala-border: rgba(204, 119, 34, 0.6);
+  --sala-year-color: #ee9944;
+}
+
+/* Texto del año con glow naranja quemado y efecto metálico */
+.rs-sala-page[data-tema="2001"] .rs-sala-year__number {
+  color: #ee9944 !important;
+  font-family: 'Arial Black', sans-serif !important;
+  font-size: 5rem !important;
+  text-shadow: 
+    0 0 10px #cc7722,
+    0 0 20px #888888,
+    0 0 40px rgba(204, 119, 34, 0.3),
+    2px 2px 0 #000 !important;
+  opacity: 1 !important;
+  animation: metalGlow 2.5s ease-in-out infinite;
+}
+
+@keyframes metalGlow {
+  0%, 100% {
+    text-shadow: 0 0 10px #cc7722, 0 0 20px #888888, 2px 2px 0 #000;
+  }
+  50% {
+    text-shadow: 0 0 20px #cc7722, 0 0 40px #888888, 0 0 60px rgba(204, 119, 34, 0.4), 2px 2px 0 #000;
+  }
+}
+
+/* Fondo del chat con textura de grafiti y metal */
+.rs-sala-page[data-tema="2001"] .rs-sala-chat {
+  background: 
+    linear-gradient(135deg, rgba(204, 119, 34, 0.08) 0%, transparent 40%, rgba(136, 136, 136, 0.08) 60%, transparent 100%),
+    repeating-linear-gradient(45deg, 
+      rgba(136, 136, 136, 0.03) 0px, 
+      rgba(136, 136, 136, 0.03) 2px, 
+      transparent 2px, 
+      transparent 8px
+    ),
+    url("data:image/svg+xml,%3Csvg width='80' height='80' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='20' cy='20' r='15' fill='none' stroke='rgba(204,119,34,0.05)' stroke-width='2'/%3E%3Ccircle cx='60' cy='50' r='20' fill='none' stroke='rgba(136,136,136,0.05)' stroke-width='2'/%3E%3C/svg%3E") !important;
+  background-size: 100% 100%, 40px 40px, 80px 80px !important;
+}
+
+/* Panel de usuarios con efecto metálico */
+.rs-sala-page[data-tema="2001"] .rs-sala-users {
+  background: linear-gradient(to right, rgba(26, 16, 8, 1), rgba(40, 30, 20, 0.95), rgba(60, 40, 25, 0.9)) !important;
+  border-right: 2px solid rgba(204, 119, 34, 0.3) !important;
+}
+
+/* Borde del layout con efecto de metal oxidado */
+.rs-sala-page[data-tema="2001"] .rs-sala-layout {
+  border: 4px solid #cc7722 !important;
+  box-shadow: 
+    inset 0 0 60px rgba(0,0,0,0.8),
+    0 0 30px rgba(204, 119, 34, 0.1) !important;
+}
+
+/* ── RESPONSIVE PARA LAS MEJORAS ── */
+@media (max-width: 860px) {
+  .rs-sala-page[data-tema="1996"] .rs-sala-year__number {
+    font-size: 4rem !important;
+  }
+  .rs-sala-page[data-tema="1993"] .rs-sala-year__number {
+    font-size: 3.5rem !important;
+  }
+  .rs-sala-page[data-tema="2001"] .rs-sala-year__number {
+    font-size: 3.5rem !important;
+  }
+  .rs-sala-page[data-tema="1990"] .rs-sala-year__number {
+    font-size: 3.5rem !important;
+  }
+}
+
+@media (max-width: 500px) {
+  .rs-sala-page[data-tema="1996"] .rs-sala-year__number {
+    font-size: 2.8rem !important;
+  }
+  .rs-sala-page[data-tema="1993"] .rs-sala-year__number {
+    font-size: 2.5rem !important;
+  }
+  .rs-sala-page[data-tema="2001"] .rs-sala-year__number {
+    font-size: 2.5rem !important;
+  }
+  .rs-sala-page[data-tema="1990"] .rs-sala-year__number {
+    font-size: 2.5rem !important;
+  }
+}
+
+
+
+
+
+
