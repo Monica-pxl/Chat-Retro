@@ -1,3 +1,4 @@
+// Valida registro (email, password de 8-15 con letras/números, nickname de 3-20) y login (email y password obligatorios)
 export const validateRegister = (email: string, password: string, nickname: string) => {
   const errors: string[] = [];
 

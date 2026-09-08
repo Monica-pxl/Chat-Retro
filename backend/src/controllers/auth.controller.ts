@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import { PrismaClient } from "@prisma/client";
 import { generateToken } from "../helpers/jwt";
 import { validateRegister, validateLogin } from "../helpers/validate";
+import { removeUserSocket, getOnlineUserIds } from "../helpers/socketStore";
 
 const prisma = new PrismaClient();
 
@@ -119,5 +120,45 @@ export const login = async (req: Request, res: Response) => {
   } catch (err: any) {
     const status = err.status || 500;
     return res.status(status).json({ error: err.message });
+  }
+};
+
+/* ======================
+   LOGOUT
+====================== */
+export const logout = async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user?.userId;
+
+    if (!userId) {
+      return res.status(401).json({ error: "No autenticado" });
+    }
+
+    // Actualizar estado en BD a desconectado
+    await prisma.user.update({
+      where: { id: userId },
+      data: {
+        estado: "desconectado",
+        ultima_conexion: new Date()
+      }
+    });
+
+    // Intentar notificar a todos, pero sin que falle si no hay socket
+    try {
+      const { getIo, getOnlineUserIds } = require("../helpers/socketStore");
+      const io = getIo();
+      if (io) {
+        io.emit("online-users", getOnlineUserIds());
+      }
+    } catch (socketError) {
+      // Si falla la notificación por socket, no importa, el logout sigue funcionando
+      console.warn("No se pudo notificar el logout por socket:", socketError);
+    }
+
+    return res.status(200).json({ message: "Sesión cerrada correctamente" });
+
+  } catch (error) {
+    console.error("Error en logout:", error);
+    return res.status(500).json({ error: "Error al cerrar sesión" });
   }
 };

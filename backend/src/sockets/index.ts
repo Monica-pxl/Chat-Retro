@@ -1,3 +1,5 @@
+// Escucha lo que pasa y decide que hacer con la agenda:
+// Manejador de lógica sockets para la aplicación: autenticación, gestión de usuarios online y salas de chat.
 import { Server, Socket } from "socket.io";
 import jwt from "jsonwebtoken";
 import { JWT_SECRET } from "../config/jwt";
@@ -5,6 +7,7 @@ import { PrismaClient } from "@prisma/client";
 import { canJoinRoom } from "../helpers/roomAvailability";
 import { setRoomCount, getRoomCount } from "../helpers/roomStore";
 import { addUserSocket, removeUserSocket, getOnlineUserIds, emitToUser } from "../helpers/socketStore";
+import { sanitizeMessage } from "../helpers/sanitize";
 
 const prisma = new PrismaClient();
 
@@ -92,16 +95,15 @@ export const socketHandler = (io: Server) => {
       io.emit("online-users", getOnlineUserIds());
     });
 
-    // 🚪 JOIN ROOM - BLOQUEADO SI ESTÁ SUSPENDIDO (NO ENTRA NI UN POCO)
+    // 🚪 JOIN ROOM
     socket.on("join-room", async (roomId: number) => {
       try {
-        // 🔥 BLOQUEO DURO
         const user = await prisma.user.findUnique({ where: { id: userId } });
         if (user?.estado_cuenta === 'suspendida') {
           socket.emit("room-error", {
             message: "Cuenta suspendida. No puedes unirte a salas.",
           });
-          return; // 🔥 SE CORTA AQUÍ, NO ENTRA
+          return;
         }
 
         const sala = await prisma.sala.findUnique({ where: { id: roomId } });
@@ -142,16 +144,25 @@ export const socketHandler = (io: Server) => {
       emitRoomUsers(io, roomId, roomName);
     });
 
-    // 💬 SEND MESSAGE - BLOQUEADO SI ESTÁ SUSPENDIDO
+    // 💬 SEND MESSAGE - CON SANITIZACIÓN
     socket.on("send-message", async ({ roomId, contenido, tipo }) => {
       const senderUserId = socket.user?.userId;
       if (!senderUserId || !roomId || !contenido) return;
-      if (tipo == "texto" && contenido.length > 1000) {
+      
+      // 👈 SANITIZAR CONTENIDO
+      const contenidoSanitizado = sanitizeMessage(contenido);
+      
+      // Si después de sanitizar queda vacío, rechazar
+      if (!contenidoSanitizado) {
+        socket.emit("room-error", { message: "El mensaje contiene contenido no permitido" });
+        return;
+      }
+      
+      if (tipo == "texto" && contenidoSanitizado.length > 1000) {
         socket.emit("room-error", { message: "El mensaje supera el máximo permitido" });
         return;
       }
 
-      // 🔥 BLOQUEO DURO ANTES DE GUARDAR
       const sender = await prisma.user.findUnique({ where: { id: senderUserId } });
       if (sender?.estado_cuenta === 'suspendida') {
         socket.emit("room-error", { message: "Cuenta suspendida. No puedes enviar mensajes." });
@@ -166,7 +177,12 @@ export const socketHandler = (io: Server) => {
 
       try {
         await prisma.mensajeSala.create({
-          data: { salaId: roomId, userId: senderUserId, contenido, tipo },
+          data: { 
+            salaId: roomId, 
+            userId: senderUserId, 
+            contenido: contenidoSanitizado, 
+            tipo 
+          },
         });
       } catch {
         socket.emit("room-error", { message: "Error al guardar el mensaje" });
@@ -181,26 +197,33 @@ export const socketHandler = (io: Server) => {
       io.to(roomName).emit("receive-message", {
         roomId,
         user: usuario,
-        contenido,
+        contenido: contenidoSanitizado,
         tipo,
         fecha: new Date().toISOString(),
       });
     });
 
-    // 💬 PRIVATE MESSAGE - BLOQUEADO SI ESTÁ SUSPENDIDO
+    // 💬 PRIVATE MESSAGE - CON SANITIZACIÓN
     socket.on("private-message", async ({ destinatarioId, contenido, tipo }) => {
       const emisorId: number = socket.user?.userId;
       if (!emisorId || !destinatarioId || !contenido?.trim()) return;
+      
+      // 👈 SANITIZAR CONTENIDO
+      const contenidoSanitizado = sanitizeMessage(contenido);
+      
+      if (!contenidoSanitizado) {
+        socket.emit("private-message-error", { message: "El mensaje contiene contenido no permitido" });
+        return;
+      }
+      
       const tipoValido = (tipo === "imagen" || tipo === "gif" || tipo === "audio") ? tipo : "texto";
 
-      // 🔥 BLOQUEO DURO ANTES DE GUARDAR
       const emisor = await prisma.user.findUnique({ where: { id: emisorId } });
       if (emisor?.estado_cuenta === 'suspendida') {
         socket.emit("private-message-error", { message: "Cuenta suspendida. No puedes enviar mensajes." });
-        return; // 🔥 SE CORTA AQUÍ, NO SE GUARDA EN LA BD
+        return;
       }
 
-      // 🔥 BLOQUEO SI EL DESTINATARIO ESTÁ SUSPENDIDO O BANEADO
       const destinatario = await prisma.user.findUnique({ where: { id: destinatarioId } });
       if (destinatario?.estado_cuenta !== 'activa') {
         socket.emit("private-message-error", { message: "No puedes enviar mensajes a este usuario porque su cuenta está suspendida o baneada." });
@@ -226,7 +249,7 @@ export const socketHandler = (io: Server) => {
           data: {
             chatId: chat.id,
             emisorId,
-            contenido: contenido.trim(),
+            contenido: contenidoSanitizado,
             tipo: tipoValido as any,
           },
         });

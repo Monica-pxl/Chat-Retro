@@ -1,3 +1,4 @@
+//Funciones para generar y verificar tokens JWT (expiración 7 días):
 import jwt from "jsonwebtoken";
 import { JWT_SECRET } from "../config/jwt";
 

@@ -26,4 +26,11 @@ export const authService = {
     api
       .post<AuthResponse>('/auth/register', { email, password, nickname })
       .then(r => r.data),
+
+  logout: (token: string) =>
+    api
+      .post('/auth/logout', {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      .then(r => r.data),
 };

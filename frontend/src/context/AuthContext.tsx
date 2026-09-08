@@ -7,7 +7,7 @@ interface AuthContextValue {
   isAuthenticated: boolean;
   login: (email: string, password: string) => Promise<AuthUser>;
   register: (email: string, password: string, nickname: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   updateUser: (patch: Partial<AuthUser>) => void;
 }
 
@@ -53,12 +53,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     persist(data.user, data.token);
   };
 
-  const logout = () => {
-    setUser(null);
-    setToken(null);
-
-    localStorage.removeItem('rs_user');
-    localStorage.removeItem('rs_token');
+  const logout = async () => {
+    try {
+      if (token) {
+        await authService.logout(token);
+      }
+    } catch (error) {
+      console.error('Error al cerrar sesión en backend:', error);
+    } finally {
+      setUser(null);
+      setToken(null);
+      localStorage.removeItem('rs_user');
+      localStorage.removeItem('rs_token');
+    }
   };
 
   const updateUser = (patch: Partial<AuthUser>) => {
