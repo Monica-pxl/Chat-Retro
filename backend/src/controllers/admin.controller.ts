@@ -271,6 +271,9 @@ export const abrirSala = async (req: Request, res: Response) => {
   }
 };
 
+
+
+
 /* ================================
    ESTADÍSTICAS GLOBALES
 ================================ */

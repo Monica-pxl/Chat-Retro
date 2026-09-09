@@ -284,9 +284,8 @@ export default function SalaPage() {
 
   /* ── Socket ── */
   useEffect(() => {
-    if (!isAuthenticated || !token) return;
-
-    const socket = io('http://localhost:3000', { auth: { token }, forceNew: true });
+    // 🔥 También se conecta sin sesión (invitado) para que el cierre de la sala y los mensajes se actualicen en tiempo real sin tener que recargar
+    const socket = io('http://localhost:3000', { auth: token ? { token } : {}, forceNew: true });
     socketRef.current = socket;
 
     socket.on('receive-message', (msg: { user: { nickname: string; avatar: string | null }; contenido: string; tipo: string; fecha: string }) => {

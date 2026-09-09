@@ -11,7 +11,7 @@ import {
 } from 'react';
 import { io, type Socket } from 'socket.io-client';
 import { useAuth } from './AuthContext';
-import { amigosService } from '../services/amigos.service';
+import { amigosService, chatsService } from '../services/amigos.service';
 import { sanitizeMessage } from '../utils/sanitize';
 
 const API = 'http://localhost:3000';

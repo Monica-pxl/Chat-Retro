@@ -100,7 +100,7 @@ function formatUltimo(contenido: string, tipo: string) {
 
 export default function MensajesPage() {
   const { isAuthenticated, token, user } = useAuth();
-  const { unreadChats, clearUnread, clearAll, subscribe, emitMessage } = usePrivateMessages();
+  const { unreadChats, clearUnread, clearAll, subscribe, emitMessage} = usePrivateMessages();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -112,6 +112,7 @@ export default function MensajesPage() {
   const [error, setError] = useState('');
   const [enviando, setEnviando] = useState(false);
   const [subiendo, setSubiendo] = useState(false);
+  const [eliminando, setEliminando] = useState<Set<number>>(new Set());
 
   // 🔥 ESTADO DEL TEMA Y VISIBILIDAD
   const [tema, setTema] = useState<TemaKey>(() => {

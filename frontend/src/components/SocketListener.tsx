@@ -11,13 +11,9 @@ export default function SocketListener() {
   const location = useLocation();
 
   useEffect(() => {
-    if (!isAuthenticated || !token) {
-      console.log('⚠️ SocketListener - No autenticado o sin token');
-      return;
-    }
-
+    // 🔥 Se conecta también sin sesión (invitado) para recibir eventos globales como el cierre de salas en tiempo real
     console.log('🔄 SocketListener - Conectando socket...');
-    const socket = io(API, { auth: { token } });
+    const socket = io(API, { auth: token ? { token } : {} });
 
     socket.on('connect', () => {
       console.log('✅ SocketListener - Socket conectado correctamente');

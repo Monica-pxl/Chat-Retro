@@ -45,7 +45,8 @@ export const socketHandler = (io: Server) => {
   io.use((socket: AuthSocket, next) => {
     try {
       const token = socket.handshake.auth.token;
-      if (!token) return next(new Error("Token requerido"));
+      // 🔥 Sin token = invitado: puede unirse a salas en solo lectura (necesario para que el cierre de salas y los mensajes se actualicen en tiempo real sin estar logueado)
+      if (!token) return next();
       const decoded = jwt.verify(token, JWT_SECRET);
       socket.user = decoded;
       next();
@@ -56,17 +57,18 @@ export const socketHandler = (io: Server) => {
 
   io.on("connection", (socket: AuthSocket) => {
     const userId = socket.user?.userId;
-    if (!userId) return;
 
-    console.log("🟢 Usuario conectado:", userId);
-    addUserSocket(userId, socket.id);
+    if (userId) {
+      console.log("🟢 Usuario conectado:", userId);
+      addUserSocket(userId, socket.id);
 
-    prisma.user.update({
-      where: { id: userId },
-      data: { estado: "en_linea" },
-    }).catch(() => {});
+      prisma.user.update({
+        where: { id: userId },
+        data: { estado: "en_linea" },
+      }).catch(() => {});
 
-    io.emit("online-users", getOnlineUserIds());
+      io.emit("online-users", getOnlineUserIds());
+    }
 
     socket.on("disconnecting", () => {
       for (const roomName of socket.rooms) {
@@ -98,12 +100,14 @@ export const socketHandler = (io: Server) => {
     // 🚪 JOIN ROOM
     socket.on("join-room", async (roomId: number) => {
       try {
-        const user = await prisma.user.findUnique({ where: { id: userId } });
-        if (user?.estado_cuenta === 'suspendida') {
-          socket.emit("room-error", {
-            message: "Cuenta suspendida. No puedes unirte a salas.",
-          });
-          return;
+        if (userId) {
+          const user = await prisma.user.findUnique({ where: { id: userId } });
+          if (user?.estado_cuenta === 'suspendida') {
+            socket.emit("room-error", {
+              message: "Cuenta suspendida. No puedes unirte a salas.",
+            });
+            return;
+          }
         }
 
         const sala = await prisma.sala.findUnique({ where: { id: roomId } });
