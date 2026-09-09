@@ -1,21 +1,23 @@
+//Protege rutas que solo pueden ser accedidas por administradores:
+import { ReactNode } from 'react';
 import { Navigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 
 interface AdminRouteProps {
-  children: JSX.Element;
+  children: ReactNode;
 }
 
 export default function AdminRoute({ children }: AdminRouteProps) {
-  const raw = localStorage.getItem('rs_user');
-  const storedUser = raw ? JSON.parse(raw) : null;
+  const { isAuthenticated, user } = useAuth();
 
-  console.log('🔥 ADMIN ROUTE:', storedUser);
-  console.log('🔥 ROL:', storedUser?.rol);
+  console.log('🔥 ADMIN ROUTE - isAuthenticated:', isAuthenticated);
+  console.log('🔥 ADMIN ROUTE - user:', user);
 
-  if (!storedUser) {
+  if (!isAuthenticated || !user) {
     return <Navigate to="/login" replace />;
   }
 
-  if (storedUser.rol !== 'admin') {
+  if (user.rol !== 'admin') {
     return <Navigate to="/" replace />;
   }
 

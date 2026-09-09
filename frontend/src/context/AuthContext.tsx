@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, type ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import { authService, type AuthUser } from '../services/auth.service';
 
 interface AuthContextValue {
@@ -61,10 +61,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } catch (error) {
       console.error('Error al cerrar sesión en backend:', error);
     } finally {
+      // 🔥 LIMPIAR TODO
       setUser(null);
       setToken(null);
       localStorage.removeItem('rs_user');
       localStorage.removeItem('rs_token');
+      sessionStorage.clear(); // Por si acaso
+      
+      // 🔥 FORZAR RECARGA DE LA PÁGINA PARA LIMPIAR EL ESTADO
+      window.location.href = '/';
     }
   };
 
@@ -79,6 +84,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return next;
     });
   };
+
+  // 🔥 Sincronizar el estado con localStorage (por si cambia desde fuera)
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const stored = localStorage.getItem('rs_user');
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          setUser(parsed);
+        } catch {
+          setUser(null);
+        }
+      } else {
+        setUser(null);
+      }
+      
+      const tokenStored = localStorage.getItem('rs_token');
+      setToken(tokenStored);
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
 
   return (
     <AuthContext.Provider
