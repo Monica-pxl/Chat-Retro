@@ -20,6 +20,9 @@ import MensajesPage from '../pages/MensajesPage';
 import SolicitudesPage from '../pages/SolicitudesPage';
 import AmigosPage from '../pages/AmigosPage';
 import ScrollToTop from '../components/ScrollToTop';
+import Error404 from '../pages/Error404';
+import Error403 from '../pages/Error403';
+import Error500 from '../pages/Error500';
 
 interface AppRouterProps {
   children?: ReactNode;
@@ -136,6 +139,10 @@ export default function AppRouter({ children }: AppRouterProps) {
             </AdminRoute>
           }
         />
+
+        <Route path="/error/403" element={<Error403 />} />
+        <Route path="/error/500" element={<Error500 />} />
+        <Route path="*" element={<Error404 />} />
       </Routes>
     </BrowserRouter>
   );

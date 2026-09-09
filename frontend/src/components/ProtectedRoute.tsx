@@ -27,7 +27,7 @@ export default function ProtectedRoute({
   }
 
   if (!hasValidRole) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/error/403" replace />;
   }
 
   return children;
