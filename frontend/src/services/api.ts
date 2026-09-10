@@ -14,11 +14,6 @@ api.interceptors.response.use(
       window.location.href = '/login';
     }
 
-    // 🔥 Error 403: Prohibido → redirigir a 403
-    if (status === 403) {
-      window.location.href = '/error/403';
-    }
-
     // 🔥 Error 500: Error del servidor → redirigir a 500
     if (status === 500) {
       window.location.href = '/error/500';

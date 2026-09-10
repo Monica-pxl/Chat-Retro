@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { io } from 'socket.io-client';
 
@@ -8,10 +8,8 @@ const API = 'http://localhost:3000';
 export default function SocketListener() {
   const { isAuthenticated, token, logout, updateUser } = useAuth();
   const navigate = useNavigate();
-  const location = useLocation();
 
   useEffect(() => {
-    // 🔥 Se conecta también sin sesión (invitado) para recibir eventos globales como el cierre de salas en tiempo real
     console.log('🔄 SocketListener - Conectando socket...');
     const socket = io(API, { auth: token ? { token } : {} });
 
@@ -23,12 +21,10 @@ export default function SocketListener() {
       console.error('❌ SocketListener - Error de conexión:', err.message);
     });
 
-    // 🔥 Eventos del Admin
     socket.on('admin-action', (data: { type: string; message: string }) => {
       console.log('📩 SocketListener - admin-action recibido:', data);
 
       if (data.type === 'rol_actualizado') {
-        // 🔥 Mensaje persistente en el centro de la pantalla: nada de recargar solo, el usuario debe cerrar sesión y volver a entrar
         window.dispatchEvent(new CustomEvent('show-alert-modal', {
           detail: {
             variant: 'info',
@@ -53,50 +49,36 @@ export default function SocketListener() {
         logout();
         navigate('/', { replace: true });
       } else if (data.type === 'suspendida') {
-        // 🔥 Actualiza el estado local YA, para que los checks de la UI (botones, salas, mensajes) reaccionen al instante
         updateUser({ estado_cuenta: 'suspendida' });
-        if (location.pathname !== '/') {
+        // 🔥 Usar window.location en vez de location de react-router
+        if (window.location.pathname !== '/') {
           navigate('/', { replace: true });
         }
       } else if (data.type === 'activa') {
-        // 🔥 El admin quitó la suspensión: reflejarlo YA, sin esperar a un nuevo login
         updateUser({ estado_cuenta: 'activa' });
       }
     });
 
-    // 🔥 NUEVO: Escuchar cambios de estado de salas
     socket.on('sala-estado-cambiado', (data: { salaId: number; cerrada: boolean; nombre: string }) => {
       console.log('📩 SocketListener - sala-estado-cambiado RECIBIDO:', data);
-      window.dispatchEvent(new CustomEvent('sala-estado-cambiado', {
-        detail: data
+      window.dispatchEvent(new CustomEvent('sala-estado-cambiado', { detail: data }));
+    });
+
+    socket.on('solicitud-aceptada', () => {
+      window.dispatchEvent(new CustomEvent('show-toast', { 
+        detail: { type: 'success', message: 'Tu solicitud de amistad ha sido aceptada.' }
       }));
     });
 
-    // 🔥 Eventos de solicitudes de amistad
-    socket.on('solicitud-aceptada', (data: any) => {
+    socket.on('solicitud-rechazada', () => {
       window.dispatchEvent(new CustomEvent('show-toast', { 
-        detail: { 
-          type: 'success', 
-          message: 'Tu solicitud de amistad ha sido aceptada.' 
-        }
+        detail: { type: 'error', message: 'Tu solicitud de amistad ha sido rechazada.' }
       }));
     });
 
-    socket.on('solicitud-rechazada', (data: any) => {
+    socket.on('solicitud-cancelada', () => {
       window.dispatchEvent(new CustomEvent('show-toast', { 
-        detail: { 
-          type: 'error', 
-          message: 'Tu solicitud de amistad ha sido rechazada.' 
-        }
-      }));
-    });
-
-    socket.on('solicitud-cancelada', (data: any) => {
-      window.dispatchEvent(new CustomEvent('show-toast', { 
-        detail: { 
-          type: 'warning', 
-          message: 'El usuario ha cancelado la solicitud de amistad.' 
-        }
+        detail: { type: 'warning', message: 'El usuario ha cancelado la solicitud de amistad.' }
       }));
     });
 
@@ -113,7 +95,9 @@ export default function SocketListener() {
       console.log('🔌 SocketListener - Desconectando socket');
       socket.disconnect();
     };
-  }, [isAuthenticated, token, logout, updateUser, navigate, location.pathname]);
+    // 🔥 Solo depende del token y de si está autenticado. NADA de location, navigate, etc.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated, token]);
 
   return null;
 }

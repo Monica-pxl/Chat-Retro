@@ -2,8 +2,8 @@ import rateLimit from "express-rate-limit";
 
 // Límite general para todas las rutas
 export const generalLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 100, // 100 peticiones por ventana
+  windowMs: 1 * 60 * 1000, // 1 minuto
+  max: 300, // 300 peticiones por ventana
   message: { error: "Demasiadas peticiones, intenta más tarde" },
   standardHeaders: true,
   legacyHeaders: false,
