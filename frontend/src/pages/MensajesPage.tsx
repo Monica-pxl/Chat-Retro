@@ -100,7 +100,7 @@ function formatUltimo(contenido: string, tipo: string) {
 
 export default function MensajesPage() {
   const { isAuthenticated, token, user } = useAuth();
-  const { unreadChats, clearUnread, clearAll, subscribe, emitMessage} = usePrivateMessages();
+  const { unreadChats, clearUnread, subscribe, emitMessage} = usePrivateMessages();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -147,8 +147,6 @@ export default function MensajesPage() {
   useEffect(() => {
     if (!isAuthenticated || !token) navigate('/login');
   }, [isAuthenticated, token, navigate]);
-
-  useEffect(() => { clearAll(); }, []);
 
   useEffect(() => {
     if (!token) return;
@@ -414,10 +412,18 @@ export default function MensajesPage() {
                 >
                   <Avatar src={interlocutor.avatar} nick={interlocutor.nickname} />
                   <div className="mp-chat-item__info">
-                    <div className="mp-chat-item__nick">{interlocutor.nickname}</div>
+                    <div className="mp-chat-item__name-row">
+                      <div className="mp-chat-item__nick">{interlocutor.nickname}</div>
+                      {hasUnread && (
+                        <span
+                          className="mp-chat-item__name-dot"
+                          title={`Nuevo mensaje de ${interlocutor.nickname}`}
+                          aria-label={`Nuevo mensaje de ${interlocutor.nickname}`}
+                        />
+                      )}
+                    </div>
                     {ultimo && <div className="mp-chat-item__last">{formatUltimo(ultimo.contenido, ultimo.tipo)}</div>}
                   </div>
-                  {hasUnread && <span className="mp-chat-item__badge" title="Nuevo mensaje" />}
                 </div>
               );
             })}

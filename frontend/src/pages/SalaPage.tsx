@@ -65,7 +65,14 @@ type FiltroNavegador = '90s' | '2000s' | 'tematicas90s' | 'tematicas2000s';
 export default function SalaPage() {
   const { id } = useParams<{ id: string }>();
   const { isAuthenticated, token, user } = useAuth();
-  const { clearUnread, getFriendStatus, sendFriendRequest, cancelFriendRequest, acceptFriendRequest } = usePrivateMessages();
+  const { 
+    clearUnread, 
+    getFriendStatus, 
+    sendFriendRequest, 
+    cancelFriendRequest, 
+    acceptFriendRequest,
+    setCurrentRoomId // 🔥 NUEVO
+  } = usePrivateMessages();
   const navigate = useNavigate();
   const [amigoBusy, setAmigoBusy] = useState<Set<number>>(new Set());
   const [sala, setSala] = useState<Sala | null>(null);
@@ -107,6 +114,14 @@ export default function SalaPage() {
 
   const salaId = Number(id);
 
+  // 🔥 NUEVO: Registrar la sala actual al entrar/salir
+  useEffect(() => {
+    setCurrentRoomId(salaId);
+    return () => {
+      setCurrentRoomId(null);
+    };
+  }, [salaId, setCurrentRoomId]);
+
   // 🚨 REDIRECCIÓN Y TOAST SI ESTÁ SUSPENDIDO
   useLayoutEffect(() => {
     if (user?.estado_cuenta === 'suspendida') {
@@ -122,7 +137,7 @@ export default function SalaPage() {
 
   const esTvShow = sala?.tematica?.nombre?.toLowerCase().includes('tv shows') || false;
 
-  // ── FUNCIÓN PARA OBTENER CANCIONES DE LA SALA (incluye Fi estas) ──
+  // ── FUNCIÓN PARA OBTENER CANCIONES DE LA SALA (incluye Fiestas) ──
   const getSongsForSala = (sala: Sala | null): string[] => {
     if (!sala) return [];
     
@@ -147,9 +162,7 @@ export default function SalaPage() {
       ];
     }
     
-    // Mapa de canciones por año (90s en carpeta 1990, 2000s en carpeta 2000)
     const songsMap: { [key: number]: string[] } = {
-      // 90s (carpeta 1990)
       1990: ['/music/1990/1990-1.mp3', '/music/1990/1990-2.mp3'],
       1991: ['/music/1990/1991-1.mp3', '/music/1990/1991-2.mp3'],
       1992: ['/music/1990/1992-1.mp3', '/music/1990/1992-2.mp3'],
@@ -160,8 +173,6 @@ export default function SalaPage() {
       1997: ['/music/1990/1997-1.mp3', '/music/1990/1997-2.mp3'],
       1998: ['/music/1990/1998-1.mp3', '/music/1990/1998-2.mp3'],
       1999: ['/music/1990/1999-1.mp3', '/music/1990/1999-2.mp3'],
-      
-      // 2000s (carpeta 2000)
       2000: ['/music/2000/2000-1.mp3', '/music/2000/2000-2.mp3'],
       2001: ['/music/2000/2001-1.mp3', '/music/2000/2001-2.mp3'],
       2002: ['/music/2000/2002-1.mp3', '/music/2000/2002-2.mp3', '/music/2000/2002-3.mp3'],
@@ -284,7 +295,6 @@ export default function SalaPage() {
 
   /* ── Socket ── */
   useEffect(() => {
-    // 🔥 También se conecta sin sesión (invitado) para que el cierre de la sala y los mensajes se actualicen en tiempo real sin tener que recargar
     const socket = io('http://localhost:3000', { auth: token ? { token } : {}, forceNew: true });
     socketRef.current = socket;
 
@@ -413,7 +423,7 @@ export default function SalaPage() {
     }
   };
 
-  /* ── Enviar mensaje privado ── */
+  /* ── Enviar mensaje privado (CON fromRoomId) ── */
   const sendPrivateMessage = () => {
     const trimmed = textoPrivado.trim();
     if (!trimmed || !socketRef.current || !usuarioSeleccionado) return;
@@ -421,13 +431,14 @@ export default function SalaPage() {
     socketRef.current.emit('private-message', {
       destinatarioId: usuarioSeleccionado.id,
       contenido: trimmed,
-      tipo: 'texto'
+      tipo: 'texto',
+      fromRoomId: salaId // 🔥 NUEVO
     });
     
     setTextoPrivado('');
   };
 
-  /* ── Subir imagen en privado ── */
+  /* ── Subir imagen en privado (CON fromRoomId) ── */
   const subirImagenPrivada = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files?.length || !socketRef.current || !usuarioSeleccionado || !token) return;
     const file = e.target.files[0];
@@ -437,7 +448,8 @@ export default function SalaPage() {
       socketRef.current.emit('private-message', {
         destinatarioId: usuarioSeleccionado.id,
         contenido: res.url,
-        tipo: 'imagen'
+        tipo: 'imagen',
+        fromRoomId: salaId // 🔥 NUEVO
       });
     } catch {
       alert('No se pudo subir la imagen');
@@ -693,7 +705,6 @@ export default function SalaPage() {
 
       <div className="rs-sala-layout">
 
-        {/* 📱 Fondo oscuro al abrir un panel deslizante en móvil */}
         {(usuariosMovilAbierto || navegadorMovilAbierto) && (
           <div
             className="rs-sala-overlay"
@@ -701,7 +712,7 @@ export default function SalaPage() {
           />
         )}
 
-        {/* ── Columna 1: Usuarios (izquierda) ── */}
+        {/* ── Columna 1: Usuarios ── */}
         <div className={`rs-sala-users ${usuariosMovilAbierto ? 'rs-sala-users--open' : ''}`}>
           <div className="rs-sala-users__header">
             <i className="bi bi-people" />
@@ -778,7 +789,7 @@ export default function SalaPage() {
           </div>
         </div>
 
-        {/* ── Columna 2: Chat privado (si está abierto) ── */}
+        {/* ── Columna 2: Chat privado ── */}
         {chatPrivadoAbierto && usuarioSeleccionado && (
           <div className="rs-sala-chat-privado">
             <div className="rs-sala-chat-privado__header">
@@ -1018,7 +1029,7 @@ export default function SalaPage() {
           )}
         </div>
 
-        {/* ── Columna 4: Navegador de salas (derecha) ── */}
+        {/* ── Columna 4: Navegador de salas ── */}
         <div className={`rs-sala-navegador ${navegadorMovilAbierto ? 'rs-sala-navegador--open' : ''}`}>
           <div className="rs-sala-navegador__header">
             <i className="bi bi-grid-3x3-gap-fill" />

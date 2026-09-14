@@ -208,7 +208,7 @@ export const socketHandler = (io: Server) => {
     });
 
     // 💬 PRIVATE MESSAGE - CON SANITIZACIÓN
-    socket.on("private-message", async ({ destinatarioId, contenido, tipo }) => {
+    socket.on("private-message", async ({ destinatarioId, contenido, tipo, fromRoomId }) => {
       const emisorId: number = socket.user?.userId;
       if (!emisorId || !destinatarioId || !contenido?.trim()) return;
       
@@ -279,6 +279,7 @@ export const socketHandler = (io: Server) => {
           contenido: mensaje.contenido,
           tipo: tipoValido,
           fecha: mensaje.fecha_creacion.toISOString(),
+          fromRoomId: fromRoomId
         });
       } catch {
         socket.emit("private-message-error", { message: "Error al enviar el mensaje privado" });

@@ -5,11 +5,13 @@ import UserSearchBar from './UserSearchBar';
 
 export default function AppHeader() {
   const { isAuthenticated, user, logout } = useAuth();
-  const { totalUnread, pendingReceivedCount } = usePrivateMessages();
+  // 🔥 USAR navbarUnread en lugar de totalUnread
+  const { navbarUnread, pendingReceivedCount } = usePrivateMessages();
   const navigate = useNavigate();
   const location = useLocation();
   
   const isAdminRoute = location.pathname.startsWith('/admin');
+  const estaEnMensajes = location.pathname === '/mensajes'; // 🔥 NUEVO
   const mostrarBadgeSolicitudes = pendingReceivedCount > 0 && location.pathname !== '/solicitudes';
 
   const handleLogout = () => {
@@ -82,7 +84,8 @@ export default function AppHeader() {
                   <UserSearchBar />
                   <Link to="/mensajes" className="rs-btn rs-btn--nav rs-nav-link-wrap">
                     <i className="bi bi-chat-dots" /> <span>Mensajes</span>
-                    {totalUnread > 0 && <span className="rs-nav-badge" />}
+                    {/* 🔥 SOLO mostrar si NO estás en /mensajes */}
+                    {navbarUnread > 0 && !estaEnMensajes && <span className="rs-nav-badge" />}
                   </Link>
                   <Link to="/solicitudes" className="rs-btn rs-btn--nav rs-nav-link-wrap">
                     <i className="bi bi-person-plus" /> <span>Solicitudes</span>

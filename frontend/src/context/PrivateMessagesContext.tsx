@@ -23,6 +23,7 @@ export interface IncomingPrivateMsg {
   contenido: string;
   tipo: string;
   fecha: string;
+  fromRoomId?: number | null; // 🔥 NUEVO
 }
 
 export type SolicitudEvento = 'nueva' | 'aceptada' | 'rechazada' | 'cancelada';
@@ -33,6 +34,8 @@ export type FriendStatus = 'ninguno' | 'amigo' | 'enviada' | 'recibida';
 interface PMContextValue {
   unreadChats: Set<number>;
   totalUnread: number;
+  // 🔥 NUEVO: notificaciones para el navbar (excluye mensajes de la misma sala)
+  navbarUnread: number;
   clearUnread: (chatId: number) => void;
   clearAll: () => void;
   subscribe: (handler: (data: IncomingPrivateMsg) => void) => () => void;
@@ -47,11 +50,15 @@ interface PMContextValue {
   cancelFriendRequest: (userId: number) => Promise<void>;
   acceptFriendRequest: (userId: number) => Promise<void>;
   removeFriend: (userId: number) => Promise<void>;
+  // 🔥 NUEVO: sala actual
+  setCurrentRoomId: (roomId: number | null) => void;
+  currentRoomId: number | null;
 }
 
 const PMContext = createContext<PMContextValue>({
   unreadChats: new Set(),
   totalUnread: 0,
+  navbarUnread: 0,
   clearUnread: () => {},
   clearAll: () => {},
   subscribe: () => () => {},
@@ -66,12 +73,23 @@ const PMContext = createContext<PMContextValue>({
   cancelFriendRequest: async () => {},
   acceptFriendRequest: async () => {},
   removeFriend: async () => {},
+  setCurrentRoomId: () => {},
+  currentRoomId: null,
 });
 
 export function PrivateMessagesProvider({ children }: { children: ReactNode }) {
   const { isAuthenticated, token } = useAuth();
   const socketRef = useRef<Socket | null>(null);
   const [unreadChats, setUnreadChats] = useState<Set<number>>(new Set());
+  
+  // 🔥 NUEVO: chats que deben mostrar la bolita del navbar
+  const [navbarUnreadChats, setNavbarUnreadChats] = useState<Set<number>>(new Set());
+  
+  // 🔥 NUEVO: sala actual donde está el usuario
+  const [currentRoomId, setCurrentRoomId] = useState<number | null>(null);
+  const currentRoomIdRef = useRef<number | null>(null);
+  useEffect(() => { currentRoomIdRef.current = currentRoomId; }, [currentRoomId]);
+
   const handlersRef = useRef<Set<(data: IncomingPrivateMsg) => void>>(new Set());
   const solicitudHandlersRef = useRef<Set<SolicitudHandler>>(new Set());
 
@@ -92,8 +110,17 @@ export function PrivateMessagesProvider({ children }: { children: ReactNode }) {
     const socket = io(API, { auth: { token } });
     socketRef.current = socket;
 
+    // 🔥 MODIFICADO: ahora comprueba si el mensaje viene de la misma sala
     socket.on('receive-private-message', (data: IncomingPrivateMsg) => {
       setUnreadChats(prev => new Set(prev).add(data.chatId));
+      
+      // 🔥 Si el mensaje viene de la MISMA sala donde estoy, NO mostrar bolita del navbar
+      const vieneDeMiSala = data.fromRoomId && data.fromRoomId === currentRoomIdRef.current;
+      
+      if (!vieneDeMiSala) {
+        setNavbarUnreadChats(prev => new Set(prev).add(data.chatId));
+      }
+      
       handlersRef.current.forEach(h => h(data));
     });
 
@@ -175,15 +202,19 @@ export function PrivateMessagesProvider({ children }: { children: ReactNode }) {
       setFriends(new Set());
       setSentPending(new Map());
       setReceivedPending(new Map());
+      setUnreadChats(new Set());
+      setNavbarUnreadChats(new Set());
     }
   }, [isAuthenticated, token, refreshAmistades]);
 
   const clearUnread = useCallback((chatId: number) => {
     setUnreadChats(prev => { const s = new Set(prev); s.delete(chatId); return s; });
+    setNavbarUnreadChats(prev => { const s = new Set(prev); s.delete(chatId); return s; });
   }, []);
 
   const clearAll = useCallback(() => {
     setUnreadChats(new Set());
+    setNavbarUnreadChats(new Set());
   }, []);
 
   const subscribe = useCallback((handler: (data: IncomingPrivateMsg) => void) => {
@@ -206,10 +237,12 @@ export function PrivateMessagesProvider({ children }: { children: ReactNode }) {
       return;
     }
 
+    // 🔥 Enviar también la sala actual para que el backend sepa de dónde viene
     socketRef.current?.emit('private-message', {
       destinatarioId,
       contenido: contenidoSanitizado,
-      tipo
+      tipo,
+      fromRoomId: currentRoomIdRef.current // 👈 NUEVO
     });
   }, []);
 
@@ -257,6 +290,7 @@ export function PrivateMessagesProvider({ children }: { children: ReactNode }) {
     <PMContext.Provider value={{
       unreadChats,
       totalUnread: unreadChats.size,
+      navbarUnread: navbarUnreadChats.size, // 🔥 NUEVO
       clearUnread,
       clearAll,
       subscribe,
@@ -271,6 +305,8 @@ export function PrivateMessagesProvider({ children }: { children: ReactNode }) {
       cancelFriendRequest,
       acceptFriendRequest,
       removeFriend,
+      setCurrentRoomId, // 🔥 NUEVO
+      currentRoomId, // 🔥 NUEVO
     }}>
       {children}
     </PMContext.Provider>
