@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import bcrypt from "bcrypt";
 import { PrismaClient } from "@prisma/client";
 import path from "path";
 
@@ -77,6 +78,62 @@ export const updateMe = async (req: Request, res: Response) => {
     return res.json(updated);
   } catch {
     return res.status(500).json({ error: "Error al actualizar el perfil" });
+  }
+};
+
+/* ─────────────────────────────
+   PUT /api/users/me/password
+   Body: { currentPassword, newPassword, confirmPassword }
+───────────────────────────── */
+export const updatePassword = async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user.userId;
+    const { currentPassword, newPassword, confirmPassword } = req.body;
+
+    if (!currentPassword) {
+      return res.status(400).json({ error: "Introduce tu contraseña actual" });
+    }
+
+    if (!newPassword) {
+      return res.status(400).json({ error: "Introduce una contraseña nueva" });
+    }
+
+    if (!confirmPassword) {
+      return res.status(400).json({ error: "Repite la contraseña nueva para confirmarla" });
+    }
+
+    if (!/^(?=.*[A-Za-z])(?=.*\d).{8,15}$/.test(newPassword)) {
+      return res.status(400).json({ error: "La nueva contraseña debe tener entre 8 y 15 caracteres, con al menos una letra y un número" });
+    }
+
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({ error: "La confirmación no coincide con la nueva contraseña" });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { password: true },
+    });
+
+    if (!user) return res.status(404).json({ error: "Usuario no encontrado" });
+
+    const currentPasswordIsValid = await bcrypt.compare(currentPassword, user.password);
+    if (!currentPasswordIsValid) {
+      return res.status(401).json({ error: "La contraseña actual no es correcta" });
+    }
+
+    if (await bcrypt.compare(newPassword, user.password)) {
+      return res.status(400).json({ error: "La nueva contraseña debe ser distinta de la actual" });
+    }
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: { password: await bcrypt.hash(newPassword, 10) },
+    });
+
+    return res.json({ message: "Contraseña actualizada correctamente" });
+  } catch {
+    return res.status(500).json({ error: "Error al actualizar la contraseña" });
   }
 };
 

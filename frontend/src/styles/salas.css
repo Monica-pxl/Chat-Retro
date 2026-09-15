@@ -1135,9 +1135,9 @@
    LISTA DE USUARIOS (IZQUIERDA) - ESTILO SÓLIDO CORREGIDO
    ══════════════════════════════════════════════════ */
 .rs-sala-users {
-  width: 240px;
-  min-width: 200px;
-  max-width: 280px;
+  width: 330px;
+  min-width: 290px;
+  max-width: 360px;
   background: var(--sala-panel-bg);
   border-right: 2px solid var(--sala-panel-border);
   display: flex;
@@ -1182,9 +1182,9 @@
    ══════════════════════════════════════════════════ */
 
 .rs-sala-navegador {
-  width: 280px;
-  min-width: 220px;
-  max-width: 320px;
+  width: 320px;
+  min-width: 270px;
+  max-width: 350px;
   background: var(--sala-panel-bg);
   border-left: 2px solid var(--sala-panel-border);
   display: flex;
@@ -1257,6 +1257,132 @@
   color: var(--sala-primary);
   background: var(--sala-glow);
   box-shadow: 0 0 20px var(--sala-glow);
+}
+
+/* ── Animación ambiental lateral por sala ── */
+.rs-sala-ambiente {
+  position: relative;
+  height: 190px;
+  flex: 0 0 190px;
+  margin: 0.7rem 0.8rem 0.35rem;
+  overflow: hidden;
+  border: 1px solid var(--sala-border);
+  border-radius: 14px;
+  background:
+    radial-gradient(circle at 50% 50%, var(--sala-glow), transparent 38%),
+    linear-gradient(145deg, rgba(0, 0, 0, 0.8), rgba(255, 255, 255, 0.03));
+  box-shadow: inset 0 0 35px rgba(0, 0, 0, 0.75), 0 0 22px var(--sala-glow);
+  isolation: isolate;
+}
+
+.rs-sala-ambiente::before,
+.rs-sala-ambiente::after {
+  content: '';
+  position: absolute;
+  inset: 12%;
+  border: 1px solid color-mix(in srgb, var(--sala-primary) 35%, transparent);
+  border-radius: 50%;
+  transform: rotate(25deg) scaleY(0.48);
+  animation: ambienteOrbit 7s linear infinite;
+}
+
+.rs-sala-ambiente::after {
+  inset: 22%;
+  border-color: color-mix(in srgb, var(--sala-secondary) 45%, transparent);
+  transform: rotate(-35deg) scaleY(0.55);
+  animation-duration: 5s;
+  animation-direction: reverse;
+}
+
+.rs-sala-ambiente__halo,
+.rs-sala-ambiente__spiral,
+.rs-sala-ambiente__core,
+.rs-sala-ambiente__spark {
+  position: absolute;
+  pointer-events: none;
+}
+
+.rs-sala-ambiente__halo {
+  width: 72%;
+  aspect-ratio: 1;
+  left: 14%;
+  top: 8%;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--sala-glow), transparent 66%);
+  filter: blur(8px);
+  animation: ambientePulse 3s ease-in-out infinite;
+}
+
+.rs-sala-ambiente__spiral {
+  width: 68%;
+  aspect-ratio: 1;
+  left: 16%;
+  top: 12%;
+  border: 2px solid var(--sala-primary);
+  border-radius: 46% 54% 50% 50%;
+  box-shadow: 0 0 12px var(--sala-primary), inset 0 0 12px var(--sala-primary);
+  opacity: 0.8;
+  animation: ambienteSpin 8s linear infinite;
+}
+
+.rs-sala-ambiente__spiral--inner {
+  width: 42%;
+  left: 29%;
+  top: 27%;
+  border-color: var(--sala-secondary);
+  box-shadow: 0 0 12px var(--sala-secondary), inset 0 0 12px var(--sala-secondary);
+  animation-duration: 4.5s;
+  animation-direction: reverse;
+}
+
+.rs-sala-ambiente__core {
+  width: 18px;
+  height: 18px;
+  left: calc(50% - 9px);
+  top: calc(50% - 9px);
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 8px #fff, 0 0 22px var(--sala-primary), 0 0 42px var(--sala-secondary);
+  animation: ambienteCore 2.2s ease-in-out infinite;
+}
+
+.rs-sala-ambiente__spark {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--sala-secondary);
+  box-shadow: 0 0 8px var(--sala-secondary);
+  animation: ambienteSpark 4s ease-in-out infinite;
+}
+
+.rs-sala-ambiente__spark--one { left: 20%; top: 25%; }
+.rs-sala-ambiente__spark--two { right: 19%; top: 64%; animation-delay: -1.5s; }
+.rs-sala-ambiente__spark--three { left: 69%; top: 19%; animation-delay: -2.5s; }
+
+@keyframes ambienteSpin {
+  from { transform: rotate(0deg) scale(0.9); }
+  50% { transform: rotate(180deg) scale(1.04); }
+  to { transform: rotate(360deg) scale(0.9); }
+}
+
+@keyframes ambienteOrbit {
+  from { transform: rotate(25deg) scaleY(0.48) rotate(0deg); }
+  to { transform: rotate(25deg) scaleY(0.48) rotate(360deg); }
+}
+
+@keyframes ambientePulse {
+  0%, 100% { opacity: 0.45; transform: scale(0.85); }
+  50% { opacity: 1; transform: scale(1.08); }
+}
+
+@keyframes ambienteCore {
+  0%, 100% { transform: scale(0.75); opacity: 0.7; }
+  50% { transform: scale(1.25); opacity: 1; }
+}
+
+@keyframes ambienteSpark {
+  0%, 100% { transform: translate(0, 0) scale(0.7); opacity: 0.3; }
+  50% { transform: translate(12px, -10px) scale(1.5); opacity: 1; }
 }
 
 /* ── Lista de salas ── */
@@ -1392,35 +1518,6 @@
 @media (max-width: 1024px) {
   .rs-sala-navegador { width: 220px; min-width: 180px; }
 }
-
-
-
-
-/* ══════════════════════════════════════════════════
-   PANTALLA DE TV (para salas TV Shows)
-   ══════════════════════════════════════════════════ */
-.rs-sala-tv {
-  display: flex; flex-direction: column; gap: 0.3rem; padding: 0.6rem 2rem 0.4rem 2rem;
-  flex-shrink: 0; background: rgba(0, 0, 0, 0.5); border-bottom: 2px solid var(--sala-border);
-}
-.rs-sala-tv__screen {
-  position: relative; aspect-ratio: 16/9; width: 100%; max-height: 380px; min-height: 200px;
-  background: radial-gradient(ellipse at center, #0a0a14 0%, #000000 100%);
-  border-radius: 12px; border: 3px solid var(--sala-border);
-  box-shadow: 0 0 40px var(--sala-glow), inset 0 0 80px rgba(0, 0, 0, 0.8);
-  overflow: hidden;
-}
-.rs-sala-tv__content { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; padding: 1.5rem; position: relative; z-index: 2; }
-.rs-sala-tv__icon { font-size: 5rem; color: var(--sala-primary); opacity: 0.6; margin-bottom: 0.5rem; animation: tvPulse 3s ease-in-out infinite; }
-@keyframes tvPulse { 0%, 100% { opacity: 0.4; transform: scale(1); } 50% { opacity: 0.8; transform: scale(1.05); } }
-.rs-sala-tv__label { font-size: 1.4rem; font-weight: 700; color: #fff; letter-spacing: 1px; }
-.rs-sala-tv__sub { font-size: 0.9rem; color: #666; margin-top: 0.2rem; }
-.rs-sala-tv__scanlines { position: absolute; inset: 0; z-index: 3; pointer-events: none; background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0, 0, 0, 0.03) 2px, rgba(0, 0, 0, 0.03) 4px); animation: scanlinesMove 8s linear infinite; }
-@keyframes scanlinesMove { 0% { transform: translateY(0); } 100% { transform: translateY(4px); } }
-.rs-sala-tv__info { display: flex; align-items: center; justify-content: space-between; padding: 0.2rem 0.2rem 0; gap: 0.5rem; }
-.rs-sala-tv__badge { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.65rem; font-weight: 700; color: var(--accent-green); background: rgba(105, 240, 174, 0.1); padding: 0.15rem 0.6rem; border-radius: 4px; border: 1px solid rgba(105, 240, 174, 0.2); text-transform: uppercase; letter-spacing: 0.5px; }
-.rs-sala-tv__badge i { font-size: 0.55rem; }
-.rs-sala-tv__time { font-size: 0.7rem; color: #666; display: inline-flex; align-items: center; gap: 0.3rem; }
 
 
 
@@ -3027,8 +3124,8 @@
    RESPONSIVE
    ══════════════════════════════════════════════════ */
 @media (max-width: 1024px) {
-  .rs-sala-users { width: 200px; min-width: 160px; }
-  .rs-sala-navegador { width: 170px; min-width: 130px; }
+  .rs-sala-users { width: 280px; min-width: 240px; }
+  .rs-sala-navegador { width: 215px; min-width: 180px; }
   .rs-sala-year__number { font-size: 3.5rem; }
 }
 
@@ -3062,7 +3159,7 @@
     position: fixed;
     top: 0;
     bottom: 0;
-    width: min(82vw, 300px);
+    width: min(92vw, 360px);
     max-width: none;
     min-width: 0;
     z-index: 50;
@@ -3087,6 +3184,7 @@
 
   .rs-sala-year__number { font-size: 2.8rem; }
   .rs-sala-year { padding: 0.8rem 1.2rem 0.6rem; min-height: 70px; }
+  .rs-sala-ambiente { height: 165px; flex-basis: 165px; margin: 0.8rem 0.9rem 0.4rem; }
   .rs-msg { max-width: 100%; }
   .rs-sala-messages { padding: 0.6rem 1rem 0.4rem; }
   .rs-sala-input-area { padding: 0.4rem 1rem 0.5rem; }
@@ -3095,8 +3193,20 @@
 
 @media (max-width: 500px) {
   .rs-sala-year__number { font-size: 1.8rem; }
+  .rs-sala-ambiente { height: 145px; flex-basis: 145px; }
   .rs-sala-music-btn { width: 32px; height: 32px; font-size: 0.9rem; }
   .rs-sala-mobile-toggle { width: 32px; height: 32px; font-size: 0.9rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rs-sala-ambiente::before,
+  .rs-sala-ambiente::after,
+  .rs-sala-ambiente__halo,
+  .rs-sala-ambiente__spiral,
+  .rs-sala-ambiente__core,
+  .rs-sala-ambiente__spark {
+    animation-play-state: paused;
+  }
 }
 
 
@@ -3358,6 +3468,437 @@
   .rs-sala-page[data-tema="1990"] .rs-sala-year__number {
     font-size: 2.5rem !important;
   }
+}
+
+/* ══════════════════════════════════════════════════
+   FORMAS DE AMBIENTE POR SALA
+   ══════════════════════════════════════════════════ */
+
+/* Ritmo nocturno pausado para que el brillo acompañe al chat sin distraer */
+.rs-sala-page[data-tema="1990"] .rs-sala-ambiente__spiral,
+.rs-sala-page[data-tema="1992"] .rs-sala-ambiente__spiral,
+.rs-sala-page[data-tema="1994"] .rs-sala-ambiente__spiral,
+.rs-sala-page[data-tema="1999"] .rs-sala-ambiente__spiral,
+.rs-sala-page[data-tema="2000"] .rs-sala-ambiente__spiral,
+.rs-sala-page[data-tema="2002"] .rs-sala-ambiente__spiral,
+.rs-sala-page[data-tema="2005"] .rs-sala-ambiente__spiral,
+.rs-sala-page[data-tema="2006"] .rs-sala-ambiente__spiral {
+  animation-timing-function: ease-in-out;
+}
+
+.rs-sala-page[data-tema="1990"] .rs-sala-ambiente__halo,
+.rs-sala-page[data-tema="1992"] .rs-sala-ambiente__halo,
+.rs-sala-page[data-tema="1994"] .rs-sala-ambiente__halo,
+.rs-sala-page[data-tema="1999"] .rs-sala-ambiente__halo,
+.rs-sala-page[data-tema="2000"] .rs-sala-ambiente__halo,
+.rs-sala-page[data-tema="2005"] .rs-sala-ambiente__halo,
+.rs-sala-page[data-tema="2006"] .rs-sala-ambiente__halo {
+  animation-duration: 5s;
+}
+
+.rs-sala-page[data-tema="1990"] .rs-sala-ambiente__core,
+.rs-sala-page[data-tema="1992"] .rs-sala-ambiente__core,
+.rs-sala-page[data-tema="1994"] .rs-sala-ambiente__core,
+.rs-sala-page[data-tema="1999"] .rs-sala-ambiente__core,
+.rs-sala-page[data-tema="2000"] .rs-sala-ambiente__core,
+.rs-sala-page[data-tema="2005"] .rs-sala-ambiente__core,
+.rs-sala-page[data-tema="2006"] .rs-sala-ambiente__core {
+  animation-duration: 3.8s;
+}
+
+.rs-sala-page[data-tema="1990"] .rs-sala-ambiente__spark,
+.rs-sala-page[data-tema="1992"] .rs-sala-ambiente__spark,
+.rs-sala-page[data-tema="1994"] .rs-sala-ambiente__spark,
+.rs-sala-page[data-tema="1999"] .rs-sala-ambiente__spark,
+.rs-sala-page[data-tema="2000"] .rs-sala-ambiente__spark,
+.rs-sala-page[data-tema="2005"] .rs-sala-ambiente__spark,
+.rs-sala-page[data-tema="2006"] .rs-sala-ambiente__spark {
+  animation-duration: 6s;
+}
+
+/* 1990: óvalo vertical, más sobrio y con aire de monitor antiguo */
+.rs-sala-page[data-tema="1990"] .rs-sala-ambiente {
+  border-radius: 6px;
+  background: linear-gradient(90deg, rgba(30, 20, 8, 0.95), rgba(184, 134, 11, 0.12), rgba(30, 20, 8, 0.95));
+  filter: sepia(0.2);
+}
+.rs-sala-page[data-tema="1990"] .rs-sala-ambiente__spiral {
+  width: 38%;
+  height: 76%;
+  left: 31%;
+  top: 12%;
+  aspect-ratio: auto;
+  border-radius: 50% / 28%;
+  transform: rotate(8deg);
+  animation-name: ambienteVertical;
+}
+.rs-sala-page[data-tema="1990"] .rs-sala-ambiente__spiral--inner {
+  width: 22%;
+  height: 58%;
+  left: 39%;
+  top: 21%;
+  transform: rotate(-8deg);
+}
+@keyframes ambienteVertical {
+  0%, 100% { transform: rotate(8deg) scaleY(0.92); }
+  50% { transform: rotate(-8deg) scaleY(1.04); }
+}
+
+/* 1992: círculos concéntricos inspirados en el patrón del chat */
+.rs-sala-page[data-tema="1992"] .rs-sala-ambiente {
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 221, 0, 0.2) 1px, transparent 2px), rgba(0, 35, 25, 0.8);
+  background-size: 12px 12px;
+}
+.rs-sala-page[data-tema="1992"] .rs-sala-ambiente::before,
+.rs-sala-page[data-tema="1992"] .rs-sala-ambiente::after {
+  border-radius: 50%;
+  transform: scale(1);
+  border-style: dashed;
+}
+.rs-sala-page[data-tema="1992"] .rs-sala-ambiente__spiral {
+  border-radius: 50%;
+  border-style: dotted;
+  animation-name: ambienteCircle;
+}
+@keyframes ambienteCircle {
+  from { transform: rotate(0deg) scale(0.85); }
+  50% { transform: rotate(180deg) scale(1.08); }
+  to { transform: rotate(360deg) scale(0.85); }
+}
+
+/* 1994: bloques pop, angulares y acartonados */
+.rs-sala-page[data-tema="1994"] .rs-sala-ambiente {
+  border-radius: 3px;
+  border-width: 3px;
+  background: repeating-linear-gradient(0deg, rgba(230, 57, 70, 0.12) 0 8px, transparent 8px 16px), #261014;
+}
+.rs-sala-page[data-tema="1994"] .rs-sala-ambiente::before,
+.rs-sala-page[data-tema="1994"] .rs-sala-ambiente::after,
+.rs-sala-page[data-tema="1994"] .rs-sala-ambiente__spiral {
+  border-radius: 4px;
+  transform: rotate(45deg) scale(0.72);
+  animation-name: ambienteBlock;
+}
+.rs-sala-page[data-tema="1994"] .rs-sala-ambiente__spiral {
+  border: 5px solid var(--sala-primary);
+  box-shadow: 7px 7px 0 var(--sala-secondary), 0 0 18px var(--sala-primary);
+}
+.rs-sala-page[data-tema="1994"] .rs-sala-ambiente__spiral--inner {
+  border-width: 3px;
+  box-shadow: 4px 4px 0 var(--sala-secondary), 0 0 14px var(--sala-secondary);
+}
+@keyframes ambienteBlock {
+  0%, 100% { transform: rotate(45deg) scale(0.72); }
+  50% { transform: rotate(135deg) scale(0.86); }
+}
+
+/* Estrella reutilizable para las salas con estética estelar */
+.rs-sala-page[data-tema="1999"] .rs-sala-ambiente__spiral,
+.rs-sala-page[data-tema="1995"] .rs-sala-ambiente__spiral,
+.rs-sala-page[data-tema="2005"] .rs-sala-ambiente__spiral {
+  border: none;
+  clip-path: polygon(50% 0%, 61% 36%, 98% 36%, 68% 57%, 79% 94%, 50% 71%, 21% 94%, 32% 57%, 2% 36%, 39% 36%);
+  background: linear-gradient(135deg, var(--sala-primary), var(--sala-secondary));
+  box-shadow: 0 0 22px var(--sala-primary);
+  opacity: 0.9;
+}
+.rs-sala-page[data-tema="1999"] .rs-sala-ambiente__spiral--inner,
+.rs-sala-page[data-tema="1995"] .rs-sala-ambiente__spiral--inner,
+.rs-sala-page[data-tema="2005"] .rs-sala-ambiente__spiral--inner {
+  background: var(--sala-secondary);
+  opacity: 0.95;
+}
+.rs-sala-page[data-tema="1999"] .rs-sala-ambiente__spiral { animation-duration: 6s; }
+.rs-sala-page[data-tema="1995"] .rs-sala-ambiente__spiral { animation-duration: 7s; filter: brightness(1.35) saturate(1.4); }
+.rs-sala-page[data-tema="1995"] .rs-sala-ambiente__halo { animation-duration: 4s; }
+.rs-sala-page[data-tema="2005"] .rs-sala-ambiente__spiral { animation-duration: 6s; }
+.rs-sala-page[data-tema="2005"] .rs-sala-ambiente__spiral--inner { animation-duration: 4.5s; }
+
+/* 2000: corazón brillante */
+.rs-sala-page[data-tema="2000"] .rs-sala-ambiente__spiral {
+  border: none;
+  clip-path: polygon(50% 92%, 8% 48%, 8% 28%, 22% 12%, 38% 12%, 50% 28%, 62% 12%, 78% 12%, 92% 28%, 92% 48%);
+  background: linear-gradient(145deg, var(--sala-primary), var(--sala-secondary));
+  box-shadow: 0 0 24px var(--sala-primary);
+}
+.rs-sala-page[data-tema="2000"] .rs-sala-ambiente__spiral--inner { transform: scale(0.75); }
+
+/* 2002: diamantes y destellos, sin formas circulares */
+.rs-sala-page[data-tema="2002"] .rs-sala-ambiente {
+  border-radius: 8px;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.22), rgba(40, 25, 0, 0.9));
+  box-shadow: inset 0 0 45px rgba(255, 215, 0, 0.3), 0 0 35px var(--sala-glow);
+}
+.rs-sala-page[data-tema="2002"] .rs-sala-ambiente::before,
+.rs-sala-page[data-tema="2002"] .rs-sala-ambiente::after,
+.rs-sala-page[data-tema="2002"] .rs-sala-ambiente__spiral {
+  border-radius: 12%;
+  transform: rotate(45deg) scale(0.72);
+  animation-name: ambienteDiamondSlow;
+  animation-timing-function: ease-in-out;
+}
+.rs-sala-page[data-tema="2002"] .rs-sala-ambiente__spiral {
+  border-width: 4px;
+  box-shadow: 0 0 30px var(--sala-primary), inset 0 0 22px var(--sala-secondary);
+  animation-duration: 9s;
+}
+@keyframes ambienteDiamondSlow {
+  0% { transform: rotate(45deg) scale(0.7); opacity: 0.65; }
+  24% { transform: rotate(78deg) scale(0.82); opacity: 0.95; }
+  51% { transform: rotate(142deg) scale(0.74); opacity: 0.78; }
+  73% { transform: rotate(205deg) scale(0.92); opacity: 1; }
+  100% { transform: rotate(270deg) scale(0.7); opacity: 0.65; }
+}
+.rs-sala-page[data-tema="2002"] .rs-sala-ambiente::before { animation-duration: 13s; }
+.rs-sala-page[data-tema="2002"] .rs-sala-ambiente::after { animation-duration: 16s; animation-delay: -5s; }
+.rs-sala-page[data-tema="2002"] .rs-sala-ambiente__halo { animation-duration: 6s; }
+.rs-sala-page[data-tema="2002"] .rs-sala-ambiente__core { animation-duration: 4s; }
+.rs-sala-page[data-tema="2002"] .rs-sala-ambiente__spark { animation-duration: 7s; }
+
+/* 2006: mezcla de corazones y estrellas, rápida y pop */
+.rs-sala-page[data-tema="2006"] .rs-sala-ambiente__spiral {
+  border: none;
+  clip-path: polygon(50% 92%, 8% 48%, 8% 28%, 22% 12%, 38% 12%, 50% 28%, 62% 12%, 78% 12%, 92% 28%, 92% 48%);
+  background: var(--sala-primary);
+  box-shadow: 0 0 24px var(--sala-primary);
+  animation-duration: 7s;
+}
+.rs-sala-page[data-tema="2006"] .rs-sala-ambiente__spiral--inner {
+  clip-path: polygon(50% 0%, 61% 36%, 98% 36%, 68% 57%, 79% 94%, 50% 71%, 21% 94%, 32% 57%, 2% 36%, 39% 36%);
+  background: var(--sala-secondary);
+  box-shadow: 0 0 20px var(--sala-secondary);
+  animation-duration: 5.5s;
+}
+
+/* 1991: neón urbano, marco romboidal con pulso magenta/cian */
+.rs-sala-page[data-tema="1991"] .rs-sala-ambiente {
+  border-radius: 4px;
+  background: linear-gradient(135deg, rgba(255, 0, 128, 0.18), rgba(0, 212, 255, 0.08)), #100018;
+}
+.rs-sala-page[data-tema="1991"] .rs-sala-ambiente::before,
+.rs-sala-page[data-tema="1991"] .rs-sala-ambiente::after,
+.rs-sala-page[data-tema="1991"] .rs-sala-ambiente__spiral {
+  border-radius: 8%;
+  transform: rotate(45deg) scale(0.7);
+  animation-name: ambienteNeonFrame;
+}
+.rs-sala-page[data-tema="1991"] .rs-sala-ambiente__spiral {
+  border-width: 3px;
+  box-shadow: 0 0 18px var(--sala-primary), inset 0 0 18px var(--sala-secondary);
+}
+@keyframes ambienteNeonFrame {
+  0%, 100% { transform: rotate(45deg) scale(0.68); opacity: 0.55; }
+  50% { transform: rotate(135deg) scale(0.88); opacity: 1; }
+}
+
+/* 1993: darkwave, una luna vertical que respira lentamente */
+.rs-sala-page[data-tema="1993"] .rs-sala-ambiente {
+  border-radius: 50% 50% 42% 42%;
+  background: radial-gradient(ellipse at 50% 35%, rgba(167, 139, 250, 0.2), transparent 52%), #0b0312;
+}
+.rs-sala-page[data-tema="1993"] .rs-sala-ambiente__spiral {
+  width: 43%;
+  height: 76%;
+  left: 29%;
+  top: 12%;
+  aspect-ratio: auto;
+  border-radius: 50%;
+  border-color: var(--sala-secondary);
+  box-shadow: 0 0 30px var(--sala-primary), inset -18px 0 0 rgba(10, 4, 16, 0.8);
+  animation-name: ambienteMoon;
+  animation-duration: 9s;
+}
+.rs-sala-page[data-tema="1993"] .rs-sala-ambiente__spiral--inner { opacity: 0.35; }
+@keyframes ambienteMoon {
+  0%, 100% { transform: translateX(-5px) scale(0.92); }
+  50% { transform: translateX(5px) scale(1.04); }
+}
+
+/* 1996: MTV, rayo diagonal con destello naranja */
+.rs-sala-page[data-tema="1996"] .rs-sala-ambiente {
+  border-radius: 2px;
+  background: repeating-linear-gradient(-45deg, rgba(255, 59, 48, 0.16) 0 5px, transparent 5px 12px), #1a0808;
+}
+.rs-sala-page[data-tema="1996"] .rs-sala-ambiente__spiral {
+  border: none;
+  clip-path: polygon(62% 0%, 25% 48%, 48% 48%, 25% 100%, 78% 38%, 54% 38%);
+  background: linear-gradient(135deg, var(--sala-primary), var(--sala-secondary));
+  box-shadow: 0 0 24px var(--sala-primary);
+  animation-name: ambienteBolt;
+  animation-duration: 6s;
+}
+.rs-sala-page[data-tema="1996"] .rs-sala-ambiente__spiral--inner { opacity: 0.55; transform: translateX(10px) scale(0.7); }
+@keyframes ambienteBolt {
+  0%, 100% { transform: translateX(-5px) rotate(-8deg) scale(0.86); }
+  50% { transform: translateX(7px) rotate(8deg) scale(1.02); }
+}
+
+/* 1997: sitcom, burbuja de diálogo cálida y redondeada */
+.rs-sala-page[data-tema="1997"] .rs-sala-ambiente {
+  border-radius: 18px;
+  background: radial-gradient(circle at 50% 45%, rgba(212, 163, 115, 0.25), transparent 55%), #1a1410;
+}
+.rs-sala-page[data-tema="1997"] .rs-sala-ambiente__spiral {
+  width: 70%;
+  height: 54%;
+  left: 15%;
+  top: 21%;
+  aspect-ratio: auto;
+  border-radius: 48%;
+  border-color: var(--sala-primary);
+  transform: rotate(-4deg);
+  animation-name: ambienteBubble;
+  animation-duration: 8s;
+}
+.rs-sala-page[data-tema="1997"] .rs-sala-ambiente__spiral--inner { width: 42%; height: 32%; left: 29%; top: 32%; }
+@keyframes ambienteBubble {
+  0%, 100% { transform: translateY(4px) rotate(-4deg) scale(0.94); }
+  50% { transform: translateY(-5px) rotate(4deg) scale(1.04); }
+}
+
+/* 1998: Matrix, columnas de código que caen en vez de girar */
+.rs-sala-page[data-tema="1998"] .rs-sala-ambiente {
+  border-radius: 2px;
+  background: repeating-linear-gradient(90deg, rgba(0, 255, 65, 0.12) 0 1px, transparent 1px 13px), #030703;
+}
+.rs-sala-page[data-tema="1998"] .rs-sala-ambiente__spiral,
+.rs-sala-page[data-tema="1998"] .rs-sala-ambiente::before,
+.rs-sala-page[data-tema="1998"] .rs-sala-ambiente::after {
+  border: none;
+  border-radius: 0;
+  background: repeating-linear-gradient(180deg, var(--sala-primary) 0 2px, transparent 2px 13px);
+  box-shadow: 0 0 12px var(--sala-primary);
+  transform: translateY(-20%);
+  animation-name: ambienteCode;
+  animation-timing-function: linear;
+}
+.rs-sala-page[data-tema="1998"] .rs-sala-ambiente__spiral { width: 13%; height: 78%; left: 43%; top: 11%; animation-duration: 7s; }
+.rs-sala-page[data-tema="1998"] .rs-sala-ambiente__spiral--inner { width: 9%; left: 62%; top: 25%; animation-duration: 4.5s; animation-delay: -1.8s; }
+@keyframes ambienteCode {
+  from { transform: translateY(-35%); opacity: 0.35; }
+  50% { opacity: 1; }
+  to { transform: translateY(35%); opacity: 0.35; }
+}
+
+/* 2001: nu-metal, fragmentos afilados de metal oxidado */
+.rs-sala-page[data-tema="2001"] .rs-sala-ambiente {
+  border-radius: 5px;
+  background: linear-gradient(145deg, rgba(204, 119, 34, 0.2), rgba(0, 0, 0, 0.9));
+}
+.rs-sala-page[data-tema="2001"] .rs-sala-ambiente__spiral {
+  border: none;
+  clip-path: polygon(0 15%, 43% 25%, 100% 0, 71% 50%, 100% 100%, 42% 73%, 0 88%, 28% 50%);
+  background: linear-gradient(135deg, var(--sala-primary), var(--sala-secondary));
+  box-shadow: 0 0 18px var(--sala-primary);
+  animation-name: ambienteShard;
+  animation-duration: 8s;
+}
+@keyframes ambienteShard {
+  0%, 100% { transform: rotate(-8deg) scale(0.8); }
+  50% { transform: rotate(8deg) scale(1); }
+}
+
+/* 2003: emo, diamante oscuro que late como una rosa */
+.rs-sala-page[data-tema="2003"] .rs-sala-ambiente {
+  border-radius: 6px;
+  background: radial-gradient(circle, rgba(139, 0, 0, 0.28), transparent 60%), #080202;
+}
+.rs-sala-page[data-tema="2003"] .rs-sala-ambiente__spiral {
+  border-radius: 8% 48% 8% 48%;
+  border-color: var(--sala-primary);
+  transform: rotate(45deg) scale(0.72);
+  animation-name: ambienteRose;
+  animation-duration: 9s;
+}
+@keyframes ambienteRose {
+  0%, 100% { transform: rotate(45deg) scale(0.7); filter: brightness(0.65); }
+  50% { transform: rotate(135deg) scale(0.88); filter: brightness(1.35); }
+}
+
+/* 2004: MSN, burbujas de conversación que se desplazan */
+.rs-sala-page[data-tema="2004"] .rs-sala-ambiente {
+  border-radius: 14px;
+  background: linear-gradient(145deg, rgba(0, 168, 232, 0.18), rgba(0, 0, 0, 0.85));
+}
+.rs-sala-page[data-tema="2004"] .rs-sala-ambiente__spiral {
+  width: 62%;
+  height: 45%;
+  left: 19%;
+  top: 18%;
+  aspect-ratio: auto;
+  border-radius: 45%;
+  border-color: var(--sala-primary);
+  animation-name: ambienteMessage;
+  animation-duration: 8s;
+}
+.rs-sala-page[data-tema="2004"] .rs-sala-ambiente__spiral--inner { width: 38%; height: 28%; left: 37%; top: 53%; }
+@keyframes ambienteMessage {
+  0%, 100% { transform: translate(-8px, 5px) scale(0.86); }
+  50% { transform: translate(8px, -5px) scale(1.05); }
+}
+
+/* 2007: Frutiger Aero, burbujas de agua flotantes */
+.rs-sala-page[data-tema="2007"] .rs-sala-ambiente {
+  border-radius: 22px;
+  background: radial-gradient(circle at 30% 25%, rgba(255, 255, 255, 0.22), transparent 12%), linear-gradient(145deg, rgba(0, 204, 255, 0.25), #06141d);
+}
+.rs-sala-page[data-tema="2007"] .rs-sala-ambiente__spiral {
+  border-radius: 50%;
+  border-color: var(--sala-secondary);
+  box-shadow: 0 0 18px var(--sala-primary), inset 0 0 10px rgba(255, 255, 255, 0.4);
+  animation-name: ambienteBubbleFloat;
+  animation-duration: 10s;
+}
+@keyframes ambienteBubbleFloat {
+  0%, 100% { transform: translate(-7px, 8px) scale(0.8); }
+  50% { transform: translate(8px, -8px) scale(1.08); }
+}
+
+/* 2008: electro, cuadrados glitch con desplazamiento */
+.rs-sala-page[data-tema="2008"] .rs-sala-ambiente {
+  border-radius: 3px;
+  background: repeating-linear-gradient(0deg, rgba(57, 255, 20, 0.1) 0 2px, transparent 2px 9px), #050809;
+}
+.rs-sala-page[data-tema="2008"] .rs-sala-ambiente__spiral {
+  border-radius: 4px;
+  border-color: var(--sala-primary);
+  box-shadow: 9px 0 0 var(--sala-secondary), -9px 0 0 rgba(57, 255, 20, 0.35), 0 0 18px var(--sala-primary);
+  transform: skewX(-12deg) scale(0.8);
+  animation-name: ambienteGlitch;
+  animation-duration: 6s;
+}
+@keyframes ambienteGlitch {
+  0%, 100% { transform: skewX(-12deg) translateX(-5px) scale(0.8); }
+  31% { transform: skewX(12deg) translateX(4px) scale(0.9); }
+  34% { transform: skewX(-20deg) translateX(-2px) scale(0.86); }
+  70% { transform: skewX(5deg) translateX(7px) scale(1); }
+}
+
+/* Fiestas: disco en los 90 y haces de láser en los 2000 */
+.rs-sala-page[data-tema="90s_fiesta"] .rs-sala-ambiente__spiral,
+.rs-sala-page[data-tema="2000s_fiesta"] .rs-sala-ambiente__spiral {
+  border-radius: 50%;
+  border-color: var(--sala-primary);
+  box-shadow: 0 0 24px var(--sala-primary), inset 0 0 15px var(--sala-secondary);
+  animation-duration: 9s;
+}
+.rs-sala-page[data-tema="90s_fiesta"] .rs-sala-ambiente {
+  background: conic-gradient(from 20deg, rgba(255, 0, 204, 0.22), transparent, rgba(255, 183, 3, 0.22), transparent);
+}
+.rs-sala-page[data-tema="2000s_fiesta"] .rs-sala-ambiente {
+  border-radius: 4px;
+  background: repeating-linear-gradient(115deg, rgba(0, 119, 255, 0.2) 0 3px, transparent 3px 18px);
+}
+.rs-sala-page[data-tema="2000s_fiesta"] .rs-sala-ambiente__spiral {
+  border-radius: 4px;
+  transform: rotate(25deg) scaleY(0.45);
+  animation-name: ambienteLaser;
+  animation-duration: 7s;
+}
+@keyframes ambienteLaser {
+  0%, 100% { transform: rotate(25deg) translateX(-12px) scaleY(0.45); }
+  50% { transform: rotate(-25deg) translateX(12px) scaleY(0.45); }
 }
 
 

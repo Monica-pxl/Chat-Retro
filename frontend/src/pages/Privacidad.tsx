@@ -51,7 +51,8 @@ export default function Privacidad() {
               <p>
                 Tus contraseñas están encriptadas y nunca las almacenamos en texto plano. 
                 Utilizamos medidas de seguridad estándar para proteger tu información contra 
-                accesos no autorizados.
+                accesos no autorizados. Puedes cambiar tu contraseña desde la sección de
+                Seguridad de tu perfil; la nueva contraseña también se almacena de forma protegida.
               </p>
             </div>
 
@@ -61,8 +62,8 @@ export default function Privacidad() {
               <ul>
                 <li>Acceder a tus datos personales</li>
                 <li>Modificar tu información de perfil</li>
+                <li>Cambiar tu contraseña desde tu perfil</li>
                 <li>Solicitar la eliminación de tu cuenta</li>
-                <li>Cancelar el envío de notificaciones</li>
               </ul>
             </div>
 

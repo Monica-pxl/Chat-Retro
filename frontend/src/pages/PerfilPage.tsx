@@ -23,6 +23,12 @@ export default function PerfilPage() {
   const [nickSaving, setNickSaving] = useState(false);
   const [nickMsg, setNickMsg] = useState<{ text: string; ok: boolean } | null>(null);
 
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordSaving, setPasswordSaving] = useState(false);
+  const [passwordMsg, setPasswordMsg] = useState<{ text: string; ok: boolean } | null>(null);
+
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [avatarMsg, setAvatarMsg] = useState<{ text: string; ok: boolean } | null>(null);
   const [deletingAvatar, setDeletingAvatar] = useState(false);
@@ -101,6 +107,63 @@ export default function PerfilPage() {
     } finally {
       setAvatarUploading(false);
       e.target.value = '';
+    }
+  };
+
+  const handlePassword = async () => {
+    if (!token) {
+      setPasswordMsg({ text: 'No autenticado', ok: false });
+      return;
+    }
+
+    if (!currentPassword) {
+      setPasswordMsg({ text: 'Introduce tu contraseña actual', ok: false });
+      return;
+    }
+
+    if (!newPassword) {
+      setPasswordMsg({ text: 'Introduce una contraseña nueva', ok: false });
+      return;
+    }
+
+    if (newPassword === currentPassword) {
+      setPasswordMsg({ text: 'La nueva contraseña debe ser distinta de la actual', ok: false });
+      return;
+    }
+
+    if (!confirmPassword) {
+      setPasswordMsg({ text: 'Repite la contraseña nueva para confirmarla', ok: false });
+      return;
+    }
+
+    if (!/^(?=.*[A-Za-z])(?=.*\d).{8,15}$/.test(newPassword)) {
+      setPasswordMsg({ text: 'La nueva contraseña debe tener entre 8 y 15 caracteres, con al menos una letra y un número', ok: false });
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setPasswordMsg({ text: 'La confirmación no coincide con la nueva contraseña', ok: false });
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setPasswordMsg({ text: 'Las contraseñas nuevas no coinciden', ok: false });
+      return;
+    }
+
+    setPasswordSaving(true);
+    setPasswordMsg(null);
+
+    try {
+      const result = await userService.updatePassword(currentPassword, newPassword, confirmPassword, token);
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+      setPasswordMsg({ text: result.message, ok: true });
+    } catch (err: any) {
+      setPasswordMsg({ text: err.response?.data?.error || 'Error al actualizar la contraseña', ok: false });
+    } finally {
+      setPasswordSaving(false);
     }
   };
 
@@ -287,6 +350,56 @@ export default function PerfilPage() {
 
           </div>
         </div>
+
+        <section className="rp-security-card">
+          <div className="rp-security-heading">
+            <div>
+              <label className="rp-label"><i className="bi bi-key" /> Seguridad</label>
+              <p className="rp-security-copy">Actualiza tu contraseña para mantener tu cuenta protegida.</p>
+              <p className="rp-password-hint">Debe tener entre 8 y 15 caracteres, incluyendo al menos una letra y un número.</p>
+            </div>
+          </div>
+          <div className="rp-password-grid">
+            <input
+              className="rp-input"
+              type="password"
+              value={currentPassword}
+              placeholder="Contraseña actual"
+              autoComplete="current-password"
+              onChange={e => { setCurrentPassword(e.target.value); setPasswordMsg(null); }}
+            />
+            <input
+              className="rp-input"
+              type="password"
+              value={newPassword}
+              placeholder="Nueva contraseña"
+              autoComplete="new-password"
+              onChange={e => { setNewPassword(e.target.value); setPasswordMsg(null); }}
+            />
+            <input
+              className="rp-input"
+              type="password"
+              value={confirmPassword}
+              placeholder="Repite la nueva contraseña"
+              autoComplete="new-password"
+              onChange={e => { setConfirmPassword(e.target.value); setPasswordMsg(null); }}
+            />
+            <button
+              className="rp-btn rp-btn--primary"
+              onClick={handlePassword}
+              disabled={passwordSaving || !currentPassword || !newPassword || !confirmPassword}
+            >
+              {passwordSaving ? <i className="bi bi-arrow-repeat rs-spin" /> : <i className="bi bi-shield-lock" />}
+              <span>Cambiar contraseña</span>
+            </button>
+          </div>
+          {passwordMsg && (
+            <p className={`rp-feedback ${passwordMsg.ok ? 'rp-feedback--ok' : 'rp-feedback--err'}`}>
+              {passwordMsg.ok ? <i className="bi bi-check-circle" /> : <i className="bi bi-x-circle" />}
+              {passwordMsg.text}
+            </p>
+          )}
+        </section>
       </main>
 
       <AppFooter />

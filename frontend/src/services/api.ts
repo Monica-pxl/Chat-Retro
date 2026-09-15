@@ -7,8 +7,10 @@ api.interceptors.response.use(
   error => {
     const status = error.response?.status;
 
-    // 🔥 Error 401: No autenticado → redirigir a login
-    if (status === 401) {
+    const skipAuthRedirect = error.config?.headers?.['X-Skip-Auth-Redirect'] === 'true';
+
+    // Un 401 de una operación sensible puede ser un error de datos, no de sesión.
+    if (status === 401 && !skipAuthRedirect) {
       localStorage.removeItem('rs_token');
       localStorage.removeItem('rs_user');
       window.location.href = '/login';

@@ -34,6 +34,13 @@ export const userService = {
       .put<UserProfile>('/api/users/me', { nickname }, { headers: authHeader(token) })
       .then(r => r.data),
 
+  updatePassword: (currentPassword: string, newPassword: string, confirmPassword: string, token: string) =>
+    api
+      .put<{ message: string }>('/api/users/me/password', { currentPassword, newPassword, confirmPassword }, {
+        headers: { ...authHeader(token), 'X-Skip-Auth-Redirect': 'true' },
+      })
+      .then(r => r.data),
+
   uploadAvatar: (file: File, token: string) => {
     const form = new FormData();
     form.append('avatar', file);

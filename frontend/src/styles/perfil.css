@@ -104,6 +104,7 @@
 .rp-main {
   flex: 1;
   display: flex;
+  flex-direction: column;
   align-items: flex-start;
   justify-content: center;
   padding: 0 2rem 4rem;
@@ -115,6 +116,7 @@
 .rp-card {
   width: 100%;
   max-width: 960px;
+  align-self: center;
   display: flex;
   gap: 3.5rem;
   background: rgba(255, 255, 255, 0.025);
@@ -266,6 +268,51 @@
   font-size: 1.05rem;
   color: var(--text-secondary);
   word-break: break-all;
+}
+
+.rp-security-card {
+  width: 100%;
+  max-width: 960px;
+  align-self: center;
+  margin-top: 1.25rem;
+  padding: 2.25rem 4rem 2.5rem;
+  background: rgba(255, 255, 255, 0.025);
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 24px;
+  box-shadow: 0 0 80px rgba(0, 229, 255, 0.03);
+}
+
+.rp-security-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.35rem;
+}
+
+.rp-security-copy {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  line-height: 1.5;
+  margin: 0.45rem 0 0;
+}
+
+.rp-password-hint {
+  color: rgba(255, 255, 255, 0.48);
+  font-size: 0.78rem;
+  line-height: 1.5;
+  margin: 0.35rem 0 0;
+}
+
+.rp-password-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.9rem;
+}
+
+.rp-password-grid .rp-btn {
+  grid-column: 1 / -1;
+  justify-self: start;
 }
 
 /* ── Fila de dos columnas ── */
@@ -448,6 +495,11 @@
     max-width: 100%;
     border-radius: 18px;
   }
+
+  .rp-security-card {
+    padding: 2rem 1.5rem;
+    border-radius: 18px;
+  }
   
   .rp-avatar-section {
     width: 100%;
@@ -492,6 +544,14 @@
   .rp-row-2 {
     grid-template-columns: 1fr;
     gap: 1rem;
+  }
+
+  .rp-password-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .rp-password-grid .rp-btn {
+    justify-self: stretch;
   }
   
   .rp-readonly {

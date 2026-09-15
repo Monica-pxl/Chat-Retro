@@ -53,21 +53,6 @@ export const canJoinRoom = (sala: Sala): boolean => {
 
 
     // ========================
-    // TV SHOWS
-    // 19:00 -> 05:30
-    // ========================
-
-    case "TV Shows 90s":
-    case "TV Shows 2000s":
-
-      if (hour >= 19 || hour < 6) {
-        return true;
-      }
-
-      return false;
-
-
-    // ========================
     // SALAS GENERALES
     // ========================
 

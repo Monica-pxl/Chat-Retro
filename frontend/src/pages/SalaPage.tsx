@@ -40,7 +40,7 @@ function getIconoPorAnio(ano: number): string {
     1991: 'bi-building',
     1992: 'bi-emoji-smile',
     1993: 'bi-candle',
-    1994: 'bi-tv',
+    1994: 'bi-stars',
     1995: 'bi-star-fill',
     1996: 'bi-guitar',
     1997: 'bi-cup-straw',
@@ -134,8 +134,6 @@ export default function SalaPage() {
       navigate('/salas', { replace: true });
     }
   }, [user, navigate]);
-
-  const esTvShow = sala?.tematica?.nombre?.toLowerCase().includes('tv shows') || false;
 
   // ── FUNCIÓN PARA OBTENER CANCIONES DE LA SALA (incluye Fiestas) ──
   const getSongsForSala = (sala: Sala | null): string[] => {
@@ -622,6 +620,7 @@ export default function SalaPage() {
   let temaCalculado = 'especial';
   let textoBarra = '';
   let esTematica = false;
+  const esNavidad = sala.nombre.toLowerCase().includes('navidad');
 
   if (sala.tipo === 'epoca_estilo' && sala.epoca && sala.tematica) {
     esTematica = true;
@@ -887,39 +886,16 @@ export default function SalaPage() {
         {/* ── Columna 3: Chat de la sala ── */}
         <div className={`rs-sala-chat ${chatPrivadoAbierto ? 'rs-sala-chat--with-private' : ''}`}>
 
-          {!esTvShow && (
-            <div className={`rs-sala-year ${esTematica ? 'rs-sala-year--tematica' : ''}`}>
-              <span className="rs-sala-year__number">{textoBarra}</span>
-              {!esTematica && sala.ano && (
-                <span className="rs-sala-year__icon">
-                  <i className={`bi ${getIconoPorAnio(sala.ano)}`} />
-                </span>
-              )}
-            </div>
-          )}
+          <div className={`rs-sala-year ${esTematica ? 'rs-sala-year--tematica' : ''}`}>
+            <span className="rs-sala-year__number">{textoBarra}</span>
+            {!esTematica && sala.ano && (
+              <span className="rs-sala-year__icon">
+                <i className={`bi ${getIconoPorAnio(sala.ano)}`} />
+              </span>
+            )}
+          </div>
 
-          {esTvShow && (
-            <div className="rs-sala-tv">
-              <div className="rs-sala-tv__screen">
-                <div className="rs-sala-tv__content">
-                  <i className="bi bi-tv rs-sala-tv__icon" />
-                  <span className="rs-sala-tv__label">Emisión en vivo</span>
-                  <span className="rs-sala-tv__sub">Programación nostálgica de los {sala.ano || '90/2000'}</span>
-                  <div className="rs-sala-tv__scanlines" />
-                </div>
-              </div>
-              <div className="rs-sala-tv__info">
-                <span className="rs-sala-tv__badge">
-                  <i className="bi bi-broadcast" /> En directo
-                </span>
-                <span className="rs-sala-tv__time">
-                  <i className="bi bi-clock" /> {new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' })}
-                </span>
-              </div>
-            </div>
-          )}
-
-          <div className={`rs-sala-messages ${esTvShow ? 'rs-sala-messages--with-tv' : ''}`}>
+          <div className="rs-sala-messages">
             {mensajes.length === 0 ? (
               <div className="rs-sala-empty">
                 <i className="bi bi-chat-dots rs-sala-empty__icon" />
@@ -1069,6 +1045,18 @@ export default function SalaPage() {
               <i className="bi bi-stars" /> Temáticas 2000s
             </button>
           </div>
+
+          {!esNavidad && (
+            <div className="rs-sala-ambiente" aria-hidden="true">
+              <div className="rs-sala-ambiente__halo" />
+              <div className="rs-sala-ambiente__spiral rs-sala-ambiente__spiral--outer" />
+              <div className="rs-sala-ambiente__spiral rs-sala-ambiente__spiral--inner" />
+              <div className="rs-sala-ambiente__core" />
+              <span className="rs-sala-ambiente__spark rs-sala-ambiente__spark--one" />
+              <span className="rs-sala-ambiente__spark rs-sala-ambiente__spark--two" />
+              <span className="rs-sala-ambiente__spark rs-sala-ambiente__spark--three" />
+            </div>
+          )}
 
           <div className="rs-sala-navegador__list">
             {salasFiltradas.length === 0 ? (

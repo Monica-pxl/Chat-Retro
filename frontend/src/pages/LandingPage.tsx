@@ -45,13 +45,6 @@ const specialFeatures: Feature[] = [
     accent: 'var(--accent-yellow)',
   },
   {
-    icon: 'bi-tv',
-    title: 'TV Shows',
-    desc: 'Salas especiales con emisión de televisión nostálgica. Programación por horario como en los 90 y 2000.',
-    tag: 'Teletienda · Series',
-    accent: 'var(--accent-orange)',
-  },
-  {
     icon: 'bi-star',
     title: 'Salas Especiales',
     desc: 'Fiesta, Navidad... Salas temáticas disponibles en fechas y horarios concretos.',

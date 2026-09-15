@@ -34,6 +34,7 @@ export default function Terminos() {
               <ul>
                 <li>Debes proporcionar información veraz durante el registro</li>
                 <li>Eres responsable de mantener la seguridad de tu cuenta</li>
+                <li>Puedes cambiar tu contraseña desde la sección de Seguridad de tu perfil</li>
                 <li>No debes compartir tu contraseña con terceros</li>
                 <li>RetroChat se reserva el derecho de suspender cuentas que incumplan las normas</li>
               </ul>

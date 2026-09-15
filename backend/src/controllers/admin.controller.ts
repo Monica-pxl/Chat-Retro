@@ -170,12 +170,8 @@ export const cambiarRol = async (req: Request, res: Response) => {
 const SALAS_CON_HORARIO = new Set([
   "Fiesta 90s",
   "Fiesta 2000s",
-  "Tropical 90s",
-  "Tropical 2000s",
   "Navidad 90s",
-  "Navidad 2000s",
-  "TV Shows 90s",
-  "TV Shows 2000s",
+  "Navidad 2000s"
 ]);
 
 /* ================================

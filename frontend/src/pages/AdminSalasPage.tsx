@@ -275,9 +275,7 @@ export default function AdminSalasPage() {
                   const ocupado = accionando.has(sala.id);
                   const salasConHorario = [
                     "Fiesta 90s", "Fiesta 2000s",
-                    "Tropical 90s", "Tropical 2000s",
-                    "Navidad 90s", "Navidad 2000s",
-                    "TV Shows 90s", "TV Shows 2000s"
+                    "Navidad 90s", "Navidad 2000s"
                   ];
                   const noSePuedeAbrir = salasConHorario.includes(sala.nombre);
 

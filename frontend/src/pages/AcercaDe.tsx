@@ -65,13 +65,6 @@ export default function AcercaDe() {
                   <p>Conéctate con otros amantes de la cultura retro</p>
                 </div>
               </div>
-              <div className="fp-feature-item">
-                <i className="bi bi-tv" />
-                <div>
-                  <h3>Contenido nostálgico</h3>
-                  <p>TV Shows, música y eventos temáticos de cada época</p>
-                </div>
-              </div>
             </div>
 
             <div className="fp-quote">
