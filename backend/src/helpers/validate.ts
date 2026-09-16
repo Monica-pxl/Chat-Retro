@@ -27,8 +27,14 @@ export const validateRegister = (email: string, password: string, nickname: stri
 };
 
 export const validateLogin = (email: string, password: string) => {
-  if (!email || !password) {
-    const error = new Error("El email y la contraseña son obligatorios");
+  if (!email) {
+    const error = new Error("Email obligatorio");
+    (error as any).status = 400;
+    throw error;
+  }
+
+  if (!password) {
+    const error = new Error("Contraseña obligatoria");
     (error as any).status = 400;
     throw error;
   }

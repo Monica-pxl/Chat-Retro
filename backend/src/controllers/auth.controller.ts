@@ -70,9 +70,8 @@ export const login = async (req: Request, res: Response) => {
   try {
     let { email, password } = req.body;
 
-    email = email.toLowerCase().trim();
-
     validateLogin(email, password);
+    email = email.trim().toLowerCase();
 
     const user = await prisma.user.findUnique({
       where: { email }

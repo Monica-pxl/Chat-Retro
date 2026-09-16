@@ -119,7 +119,7 @@ export const updatePassword = async (req: Request, res: Response) => {
 
     const currentPasswordIsValid = await bcrypt.compare(currentPassword, user.password);
     if (!currentPasswordIsValid) {
-      return res.status(401).json({ error: "La contraseña actual no es correcta" });
+      return res.status(400).json({ error: "La contraseña actual no es correcta" });
     }
 
     if (await bcrypt.compare(newPassword, user.password)) {
