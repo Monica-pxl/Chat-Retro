@@ -100,7 +100,7 @@ function formatUltimo(contenido: string, tipo: string) {
 
 export default function MensajesPage() {
   const { isAuthenticated, token, user } = useAuth();
-  const { unreadChats, clearUnread, subscribe, emitMessage} = usePrivateMessages();
+  const { unreadChats, clearUnread, markChatRead, subscribe, emitMessage} = usePrivateMessages();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -150,7 +150,7 @@ export default function MensajesPage() {
 
   useEffect(() => {
     if (!token) return;
-    chatsService.listarChats(token)
+    chatsService.listarChats()
       .then(setChats)
       .catch(() => setError('No se pudieron cargar los mensajes'))
       .finally(() => setLoading(false));
@@ -167,7 +167,7 @@ export default function MensajesPage() {
 
     const userId = Number(uid);
     if (isNaN(userId)) return;
-    chatsService.getChatConUsuario(userId, token).then(chat => {
+    chatsService.getChatConUsuario(userId).then(chat => {
       const resumen: ChatResumen = {
         id: chat.id,
         usuario1: chat.usuario1,
@@ -188,8 +188,9 @@ export default function MensajesPage() {
         tipo: m.tipo,
         fecha: m.fecha_creacion,
       })));
+      markChatRead(chat.id, chat.mensajes[chat.mensajes.length - 1]?.id);
     }).catch(() => {});
-  }, [searchParams, token, user, navigate]);
+  }, [searchParams, token, user, navigate, markChatRead]);
 
   const incomingHandler = useCallback((data: IncomingPrivateMsg) => {
     const current = chatActivoRef.current;
@@ -214,10 +215,10 @@ export default function MensajesPage() {
   const abrirChat = useCallback(async (chat: ChatResumen) => {
     if (!token) return;
     setChatActivo(chat);
-    clearUnread(chat.id);
+    markChatRead(chat.id, chat.mensajes[0]?.id);
     const interlocutor = chat.usuario1.id === user?.id ? chat.usuario2 : chat.usuario1;
     try {
-      const completo = await chatsService.getChatConUsuario(interlocutor.id, token);
+      const completo = await chatsService.getChatConUsuario(interlocutor.id);
       setMensajes(completo.mensajes.map((m: MensajePrivado) => ({
         id: m.id,
         emisorId: m.emisorId,
@@ -226,7 +227,7 @@ export default function MensajesPage() {
         fecha: m.fecha_creacion,
       })));
     } catch { setMensajes([]); }
-  }, [token, user?.id]);
+  }, [token, user?.id, markChatRead]);
 
   const enviar = () => {
     if (user?.estado_cuenta === 'suspendida') {
@@ -276,7 +277,7 @@ export default function MensajesPage() {
     }
     setSubiendo(true);
     try {
-      const { url } = await uploadService.uploadImage(file, token);
+      const { url } = await uploadService.uploadImage(file);
       emitMessage(interlocutor.id, url, 'imagen');
     } catch { /* silent */ }
     finally { setSubiendo(false); e.target.value = ''; }

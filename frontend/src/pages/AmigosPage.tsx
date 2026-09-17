@@ -50,7 +50,7 @@ export default function AmigosPage() {
 
   useEffect(() => {
     if (!token) return;
-    amigosService.listarAmigos(token)
+    amigosService.listarAmigos()
       .then(setAmigos)
       .catch(() => setError('No se pudo cargar la lista de amigos'))
       .finally(() => setLoading(false));

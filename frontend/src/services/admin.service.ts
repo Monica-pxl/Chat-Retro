@@ -1,6 +1,4 @@
-import axios from 'axios';
-
-const API = 'http://localhost:3000';
+import api from './api';
 
 export interface AdminUser {
   id: number;
@@ -27,70 +25,42 @@ export interface AdminStats {
   chatsPrivados: number;
 }
 
-// ✅ Función auxiliar que acepta token opcional
-const getHeaders = (token?: string) => {
-  const authToken = token || localStorage.getItem('rs_token');
-  return {
-    headers: {
-      Authorization: `Bearer ${authToken}`,
-    },
-  };
-};
-
 export const adminService = {
-  // ✅ AHORA ACEPTAN TOKEN OPCIONAL
-  getUsuarios: async (token?: string): Promise<AdminUser[]> => {
-    const response = await axios.get(`${API}/admin/usuarios`, getHeaders(token));
+  getUsuarios: async (): Promise<AdminUser[]> => {
+    const response = await api.get<AdminUser[]>('/admin/usuarios');
     return response.data;
   },
 
   cambiarEstadoCuenta: async (
     userId: number,
     nuevoEstado: 'activa' | 'suspendida' | 'baneada',
-    token?: string
   ): Promise<{ id: number; nickname: string; estado_cuenta: string }> => {
-    const response = await axios.put(
-      `${API}/admin/usuarios/${userId}/estado`,
-      { estado_cuenta: nuevoEstado },
-      getHeaders(token)
-    );
+    const response = await api.put(`/admin/usuarios/${userId}/estado`, {
+      estado_cuenta: nuevoEstado,
+    });
     return response.data;
   },
 
   cambiarRol: async (
     userId: number,
     nuevoRol: 'user' | 'admin',
-    token?: string
   ): Promise<{ id: number; nickname: string; rol: string }> => {
-    const response = await axios.put(
-      `${API}/admin/usuarios/${userId}/rol`,
-      { rol: nuevoRol },
-      getHeaders(token)
-    );
+    const response = await api.put(`/admin/usuarios/${userId}/rol`, { rol: nuevoRol });
     return response.data;
   },
 
-  // ✅ AHORA ACEPTA TOKEN COMO PARÁMETRO
-  getEstadisticas: async (token?: string): Promise<AdminStats> => {
-    const response = await axios.get(`${API}/admin/stats`, getHeaders(token));
+  getEstadisticas: async (): Promise<AdminStats> => {
+    const response = await api.get<AdminStats>('/admin/stats');
     return response.data;
   },
 
-  cerrarSala: async (salaId: number, token?: string) => {
-    const response = await axios.put(
-      `${API}/admin/salas/${salaId}/cerrar`,
-      {},
-      getHeaders(token)
-    );
+  cerrarSala: async (salaId: number) => {
+    const response = await api.put(`/admin/salas/${salaId}/cerrar`);
     return response.data;
   },
 
-  abrirSala: async (salaId: number, token?: string) => {
-    const response = await axios.put(
-      `${API}/admin/salas/${salaId}/abrir`,
-      {},
-      getHeaders(token)
-    );
+  abrirSala: async (salaId: number) => {
+    const response = await api.put(`/admin/salas/${salaId}/abrir`);
     return response.data;
   },
 };

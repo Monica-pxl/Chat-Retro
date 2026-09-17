@@ -56,7 +56,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = async () => {
     try {
       if (token) {
-        await authService.logout(token);
+        await authService.logout();
       }
     } catch (error) {
       console.error('Error al cerrar sesión en backend:', error);

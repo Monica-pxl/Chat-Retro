@@ -67,6 +67,7 @@ export default function SalaPage() {
   const { isAuthenticated, token, user } = useAuth();
   const { 
     clearUnread, 
+    markChatRead,
     getFriendStatus, 
     sendFriendRequest, 
     cancelFriendRequest, 
@@ -194,7 +195,7 @@ export default function SalaPage() {
   useEffect(() => {
     const requests: Promise<unknown>[] = [
       salasService.getSalaById(salaId),
-      salasService.getMensajes(salaId, token ?? undefined),
+      salasService.getMensajes(salaId),
       salasService.getSalas(),
     ];
 
@@ -407,7 +408,7 @@ export default function SalaPage() {
     const file = e.target.files[0];
     try {
       setSubiendo(true);
-      const res = await uploadService.uploadImage(file, token);
+      const res = await uploadService.uploadImage(file);
       socketRef.current.emit("send-message", {
         roomId: salaId,
         contenido: res.url,
@@ -442,7 +443,7 @@ export default function SalaPage() {
     const file = e.target.files[0];
     try {
       setSubiendo(true);
-      const res = await uploadService.uploadImage(file, token);
+      const res = await uploadService.uploadImage(file);
       socketRef.current.emit('private-message', {
         destinatarioId: usuarioSeleccionado.id,
         contenido: res.url,
@@ -545,8 +546,8 @@ export default function SalaPage() {
 
     if (token) {
       try {
-        const chat = await salasService.getChatPrivado(usuario.id, token);
-        clearUnread(chat.id);
+        const chat = await salasService.getChatPrivado(usuario.id);
+        markChatRead(chat.id, chat.mensajes[chat.mensajes.length - 1]?.id);
         const historial = chat.mensajes.map((m: MensajePrivadoAPI) => ({
           id: m.id,
           emisorId: m.emisorId,

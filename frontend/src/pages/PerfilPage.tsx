@@ -41,7 +41,7 @@ export default function PerfilPage() {
     }
     
     userService
-      .getMe(token)
+      .getMe()
       .then(data => {
         setPerfil(data);
         setNicknameInput(data.nickname);
@@ -80,7 +80,7 @@ export default function PerfilPage() {
     setNickMsg(null);
 
     try {
-      const updated = await userService.updateNickname(trimmed, token);
+      const updated = await userService.updateNickname(trimmed);
       setPerfil(updated);
       setNicknameInput(updated.nickname);
       updateUser({ nickname: updated.nickname });
@@ -98,7 +98,7 @@ export default function PerfilPage() {
     setAvatarUploading(true);
     setAvatarMsg(null);
     try {
-      const { user: updated } = await userService.uploadAvatar(e.target.files[0], token);
+      const { user: updated } = await userService.uploadAvatar(e.target.files[0]);
       setPerfil(updated);
       updateUser({ avatar: updated.avatar });
       setAvatarMsg({ text: 'Avatar actualizado', ok: true });
@@ -155,7 +155,7 @@ export default function PerfilPage() {
     setPasswordMsg(null);
 
     try {
-      const result = await userService.updatePassword(currentPassword, newPassword, confirmPassword, token);
+      const result = await userService.updatePassword(currentPassword, newPassword, confirmPassword);
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
@@ -177,7 +177,7 @@ export default function PerfilPage() {
     setDeletingAvatar(true);
     setAvatarMsg(null);
     try {
-      const updated = await userService.deleteAvatar(token);
+      const updated = await userService.deleteAvatar();
       setPerfil(updated);
       updateUser({ avatar: null });
       setAvatarMsg({ text: 'Avatar eliminado correctamente', ok: true });

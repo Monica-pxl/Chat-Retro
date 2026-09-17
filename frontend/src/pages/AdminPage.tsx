@@ -23,7 +23,7 @@ export default function AdminDashboard() {
 
       try {
         setLoading(true);
-        const data = await adminService.getEstadisticas(token);
+        const data = await adminService.getEstadisticas();
         setStats(data);
         setError('');
       } catch (err: any) {

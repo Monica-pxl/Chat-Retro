@@ -37,6 +37,7 @@ interface PMContextValue {
   // 🔥 NUEVO: notificaciones para el navbar (excluye mensajes de la misma sala)
   navbarUnread: number;
   clearUnread: (chatId: number) => void;
+  markChatRead: (chatId: number, messageId: number | undefined) => void;
   clearAll: () => void;
   subscribe: (handler: (data: IncomingPrivateMsg) => void) => () => void;
   subscribeSolicitud: (handler: SolicitudHandler) => () => void;
@@ -60,6 +61,7 @@ const PMContext = createContext<PMContextValue>({
   totalUnread: 0,
   navbarUnread: 0,
   clearUnread: () => {},
+  markChatRead: () => {},
   clearAll: () => {},
   subscribe: () => () => {},
   subscribeSolicitud: () => () => {},
@@ -78,7 +80,7 @@ const PMContext = createContext<PMContextValue>({
 });
 
 export function PrivateMessagesProvider({ children }: { children: ReactNode }) {
-  const { isAuthenticated, token } = useAuth();
+  const { isAuthenticated, token, user } = useAuth();
   const socketRef = useRef<Socket | null>(null);
   const [unreadChats, setUnreadChats] = useState<Set<number>>(new Set());
   
@@ -99,6 +101,33 @@ export function PrivateMessagesProvider({ children }: { children: ReactNode }) {
   const [onlineUserIds, setOnlineUserIds] = useState<Set<number>>(new Set());
   const tokenRef = useRef<string | null>(null);
   useEffect(() => { tokenRef.current = token; }, [token]);
+
+  const readMarkersKey = user ? `rs_read_private_chats_${user.id}` : null;
+
+  const refreshUnreadChats = useCallback(async () => {
+    if (!readMarkersKey || !user) return;
+
+    try {
+      const chats = await chatsService.listarChats();
+      const stored = localStorage.getItem(readMarkersKey);
+      const readMarkers = stored ? JSON.parse(stored) as Record<string, number> : {};
+      const unread = new Set<number>();
+
+      for (const chat of chats) {
+        const latest = chat.mensajes[0];
+        const lastReadId = readMarkers[String(chat.id)] ?? 0;
+
+        if (latest && latest.emisorId !== user.id && latest.id > lastReadId) {
+          unread.add(chat.id);
+        }
+      }
+
+      setUnreadChats(unread);
+      setNavbarUnreadChats(unread);
+    } catch {
+      /* silencioso */
+    }
+  }, [readMarkersKey, user]);
 
   useEffect(() => {
     if (!isAuthenticated || !token) {
@@ -183,9 +212,9 @@ export function PrivateMessagesProvider({ children }: { children: ReactNode }) {
     if (!t) return;
     try {
       const [amigos, enviadas, recibidas] = await Promise.all([
-        amigosService.listarAmigos(t),
-        amigosService.listarSolicitudesEnviadas(t),
-        amigosService.listarSolicitudesRecibidas(t),
+        amigosService.listarAmigos(),
+        amigosService.listarSolicitudesEnviadas(),
+        amigosService.listarSolicitudesRecibidas(),
       ]);
       setFriends(new Set(amigos.map(a => a.amigo.id)));
       setSentPending(new Map(enviadas.map(s => [s.receptor.id, s.id])));
@@ -198,6 +227,7 @@ export function PrivateMessagesProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (isAuthenticated && token) {
       refreshAmistades();
+      refreshUnreadChats();
     } else {
       setFriends(new Set());
       setSentPending(new Map());
@@ -205,12 +235,23 @@ export function PrivateMessagesProvider({ children }: { children: ReactNode }) {
       setUnreadChats(new Set());
       setNavbarUnreadChats(new Set());
     }
-  }, [isAuthenticated, token, refreshAmistades]);
+  }, [isAuthenticated, token, refreshAmistades, refreshUnreadChats]);
 
   const clearUnread = useCallback((chatId: number) => {
     setUnreadChats(prev => { const s = new Set(prev); s.delete(chatId); return s; });
     setNavbarUnreadChats(prev => { const s = new Set(prev); s.delete(chatId); return s; });
   }, []);
+
+  const markChatRead = useCallback((chatId: number, messageId: number | undefined) => {
+    if (!readMarkersKey || messageId === undefined) return;
+
+    const stored = localStorage.getItem(readMarkersKey);
+    const readMarkers = stored ? JSON.parse(stored) as Record<string, number> : {};
+    readMarkers[String(chatId)] = messageId;
+    localStorage.setItem(readMarkersKey, JSON.stringify(readMarkers));
+
+    clearUnread(chatId);
+  }, [clearUnread, readMarkersKey]);
 
   const clearAll = useCallback(() => {
     setUnreadChats(new Set());
@@ -258,7 +299,7 @@ export function PrivateMessagesProvider({ children }: { children: ReactNode }) {
   const sendFriendRequest = useCallback(async (userId: number) => {
     const t = tokenRef.current;
     if (!t) return;
-    const data = await amigosService.enviarSolicitud(userId, t);
+    const data = await amigosService.enviarSolicitud(userId);
     setSentPending(prev => new Map(prev).set(userId, data.id));
   }, []);
 
@@ -266,7 +307,7 @@ export function PrivateMessagesProvider({ children }: { children: ReactNode }) {
     const t = tokenRef.current;
     const solicitudId = sentPending.get(userId);
     if (!t || !solicitudId) return;
-    await amigosService.cancelar(solicitudId, t);
+    await amigosService.cancelar(solicitudId);
     setSentPending(prev => { const next = new Map(prev); next.delete(userId); return next; });
   }, [sentPending]);
 
@@ -274,7 +315,7 @@ export function PrivateMessagesProvider({ children }: { children: ReactNode }) {
     const t = tokenRef.current;
     const solicitudId = receivedPending.get(userId);
     if (!t || !solicitudId) return;
-    await amigosService.aceptar(solicitudId, t);
+    await amigosService.aceptar(solicitudId);
     setReceivedPending(prev => { const next = new Map(prev); next.delete(userId); return next; });
     setFriends(prev => new Set(prev).add(userId));
   }, [receivedPending]);
@@ -282,7 +323,7 @@ export function PrivateMessagesProvider({ children }: { children: ReactNode }) {
   const removeFriend = useCallback(async (userId: number) => {
     const t = tokenRef.current;
     if (!t) return;
-    await amigosService.eliminarAmigo(userId, t);
+    await amigosService.eliminarAmigo(userId);
     setFriends(prev => { const next = new Set(prev); next.delete(userId); return next; });
   }, []);
 
@@ -292,6 +333,7 @@ export function PrivateMessagesProvider({ children }: { children: ReactNode }) {
       totalUnread: unreadChats.size,
       navbarUnread: navbarUnreadChats.size, // 🔥 NUEVO
       clearUnread,
+      markChatRead,
       clearAll,
       subscribe,
       subscribeSolicitud,

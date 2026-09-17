@@ -224,7 +224,7 @@ export default function UserSearchBar() {
       if (!token) return;
       setLoading(true);
       try {
-        const data = await userService.searchUsers(val.trim(), token);
+        const data = await userService.searchUsers(val.trim());
         setResults(data);
         setOpen(true);
       } catch {

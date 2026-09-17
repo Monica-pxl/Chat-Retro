@@ -20,40 +20,36 @@ export interface UserSearch {
   estado: string;
 }
 
-const authHeader = (token: string) => ({ Authorization: `Bearer ${token}` });
-
 export const userService = {
-  getMe: (token: string) =>
-    api.get<UserProfile>('/api/users/me', { headers: authHeader(token) }).then(r => r.data),
+  getMe: () =>
+    api.get<UserProfile>('/api/users/me').then(r => r.data),
 
-  searchUsers: (q: string, token: string) =>
-    api.get<UserSearch[]>(`/api/users/search?q=${encodeURIComponent(q)}`, { headers: authHeader(token) }).then(r => r.data),
+  searchUsers: (q: string) =>
+    api.get<UserSearch[]>(`/api/users/search?q=${encodeURIComponent(q)}`).then(r => r.data),
 
-  updateNickname: (nickname: string, token: string) =>
+  updateNickname: (nickname: string) =>
     api
-      .put<UserProfile>('/api/users/me', { nickname }, { headers: authHeader(token) })
+      .put<UserProfile>('/api/users/me', { nickname })
       .then(r => r.data),
 
-  updatePassword: (currentPassword: string, newPassword: string, confirmPassword: string, token: string) =>
+  updatePassword: (currentPassword: string, newPassword: string, confirmPassword: string) =>
     api
       .put<{ message: string }>('/api/users/me/password', { currentPassword, newPassword, confirmPassword }, {
-        headers: { ...authHeader(token), 'X-Skip-Auth-Redirect': 'true' },
+        headers: { 'X-Skip-Auth-Redirect': 'true' },
       })
       .then(r => r.data),
 
-  uploadAvatar: (file: File, token: string) => {
+  uploadAvatar: (file: File) => {
     const form = new FormData();
     form.append('avatar', file);
     return api
       .post<{ avatar: string; user: UserProfile }>('/api/users/me/avatar', form, {
-        headers: { ...authHeader(token), 'Content-Type': 'multipart/form-data' },
+        headers: { 'Content-Type': 'multipart/form-data' },
       })
       .then(r => r.data);
   },
-  deleteAvatar: async (token: string): Promise<UserProfile> => {
-  const { data } = await api.delete('/api/users/me/avatar', {
-    headers: { Authorization: `Bearer ${token}` }
-  });
+  deleteAvatar: async (): Promise<UserProfile> => {
+  const { data } = await api.delete('/api/users/me/avatar');
   return data;
 }
 };

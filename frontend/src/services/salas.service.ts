@@ -40,20 +40,12 @@ export const salasService = {
   getSalaById: (id: number) =>
     api.get<Sala>(`/salas/${id}`).then(r => r.data),
 
-  getMensajes: (id: number, token?: string) =>
-    api
-      .get<MensajeSala[]>(`/salas/${id}/mensajes`, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-      })
-      .then(r => r.data),
+  getMensajes: (id: number) =>
+    api.get<MensajeSala[]>(`/salas/${id}/mensajes`).then(r => r.data),
 
   getOnlineCount: (id: number) =>
     api.get<{ count: number }>(`/salas/${id}/online`).then(r => r.data),
 
-  getChatPrivado: (userId: number, token: string) =>
-    api
-      .get<{ id: number; mensajes: MensajePrivadoAPI[] }>(`/chats/${userId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      .then(r => r.data),
+  getChatPrivado: (userId: number) =>
+    api.get<{ id: number; mensajes: MensajePrivadoAPI[] }>(`/chats/${userId}`).then(r => r.data),
 };

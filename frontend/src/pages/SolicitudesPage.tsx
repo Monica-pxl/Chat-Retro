@@ -49,8 +49,8 @@ export default function SolicitudesPage() {
     if (!isAuthenticated || !token) { navigate('/login'); return; }
 
     Promise.all([
-      amigosService.listarSolicitudesRecibidas(token),
-      amigosService.listarSolicitudesEnviadas(token),
+      amigosService.listarSolicitudesRecibidas(),
+      amigosService.listarSolicitudesEnviadas(),
     ])
       .then(([rec, env]) => {
         setRecibidas(rec);
@@ -82,7 +82,7 @@ export default function SolicitudesPage() {
     if (!token) return;
     setBusyId(id, true);
     try {
-      await amigosService.aceptar(id, token);
+      await amigosService.aceptar(id);
       setRecibidas(r => r.filter(s => s.id !== id));
       refreshAmistades();
     } catch { /* silent */ }
@@ -93,7 +93,7 @@ export default function SolicitudesPage() {
     if (!token) return;
     setBusyId(id, true);
     try {
-      await amigosService.rechazar(id, token);
+      await amigosService.rechazar(id);
       setRecibidas(r => r.filter(s => s.id !== id));
       refreshAmistades();
     } catch { /* silent */ }
@@ -104,7 +104,7 @@ export default function SolicitudesPage() {
     if (!token) return;
     setBusyId(id, true);
     try {
-      await amigosService.cancelar(id, token);
+      await amigosService.cancelar(id);
       setEnviadas(e => e.filter(s => s.id !== id));
       refreshAmistades();
     } catch { /* silent */ }
