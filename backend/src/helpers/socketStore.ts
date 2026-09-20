@@ -37,3 +37,7 @@ export const emitToUser = (userId: number, event: string, data: unknown): void =
     _io.to(socketId).emit(event, data);
   }
 };
+
+export const removeUserSockets = (userId: number): void => {
+  _onlineUsers.delete(userId);
+};

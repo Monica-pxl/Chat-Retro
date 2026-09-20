@@ -26,6 +26,15 @@ api.interceptors.response.use(
       window.location.href = '/login';
     }
 
+    if (status === 400 && typeof FormData !== 'undefined' && error.config?.data instanceof FormData) {
+      window.dispatchEvent(new CustomEvent('show-toast', {
+        detail: {
+          type: 'error',
+          message: error.response?.data?.error || 'El archivo no es válido',
+        },
+      }));
+    }
+
     // 🔥 Error 500: Error del servidor → redirigir a 500
     if (status === 500) {
       window.location.href = '/error/500';

@@ -16,6 +16,9 @@ import adminRoutes from "./routes/admin.routes";
 import { socketHandler } from "./sockets";
 import { setIo } from "./helpers/socketStore";
 import { generalLimiter, authLimiter } from "./middlewares/rate-limit.middleware";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 const app = express();
 
@@ -48,6 +51,18 @@ const io = new Server(server, {
 setIo(io);
 socketHandler(io);
 
-server.listen(3000, () => {
-  console.log("🚀 Backend con Socket.IO funcionando");
+const startServer = async () => {
+  // Los estados online se reconstruyen desde las conexiones Socket.IO activas.
+  await prisma.user.updateMany({
+    data: { estado: "desconectado" },
+  });
+
+  server.listen(3000, () => {
+    console.log("🚀 Backend con Socket.IO funcionando");
+  });
+};
+
+startServer().catch((error) => {
+  console.error("No se pudo iniciar el backend:", error);
+  process.exit(1);
 });

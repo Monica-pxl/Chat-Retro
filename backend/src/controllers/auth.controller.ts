@@ -3,7 +3,7 @@ import bcrypt from "bcrypt";
 import { PrismaClient } from "@prisma/client";
 import { generateToken } from "../helpers/jwt";
 import { validateRegister, validateLogin } from "../helpers/validate";
-import { removeUserSocket, getOnlineUserIds } from "../helpers/socketStore";
+import { removeUserSockets, getIo, getOnlineUserIds } from "../helpers/socketStore";
 
 const prisma = new PrismaClient();
 
@@ -142,9 +142,10 @@ export const logout = async (req: Request, res: Response) => {
       }
     });
 
+    removeUserSockets(userId);
+
     // Intentar notificar a todos, pero sin que falle si no hay socket
     try {
-      const { getIo, getOnlineUserIds } = require("../helpers/socketStore");
       const io = getIo();
       if (io) {
         io.emit("online-users", getOnlineUserIds());

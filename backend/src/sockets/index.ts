@@ -15,6 +15,18 @@ interface AuthSocket extends Socket {
   user?: any;
 }
 
+function getAuthenticatedRoomSize(io: Server, roomName: string): number {
+  const roomSockets = io.sockets.adapter.rooms.get(roomName);
+  if (!roomSockets) return 0;
+
+  let count = 0;
+  for (const socketId of roomSockets) {
+    const roomSocket = io.sockets.sockets.get(socketId) as AuthSocket | undefined;
+    if (roomSocket?.user?.userId) count++;
+  }
+  return count;
+}
+
 async function emitRoomUsers(io: Server, roomId: number, roomName: string) {
   try {
     const roomSockets = await io.in(roomName).fetchSockets();
@@ -74,8 +86,8 @@ export const socketHandler = (io: Server) => {
       for (const roomName of socket.rooms) {
         if (roomName.startsWith("room-")) {
           const roomId = Number(roomName.replace("room-", ""));
-          const currentSize = io.sockets.adapter.rooms.get(roomName)?.size ?? 1;
-          const newCount = Math.max(0, currentSize - 1);
+          const currentSize = getAuthenticatedRoomSize(io, roomName);
+          const newCount = Math.max(0, currentSize - (userId ? 1 : 0));
           setRoomCount(roomId, newCount);
           io.to(roomName).emit("room-user-count", { count: newCount });
           emitRoomUsers(io, roomId, roomName);
@@ -128,7 +140,7 @@ export const socketHandler = (io: Server) => {
         if (!socket.rooms.has(roomName)) socket.join(roomName);
         socket.emit("joined-room", { roomId });
 
-        const roomSize = io.sockets.adapter.rooms.get(roomName)?.size ?? 1;
+        const roomSize = getAuthenticatedRoomSize(io, roomName);
         setRoomCount(roomId, roomSize);
         io.to(roomName).emit("room-user-count", { count: roomSize });
         await emitRoomUsers(io, roomId, roomName);
@@ -142,7 +154,7 @@ export const socketHandler = (io: Server) => {
       const roomName = `room-${roomId}`;
       socket.leave(roomName);
       socket.emit("left-room", { roomId });
-      const roomSize = io.sockets.adapter.rooms.get(roomName)?.size ?? 0;
+      const roomSize = getAuthenticatedRoomSize(io, roomName);
       setRoomCount(roomId, roomSize);
       io.to(roomName).emit("room-user-count", { count: roomSize });
       emitRoomUsers(io, roomId, roomName);
@@ -265,6 +277,7 @@ export const socketHandler = (io: Server) => {
 
         socket.emit("receive-private-message", {
           chatId: chat.id,
+          id: mensaje.id,
           user: emisorData,
           destinatarioId,
           contenido: mensaje.contenido,
@@ -274,6 +287,7 @@ export const socketHandler = (io: Server) => {
 
         emitToUser(destinatarioId, "receive-private-message", {
           chatId: chat.id,
+          id: mensaje.id,
           user: emisorData,
           destinatarioId,
           contenido: mensaje.contenido,

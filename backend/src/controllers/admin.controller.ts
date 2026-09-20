@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
 import { emitToUser, getIo } from "../helpers/socketStore";
+import { getOnlineUserIds } from "../helpers/socketStore";
 
 const prisma = new PrismaClient();
 
@@ -29,7 +30,11 @@ export const getUsuarios = async (req: Request, res: Response) => {
       },
     });
 
-    return res.json(usuarios);
+    const onlineUserIds = new Set(getOnlineUserIds());
+    return res.json(usuarios.map((usuario) => ({
+      ...usuario,
+      estado: onlineUserIds.has(usuario.id) ? "en_linea" : "desconectado",
+    })));
   } catch {
     return res.status(500).json({ error: "Error al obtener los usuarios" });
   }

@@ -91,6 +91,23 @@ function formatHora(iso: string) {
   return new Date(iso).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
 }
 
+function formatFechaMensaje(iso: string) {
+  const fecha = new Date(iso);
+  const hoy = new Date();
+  const ayer = new Date();
+  ayer.setDate(hoy.getDate() - 1);
+  const hora = formatHora(iso);
+
+  if (fecha.toDateString() === hoy.toDateString()) return `Hoy, ${hora}`;
+  if (fecha.toDateString() === ayer.toDateString()) return `Ayer, ${hora}`;
+
+  return `${fecha.toLocaleDateString('es-ES', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  })}, ${hora}`;
+}
+
 function formatUltimo(contenido: string, tipo: string) {
   if (tipo === 'imagen') return '📷 Imagen';
   if (tipo === 'gif') return '🎞️ GIF';
@@ -100,7 +117,7 @@ function formatUltimo(contenido: string, tipo: string) {
 
 export default function MensajesPage() {
   const { isAuthenticated, token, user } = useAuth();
-  const { unreadChats, clearUnread, markChatRead, subscribe, emitMessage} = usePrivateMessages();
+  const { unreadChats, markChatRead, subscribe, emitMessage} = usePrivateMessages();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -112,7 +129,7 @@ export default function MensajesPage() {
   const [error, setError] = useState('');
   const [enviando, setEnviando] = useState(false);
   const [subiendo, setSubiendo] = useState(false);
-  const [eliminando, setEliminando] = useState<Set<number>>(new Set());
+  const [mensajesNuevosDesdeId, setMensajesNuevosDesdeId] = useState<number | null>(null);
 
   // 🔥 ESTADO DEL TEMA Y VISIBILIDAD
   const [tema, setTema] = useState<TemaKey>(() => {
@@ -141,8 +158,33 @@ export default function MensajesPage() {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const chatActivoRef = useRef<ChatResumen | null>(null);
+  const unreadChatsRef = useRef(unreadChats);
+
+  const getReadMarker = (chatId: number) => {
+    if (!user) return 0;
+    const stored = localStorage.getItem(`rs_read_private_chats_${user.id}`);
+    if (!stored) return 0;
+
+    try {
+      const markers = JSON.parse(stored) as Record<string, number>;
+      return markers[String(chatId)] ?? 0;
+    } catch {
+      return 0;
+    }
+  };
+
+  const getFirstUnreadMessageId = (chatId: number, chatMessages: MsgUI[]) => {
+    if (!unreadChatsRef.current.has(chatId)) return null;
+    const lastReadId = getReadMarker(chatId);
+    return chatMessages.find(message =>
+      message.id !== undefined &&
+      message.id > lastReadId &&
+      message.emisorId !== user?.id
+    )?.id ?? null;
+  };
 
   useEffect(() => { chatActivoRef.current = chatActivo; }, [chatActivo]);
+  useEffect(() => { unreadChatsRef.current = unreadChats; }, [unreadChats]);
 
   useEffect(() => {
     if (!isAuthenticated || !token) navigate('/login');
@@ -181,13 +223,15 @@ export default function MensajesPage() {
         })),
       };
       setChatActivo(resumen);
-      setMensajes(chat.mensajes.map(m => ({
+      const historial = chat.mensajes.map(m => ({
         id: m.id,
         emisorId: m.emisorId,
         contenido: m.contenido,
         tipo: m.tipo,
         fecha: m.fecha_creacion,
-      })));
+      }));
+      setMensajesNuevosDesdeId(getFirstUnreadMessageId(chat.id, historial));
+      setMensajes(historial);
       markChatRead(chat.id, chat.mensajes[chat.mensajes.length - 1]?.id);
     }).catch(() => {});
   }, [searchParams, token, user, navigate, markChatRead]);
@@ -201,32 +245,37 @@ export default function MensajesPage() {
         tipo: data.tipo,
         fecha: data.fecha,
       }]);
-      clearUnread(data.chatId);
+      markChatRead(data.chatId, data.id);
     }
     setChats(prev => prev.map(c =>
       c.id === data.chatId
         ? { ...c, mensajes: [{ id: Date.now(), contenido: data.contenido, tipo: data.tipo, fecha_creacion: data.fecha, emisorId: data.user.id }] }
         : c
     ));
-  }, [clearUnread]);
+  }, [markChatRead]);
 
   useEffect(() => subscribe(incomingHandler), [subscribe, incomingHandler]);
 
   const abrirChat = useCallback(async (chat: ChatResumen) => {
     if (!token) return;
     setChatActivo(chat);
-    markChatRead(chat.id, chat.mensajes[0]?.id);
     const interlocutor = chat.usuario1.id === user?.id ? chat.usuario2 : chat.usuario1;
     try {
       const completo = await chatsService.getChatConUsuario(interlocutor.id);
-      setMensajes(completo.mensajes.map((m: MensajePrivado) => ({
+      const historial = completo.mensajes.map((m: MensajePrivado) => ({
         id: m.id,
         emisorId: m.emisorId,
         contenido: m.contenido,
         tipo: m.tipo,
         fecha: m.fecha_creacion,
-      })));
-    } catch { setMensajes([]); }
+      }));
+      setMensajesNuevosDesdeId(getFirstUnreadMessageId(completo.id, historial));
+      setMensajes(historial);
+      markChatRead(completo.id, completo.mensajes[completo.mensajes.length - 1]?.id);
+    } catch {
+      setMensajesNuevosDesdeId(null);
+      setMensajes([]);
+    }
   }, [token, user?.id, markChatRead]);
 
   const enviar = () => {
@@ -386,7 +435,7 @@ export default function MensajesPage() {
       {estaSuspendido && (
         <div className="mp-suspend-notice">
           <i className="bi bi-lock-fill" />
-          <span>Tu cuenta está suspendida: no puedes escribir mensajes, pero sí puedes leer los que te envíen.</span>
+          <span>Tu cuenta está suspendida: no puedes escribir ni recibir mensajes.</span>
         </div>
       )}
 
@@ -463,13 +512,23 @@ export default function MensajesPage() {
                   {mensajes.map((msg, i) => {
                     const esMio = msg.emisorId === user?.id;
                     return (
-                      <div key={msg.id ?? i} className={`mp-msg${esMio ? ' mp-msg--me' : ' mp-msg--other'}`}>
-                        <div className="mp-msg__bubble">
-                          {msg.tipo === 'imagen' || msg.tipo === 'gif' ? (
-                            <img src={msg.contenido.startsWith('http') ? msg.contenido : `${API}${msg.contenido}`} alt="imagen" />
-                          ) : (msg.contenido)}
+                      <div
+                        key={msg.id ?? i}
+                        className={`mp-message-row${esMio ? ' mp-message-row--me' : ' mp-message-row--other'}`}
+                      >
+                        {msg.id === mensajesNuevosDesdeId && (
+                          <div className="mp-new-messages-divider">
+                            <span>Mensajes nuevos</span>
+                          </div>
+                        )}
+                        <div className={`mp-msg${esMio ? ' mp-msg--me' : ' mp-msg--other'}`}>
+                          <div className="mp-msg__bubble">
+                            {msg.tipo === 'imagen' || msg.tipo === 'gif' ? (
+                              <img src={msg.contenido.startsWith('http') ? msg.contenido : `${API}${msg.contenido}`} alt="imagen" />
+                            ) : (msg.contenido)}
+                          </div>
+                          <span className="mp-msg__time">{formatFechaMensaje(msg.fecha)}</span>
                         </div>
-                        <span className="mp-msg__time">{formatHora(msg.fecha)}</span>
                       </div>
                     );
                   })}

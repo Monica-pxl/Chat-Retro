@@ -32,6 +32,7 @@ export default function PerfilPage() {
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [avatarMsg, setAvatarMsg] = useState<{ text: string; ok: boolean } | null>(null);
   const [deletingAvatar, setDeletingAvatar] = useState(false);
+  const [confirmingAvatarDelete, setConfirmingAvatarDelete] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -172,9 +173,8 @@ export default function PerfilPage() {
     if (!token) return;
     if (!perfil?.avatar) return;
     
-    if (!confirm('¿Seguro que quieres eliminar tu avatar?')) return;
-    
     setDeletingAvatar(true);
+    setConfirmingAvatarDelete(false);
     setAvatarMsg(null);
     try {
       const updated = await userService.deleteAvatar();
@@ -271,7 +271,7 @@ export default function PerfilPage() {
             {perfil.avatar && (
               <button
                 className="rp-btn rp-btn--delete-avatar"
-                onClick={handleDeleteAvatar}
+                onClick={() => setConfirmingAvatarDelete(true)}
                 disabled={deletingAvatar}
               >
                 {deletingAvatar ? <i className="bi bi-arrow-repeat rs-spin" /> : <i className="bi bi-trash" />}
@@ -403,6 +403,42 @@ export default function PerfilPage() {
       </main>
 
       <AppFooter />
+
+      {confirmingAvatarDelete && (
+        <div className="rs-alert-overlay" onClick={() => setConfirmingAvatarDelete(false)}>
+          <div
+            className="rs-alert-modal rs-alert-modal--warning"
+            onClick={e => e.stopPropagation()}
+          >
+            <button
+              className="rs-alert-modal__close"
+              onClick={() => setConfirmingAvatarDelete(false)}
+              title="Cerrar"
+            >
+              <i className="bi bi-x-lg" />
+            </button>
+            <div className="rs-alert-modal__icon">
+              <i className="bi bi-trash" />
+            </div>
+            <h3 className="rs-alert-modal__title">Eliminar avatar</h3>
+            <p className="rs-alert-modal__message">¿Seguro que quieres eliminar tu avatar?</p>
+            <div className="rp-confirm-actions">
+              <button
+                className="rp-btn"
+                onClick={() => setConfirmingAvatarDelete(false)}
+              >
+                Cancelar
+              </button>
+              <button
+                className="rp-btn rp-btn--delete-avatar"
+                onClick={handleDeleteAvatar}
+              >
+                <i className="bi bi-trash" /> Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

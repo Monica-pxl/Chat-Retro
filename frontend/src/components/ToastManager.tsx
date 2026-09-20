@@ -1,12 +1,13 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import '../styles/toasts.css';
 
 export default function ToastManager() {
   const [toasts, setToasts] = useState<{ id: number; type: 'error' | 'warning' | 'success'; message: string }[]>([]);
+  const nextId = useRef(0);
 
   useEffect(() => {
     const handleToast = (e: CustomEvent) => {
-      const newToast = { id: Date.now(), ...e.detail };
+      const newToast = { id: Date.now() * 1000 + nextId.current++, ...e.detail };
       setToasts(prev => [...prev, newToast]);
       setTimeout(() => {
         setToasts(prev => prev.filter(t => t.id !== newToast.id));

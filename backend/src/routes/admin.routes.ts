@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { authMiddleware } from "../middlewares/auth.middleware";
 import { adminMiddleware } from "../middlewares/admin.middleware";
+import { adminLimiter } from "../middlewares/rate-limit.middleware";
 import {
   getUsuarios,
   updateEstadoCuenta,
@@ -13,7 +14,7 @@ import {
 const router = Router();
 
 // Todas las rutas requieren estar autenticado y ser admin
-router.use(authMiddleware, adminMiddleware);
+router.use(authMiddleware, adminMiddleware, adminLimiter);
 
 // Usuarios
 router.get("/usuarios", getUsuarios);

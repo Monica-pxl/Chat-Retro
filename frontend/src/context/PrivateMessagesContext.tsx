@@ -18,6 +18,7 @@ const API = 'http://localhost:3000';
 
 export interface IncomingPrivateMsg {
   chatId: number;
+  id: number;
   user: { id: number; nickname: string; avatar: string | null };
   destinatarioId: number;
   contenido: string;
@@ -141,14 +142,16 @@ export function PrivateMessagesProvider({ children }: { children: ReactNode }) {
 
     // 🔥 MODIFICADO: ahora comprueba si el mensaje viene de la misma sala
     socket.on('receive-private-message', (data: IncomingPrivateMsg) => {
+      const esMensajePropio = data.user.id === user?.id;
+
+      if (esMensajePropio) {
+        handlersRef.current.forEach(h => h(data));
+        return;
+      }
+
       setUnreadChats(prev => new Set(prev).add(data.chatId));
       
-      // 🔥 Si el mensaje viene de la MISMA sala donde estoy, NO mostrar bolita del navbar
-      const vieneDeMiSala = data.fromRoomId && data.fromRoomId === currentRoomIdRef.current;
-      
-      if (!vieneDeMiSala) {
-        setNavbarUnreadChats(prev => new Set(prev).add(data.chatId));
-      }
+      setNavbarUnreadChats(prev => new Set(prev).add(data.chatId));
       
       handlersRef.current.forEach(h => h(data));
     });

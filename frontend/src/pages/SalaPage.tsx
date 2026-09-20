@@ -66,13 +66,13 @@ export default function SalaPage() {
   const { id } = useParams<{ id: string }>();
   const { isAuthenticated, token, user } = useAuth();
   const { 
-    clearUnread, 
+    unreadChats,
     markChatRead,
     getFriendStatus, 
     sendFriendRequest, 
     cancelFriendRequest, 
     acceptFriendRequest,
-    setCurrentRoomId // 🔥 NUEVO
+    setCurrentRoomId
   } = usePrivateMessages();
   const navigate = useNavigate();
   const [amigoBusy, setAmigoBusy] = useState<Set<number>>(new Set());
@@ -100,6 +100,8 @@ export default function SalaPage() {
   const [mensajesPrivados, setMensajesPrivados] = useState<MensajePrivadoUI[]>([]);
   const [textoPrivado, setTextoPrivado] = useState('');
   const [mensajesPendientes, setMensajesPendientes] = useState<Set<number>>(new Set());
+  const [mensajesPrivadosNuevosDesdeId, setMensajesPrivadosNuevosDesdeId] = useState<number | null>(null);
+  const mensajesPrivadosNuevosRef = useRef<Map<number, number>>(new Map());
   const usuarioSeleccionadoRef = useRef<UsuarioSala | null>(null);
   const fileInputPrivadoRef = useRef<HTMLInputElement>(null);
 
@@ -112,8 +114,34 @@ export default function SalaPage() {
   const messagesEnd = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const privadoMessagesEnd = useRef<HTMLDivElement>(null);
+  const unreadChatsRef = useRef(unreadChats);
 
   const salaId = Number(id);
+
+  const getReadMarker = (chatId: number) => {
+    if (!user) return 0;
+    const stored = localStorage.getItem(`rs_read_private_chats_${user.id}`);
+    if (!stored) return 0;
+
+    try {
+      const markers = JSON.parse(stored) as Record<string, number>;
+      return markers[String(chatId)] ?? 0;
+    } catch {
+      return 0;
+    }
+  };
+
+  const getFirstUnreadMessageId = (chatId: number, chatMessages: MensajePrivadoUI[]) => {
+    if (!unreadChatsRef.current.has(chatId)) return null;
+    const lastReadId = getReadMarker(chatId);
+    return chatMessages.find(message =>
+      message.id > lastReadId && message.emisorId !== user?.id
+    )?.id ?? null;
+  };
+
+  useEffect(() => {
+    unreadChatsRef.current = unreadChats;
+  }, [unreadChats]);
 
   // 🔥 NUEVO: Registrar la sala actual al entrar/salir
   useEffect(() => {
@@ -268,9 +296,22 @@ export default function SalaPage() {
     const audioElement = new Audio(songs[randomIndex]);
     audioElement.loop = false;
     audioElement.volume = 0.3;
-    
+
+    const resumeAfterInteraction = () => {
+      if (!musicOn) return;
+      audioElement.play()
+        .then(() => {
+          window.removeEventListener('pointerdown', resumeAfterInteraction);
+          window.removeEventListener('keydown', resumeAfterInteraction);
+        })
+        .catch(() => {});
+    };
+
     if (musicOn) {
-      audioElement.play().catch(() => {});
+      audioElement.play().catch(() => {
+        window.addEventListener('pointerdown', resumeAfterInteraction);
+        window.addEventListener('keydown', resumeAfterInteraction);
+      });
     }
     
     audioElement.onended = () => {
@@ -286,6 +327,8 @@ export default function SalaPage() {
     setAudio(audioElement);
     
     return () => {
+      window.removeEventListener('pointerdown', resumeAfterInteraction);
+      window.removeEventListener('keydown', resumeAfterInteraction);
       audioElement.pause();
       audioElement.src = '';
       setAudio(null);
@@ -333,11 +376,13 @@ export default function SalaPage() {
 
     socket.on('receive-private-message', (msg: { 
       chatId: number; 
+      id: number;
       user: { id: number; nickname: string; avatar: string | null };
       destinatarioId: number;
       contenido: string;
       tipo?: string;
-      fecha: string 
+      fecha: string;
+      fromRoomId?: number | null;
     }) => {
       const soyEmisor = msg.user.id === user?.id;
       const partnerId = soyEmisor ? msg.destinatarioId : msg.user.id;
@@ -353,9 +398,14 @@ export default function SalaPage() {
           fecha: msg.fecha,
           tipo: (msg.tipo as any) || 'texto'
         }]);
-        clearUnread(msg.chatId);
+        markChatRead(msg.chatId, msg.id);
       } else if (!soyEmisor) {
         setMensajesPendientes(prev => new Set(prev).add(partnerId));
+        if (msg.fromRoomId !== salaId) {
+          if (!mensajesPrivadosNuevosRef.current.has(partnerId)) {
+            mensajesPrivadosNuevosRef.current.set(partnerId, msg.id);
+          }
+        }
       }
     });
 
@@ -415,7 +465,6 @@ export default function SalaPage() {
         tipo: "imagen",
       });
     } catch {
-      alert("No se pudo subir la imagen");
     } finally {
       setSubiendo(false);
       e.target.value = "";
@@ -451,7 +500,9 @@ export default function SalaPage() {
         fromRoomId: salaId // 🔥 NUEVO
       });
     } catch {
-      alert('No se pudo subir la imagen');
+      window.dispatchEvent(new CustomEvent('show-toast', {
+        detail: { type: 'error', message: 'No se pudo subir la imagen.' },
+      }));
     } finally {
       setSubiendo(false);
       e.target.value = '';
@@ -529,15 +580,30 @@ export default function SalaPage() {
 
   /* ── Abrir chat privado ── */
   const abrirChatPrivado = async (usuario: UsuarioSala) => {
+    if (!isAuthenticated || !token) {
+      window.dispatchEvent(new CustomEvent('show-toast', {
+        detail: {
+          type: 'warning',
+          message: 'Inicia sesión para enviar mensajes privados.',
+        },
+      }));
+      return;
+    }
+
     if (usuario.id === user?.id) {
-      alert('No puedes chatear contigo mismo');
+      window.dispatchEvent(new CustomEvent('show-toast', {
+        detail: { type: 'warning', message: 'No puedes chatear contigo mismo.' },
+      }));
       return;
     }
     usuarioSeleccionadoRef.current = usuario;
     setUsuarioSeleccionado(usuario);
     setChatPrivadoAbierto(true);
     setMensajesPrivados([]);
+    setMensajesPrivadosNuevosDesdeId(null);
     setUsuariosMovilAbierto(false);
+    const primerMensajeNuevoId = mensajesPrivadosNuevosRef.current.get(usuario.id);
+    mensajesPrivadosNuevosRef.current.delete(usuario.id);
     setMensajesPendientes(prev => {
       const next = new Set(prev);
       next.delete(usuario.id);
@@ -547,7 +613,6 @@ export default function SalaPage() {
     if (token) {
       try {
         const chat = await salasService.getChatPrivado(usuario.id);
-        markChatRead(chat.id, chat.mensajes[chat.mensajes.length - 1]?.id);
         const historial = chat.mensajes.map((m: MensajePrivadoAPI) => ({
           id: m.id,
           emisorId: m.emisorId,
@@ -556,6 +621,13 @@ export default function SalaPage() {
           fecha: m.fecha_creacion,
           tipo: (m.tipo as any) || 'texto',
         }));
+        const primerMensajeNoLeido = primerMensajeNuevoId ?? getFirstUnreadMessageId(chat.id, historial);
+        setMensajesPrivadosNuevosDesdeId(
+          primerMensajeNoLeido
+            ? historial.find(m => m.id >= primerMensajeNoLeido)?.id ?? null
+            : null,
+        );
+        markChatRead(chat.id, chat.mensajes[chat.mensajes.length - 1]?.id);
         setMensajesPrivados(prev => {
           const ids = new Set(historial.map((m: MensajePrivadoUI) => m.id));
           const soloNuevos = prev.filter(m => !ids.has(m.id));
@@ -563,6 +635,7 @@ export default function SalaPage() {
         });
       } catch (err) {
         console.error('Error cargando historial privado:', err);
+        setMensajesPrivadosNuevosDesdeId(null);
       }
     }
   };
@@ -571,6 +644,7 @@ export default function SalaPage() {
     setChatPrivadoAbierto(false);
     setUsuarioSeleccionado(null);
     setMensajesPrivados([]);
+    setMensajesPrivadosNuevosDesdeId(null);
   };
 
   const salasFiltradas = salasList.filter(s => {
@@ -728,7 +802,8 @@ export default function SalaPage() {
           <div className="rs-sala-users__list">
             {usuarios.length === 0 ? (
               <div className="rs-sala-users__empty">
-                <span>Cargando usuarios...</span>
+                <i className="bi bi-people" />
+                <span>No hay usuarios dentro de la sala</span>
               </div>
             ) : (
               usuarios.map((u) => {
@@ -738,9 +813,9 @@ export default function SalaPage() {
                 return (
                   <div 
                     key={u.id} 
-                    className={`rs-sala-users__item ${esYo ? 'rs-sala-users__item--yo' : 'rs-sala-users__item--clickable'}${mensajesPendientes.has(u.id) ? ' rs-sala-users__item--pendiente' : ''}`}
+                    className={`rs-sala-users__item ${esYo ? 'rs-sala-users__item--yo' : isAuthenticated ? 'rs-sala-users__item--clickable' : ''}${mensajesPendientes.has(u.id) ? ' rs-sala-users__item--pendiente' : ''}`}
                     onClick={!esYo ? () => abrirChatPrivado(u) : undefined}
-                    title={esYo ? 'Eres tú' : `Chatear con ${u.nickname}`}
+                    title={esYo ? 'Eres tú' : isAuthenticated ? `Chatear con ${u.nickname}` : 'Inicia sesión para enviar mensajes privados'}
                   >
                     <div className="rs-sala-users__avatar">
                       {u.avatar ? (
@@ -757,7 +832,7 @@ export default function SalaPage() {
                     ) : (
                       <span className="rs-sala-users__dot" />
                     )}
-                    {!esYo && (
+                    {isAuthenticated && !esYo && (
                       <button
                         className={`rs-sala-users__friend-btn rs-sala-users__friend-btn--${estadoAmistad}`}
                         onClick={(e) => handleFriendAction(e, u.id)}
@@ -824,22 +899,29 @@ export default function SalaPage() {
                   const isOwn = msg.emisorId === user?.id;
                   return (
                     <div
-                      key={idx}
-                      className={`rs-msg-privado ${isOwn ? 'rs-msg-privado--own' : 'rs-msg-privado--other'}`}
+                      key={msg.id || idx}
+                      className={`rs-msg-privado-row ${isOwn ? 'rs-msg-privado-row--own' : 'rs-msg-privado-row--other'}`}
                     >
-                      <div className="rs-msg-privado__bubble">
-                        {msg.tipo === 'imagen' ? (
-                          <img
-                            src={`${API}${msg.contenido}`}
-                            alt="Imagen"
-                            className="rs-msg__image"
-                            style={{ maxWidth: '100%', borderRadius: '6px' }}
-                          />
-                        ) : (
-                          msg.contenido
-                        )}
+                      {msg.id === mensajesPrivadosNuevosDesdeId && (
+                        <div className="rs-sala-private-new-divider">
+                          <span>Mensajes nuevos</span>
+                        </div>
+                      )}
+                      <div className={`rs-msg-privado ${isOwn ? 'rs-msg-privado--own' : 'rs-msg-privado--other'}`}>
+                        <div className="rs-msg-privado__bubble">
+                          {msg.tipo === 'imagen' ? (
+                            <img
+                              src={`${API}${msg.contenido}`}
+                              alt="Imagen"
+                              className="rs-msg__image"
+                              style={{ maxWidth: '100%', borderRadius: '6px' }}
+                            />
+                          ) : (
+                            msg.contenido
+                          )}
+                        </div>
+                        <span className="rs-msg-privado__time">{formatFecha(msg.fecha)}</span>
                       </div>
-                      <span className="rs-msg-privado__time">{formatFecha(msg.fecha)}</span>
                     </div>
                   );
                 })

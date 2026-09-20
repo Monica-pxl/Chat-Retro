@@ -2,6 +2,8 @@ import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import { PrismaClient } from "@prisma/client";
 import path from "path";
+import fs from "fs";
+import { validateImage } from "../helpers/uploadValidation";
 
 const prisma = new PrismaClient();
 
@@ -149,6 +151,17 @@ export const uploadAvatar = async (req: Request, res: Response) => {
       return res.status(400).json({ error: "No se recibió ninguna imagen" });
     }
 
+    const validation = validateImage(req.file, 3 * 1024 * 1024);
+    if (!validation.valid) {
+      fs.unlinkSync(req.file.path);
+      return res.status(400).json({ error: validation.message });
+    }
+
+    const previousAvatar = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { avatar: true },
+    });
+
     const avatarUrl = `/uploads/avatars/${req.file.filename}`;
 
     const updated = await prisma.user.update({
@@ -166,6 +179,17 @@ export const uploadAvatar = async (req: Request, res: Response) => {
         ultima_conexion: true,
       },
     });
+
+    if (previousAvatar?.avatar) {
+      const previousAvatarPath = path.join(
+        req.file.destination,
+        path.basename(previousAvatar.avatar),
+      );
+
+      if (fs.existsSync(previousAvatarPath)) {
+        fs.unlinkSync(previousAvatarPath);
+      }
+    }
 
     return res.json({ avatar: avatarUrl, user: updated });
   } catch {
@@ -194,7 +218,18 @@ export const deleteAvatar = async (req: Request, res: Response) => {
       return res.status(400).json({ error: "No tienes avatar para eliminar" });
     }
 
-    // Eliminar el avatar de la BD
+    const avatarPath = path.join(
+      process.cwd(),
+      "uploads",
+      "avatars",
+      path.basename(user.avatar),
+    );
+
+    // El archivo puede haber sido eliminado manualmente; en ese caso solo se limpia la referencia.
+    if (fs.existsSync(avatarPath)) {
+      fs.unlinkSync(avatarPath);
+    }
+
     const updated = await prisma.user.update({
       where: { id: userId },
       data: { avatar: null },

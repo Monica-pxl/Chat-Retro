@@ -365,17 +365,28 @@
 .mp-messages::-webkit-scrollbar-track { background: transparent; }
 .mp-messages::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 3px; }
 
+/* 🔥 Wrapper de cada mensaje (contiene el divisor + el mensaje) */
+.mp-message-row {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+.mp-message-row--me {
+  align-items: flex-end;
+}
+.mp-message-row--other {
+  align-items: flex-start;
+}
+
 .mp-msg {
   display: flex;
   flex-direction: column;
   max-width: 70%;
 }
 .mp-msg--me {
-  align-self: flex-end;
   align-items: flex-end;
 }
 .mp-msg--other {
-  align-self: flex-start;
   align-items: flex-start;
 }
 
@@ -408,6 +419,42 @@
   color: var(--text-muted);
   margin-top: 0.2rem;
   padding: 0 0.2rem;
+}
+
+/* ── Divisor de mensajes nuevos ── */
+.mp-new-messages-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 1rem 0 0.5rem;
+  padding: 0;
+  width: 100%;
+}
+
+.mp-new-messages-divider::before,
+.mp-new-messages-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    var(--border-color),
+    var(--accent-color),
+    var(--border-color),
+    transparent
+  );
+}
+
+.mp-new-messages-divider span {
+  color: var(--accent-color);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  padding: 0 0.25rem;
+  text-shadow: 0 0 12px var(--glow-color);
 }
 
 /* ── Aviso de cuenta suspendida ── */
@@ -536,7 +583,6 @@
 
 /* ── Móviles grandes ── */
 @media (max-width: 768px) {
-  /* 🔥 FORZAR ALTURA FIJA EN MÓVIL */
   .mp-scroll-container {
     height: calc(100vh - 200px) !important;
     overflow: hidden !important;
@@ -563,7 +609,6 @@
     padding-right: 0.25rem !important;
   }
   
-  /* 🔥 EL CHAT PANEL OCUPA EL RESTO DEL ESPACIO DISPONIBLE */
   .mp-chat-panel {
     flex: 1 !important;
     min-height: 0 !important;
@@ -574,7 +619,6 @@
     overflow: hidden !important;
   }
   
-  /* 🔥 LOS MENSAJES OCUPAN EL ESPACIO SOBRANTE Y HACEN SCROLL */
   .mp-messages {
     flex: 1 !important;
     overflow-y: auto !important;
@@ -605,11 +649,6 @@
   
   .mp-chat-item__last {
     font-size: 0.7rem;
-  }
-  
-  .mp-chat-item__badge {
-    width: 8px;
-    height: 8px;
   }
   
   .mp-hero {
