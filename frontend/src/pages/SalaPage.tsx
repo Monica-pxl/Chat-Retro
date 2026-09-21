@@ -4,6 +4,7 @@ import { io, type Socket } from 'socket.io-client';
 import { useAuth } from '../context/AuthContext';
 import { usePrivateMessages } from '../context/PrivateMessagesContext';
 import AppHeader from '../components/AppHeader';
+import ConfirmModal from '../components/ConfirmModal';
 import { salasService, type Sala, type MensajePrivadoAPI } from '../services/salas.service';
 import '../styles/salas.css';
 import { uploadService } from "../services/upload.service";
@@ -72,7 +73,8 @@ export default function SalaPage() {
     sendFriendRequest, 
     cancelFriendRequest, 
     acceptFriendRequest,
-    setCurrentRoomId
+    setCurrentRoomId,
+    deletePrivateMessage
   } = usePrivateMessages();
   const navigate = useNavigate();
   const [amigoBusy, setAmigoBusy] = useState<Set<number>>(new Set());
@@ -101,6 +103,8 @@ export default function SalaPage() {
   const [textoPrivado, setTextoPrivado] = useState('');
   const [mensajesPendientes, setMensajesPendientes] = useState<Set<number>>(new Set());
   const [mensajesPrivadosNuevosDesdeId, setMensajesPrivadosNuevosDesdeId] = useState<number | null>(null);
+  const [eliminando, setEliminando] = useState<Set<number>>(new Set());
+  const [mensajePrivadoPendiente, setMensajePrivadoPendiente] = useState<number | null>(null);
   const mensajesPrivadosNuevosRef = useRef<Map<number, number>>(new Map());
   const usuarioSeleccionadoRef = useRef<UsuarioSala | null>(null);
   const fileInputPrivadoRef = useRef<HTMLInputElement>(null);
@@ -391,7 +395,7 @@ export default function SalaPage() {
 
       if (chatAbierto) {
         setMensajesPrivados(prev => [...prev, {
-          id: Date.now(),
+          id: msg.id,
           emisorId: msg.user.id,
           emisorNickname: msg.user.nickname,
           contenido: msg.contenido,
@@ -407,6 +411,11 @@ export default function SalaPage() {
           }
         }
       }
+    });
+
+    // 🔥 NUEVO: escuchar eliminación de mensajes privados
+    socket.on('private-message-deleted', (data: { mensajeId: number; chatId: number }) => {
+      setMensajesPrivados(prev => prev.filter(m => m.id !== data.mensajeId));
     });
 
     socket.on('connect', () => {
@@ -506,6 +515,25 @@ export default function SalaPage() {
     } finally {
       setSubiendo(false);
       e.target.value = '';
+    }
+  };
+
+  // 🔥 NUEVO: eliminar mensaje privado
+  const handleDeletePrivateMessage = (mensajeId: number) => {
+    if (eliminando.has(mensajeId)) return;
+    setMensajePrivadoPendiente(mensajeId);
+  };
+
+  const confirmarEliminacionMensajePrivado = async () => {
+    if (mensajePrivadoPendiente === null || eliminando.has(mensajePrivadoPendiente)) return;
+    const mensajeId = mensajePrivadoPendiente;
+    setEliminando(prev => new Set(prev).add(mensajeId));
+    try {
+      await deletePrivateMessage(mensajeId);
+      setMensajesPrivados(prev => prev.filter(m => m.id !== mensajeId));
+    } finally {
+      setEliminando(prev => { const next = new Set(prev); next.delete(mensajeId); return next; });
+      setMensajePrivadoPendiente(null);
     }
   };
 
@@ -920,7 +948,24 @@ export default function SalaPage() {
                             msg.contenido
                           )}
                         </div>
-                        <span className="rs-msg-privado__time">{formatFecha(msg.fecha)}</span>
+                        <div className="rs-msg-privado__footer">
+                          <span className="rs-msg-privado__time">{formatFecha(msg.fecha)}</span>
+                          {isOwn && (
+                            <button
+                              className="rs-msg-privado__delete"
+                              onClick={() => handleDeletePrivateMessage(msg.id)}
+                              disabled={eliminando.has(msg.id)}
+                              title="Eliminar mensaje"
+                              aria-label="Eliminar mensaje"
+                            >
+                              {eliminando.has(msg.id) ? (
+                                <i className="bi bi-arrow-repeat rs-spin" />
+                              ) : (
+                                <i className="bi bi-trash3" />
+                              )}
+                            </button>
+                          )}
+                        </div>
                       </div>
                     </div>
                   );
@@ -1173,6 +1218,15 @@ export default function SalaPage() {
         </div>
 
       </div>
+
+      <ConfirmModal
+        open={mensajePrivadoPendiente !== null}
+        title="¿Eliminar mensaje?"
+        message="Este mensaje desaparecerá de la conversación y no podrás recuperarlo."
+        onCancel={() => setMensajePrivadoPendiente(null)}
+        onConfirm={confirmarEliminacionMensajePrivado}
+        confirming={mensajePrivadoPendiente !== null && eliminando.has(mensajePrivadoPendiente)}
+      />
     </div>
   );
 }

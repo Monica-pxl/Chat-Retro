@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { usePrivateMessages, type IncomingPrivateMsg } from '../context/PrivateMessagesContext';
 import AppHeader from '../components/AppHeader';
 import AppFooter from '../components/AppFooter';
+import ConfirmModal from '../components/ConfirmModal';
 import { chatsService, type ChatResumen, type MensajePrivado } from '../services/amigos.service';
 import { uploadService } from '../services/upload.service';
 import '../styles/mensajes.css';
@@ -117,7 +118,7 @@ function formatUltimo(contenido: string, tipo: string) {
 
 export default function MensajesPage() {
   const { isAuthenticated, token, user } = useAuth();
-  const { unreadChats, markChatRead, subscribe, emitMessage} = usePrivateMessages();
+  const { unreadChats, markChatRead, subscribe, emitMessage, deletePrivateMessage, subscribeDeleted } = usePrivateMessages();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -130,6 +131,8 @@ export default function MensajesPage() {
   const [enviando, setEnviando] = useState(false);
   const [subiendo, setSubiendo] = useState(false);
   const [mensajesNuevosDesdeId, setMensajesNuevosDesdeId] = useState<number | null>(null);
+  const [eliminando, setEliminando] = useState<Set<number>>(new Set());
+  const [mensajePendienteDeEliminar, setMensajePendienteDeEliminar] = useState<number | null>(null);
 
   // 🔥 ESTADO DEL TEMA Y VISIBILIDAD
   const [tema, setTema] = useState<TemaKey>(() => {
@@ -240,6 +243,7 @@ export default function MensajesPage() {
     const current = chatActivoRef.current;
     if (current?.id === data.chatId) {
       setMensajes(m => [...m, {
+        id: data.id,
         emisorId: data.user.id,
         contenido: data.contenido,
         tipo: data.tipo,
@@ -255,6 +259,13 @@ export default function MensajesPage() {
   }, [markChatRead]);
 
   useEffect(() => subscribe(incomingHandler), [subscribe, incomingHandler]);
+
+  // 🔥 NUEVO: escuchar eliminación de mensajes
+  useEffect(() => {
+    return subscribeDeleted((mensajeId) => {
+      setMensajes(prev => prev.filter(m => m.id !== mensajeId));
+    });
+  }, [subscribeDeleted]);
 
   const abrirChat = useCallback(async (chat: ChatResumen) => {
     if (!token) return;
@@ -330,6 +341,25 @@ export default function MensajesPage() {
       emitMessage(interlocutor.id, url, 'imagen');
     } catch { /* silent */ }
     finally { setSubiendo(false); e.target.value = ''; }
+  };
+
+  // 🔥 NUEVO: eliminar mensaje
+  const handleDeleteMessage = (mensajeId: number) => {
+    if (eliminando.has(mensajeId)) return;
+    setMensajePendienteDeEliminar(mensajeId);
+  };
+
+  const confirmarEliminacion = async () => {
+    if (mensajePendienteDeEliminar === null || eliminando.has(mensajePendienteDeEliminar)) return;
+    const mensajeId = mensajePendienteDeEliminar;
+    setEliminando(prev => new Set(prev).add(mensajeId));
+    try {
+      await deletePrivateMessage(mensajeId);
+      setMensajes(prev => prev.filter(m => m.id !== mensajeId));
+    } finally {
+      setEliminando(prev => { const next = new Set(prev); next.delete(mensajeId); return next; });
+      setMensajePendienteDeEliminar(null);
+    }
   };
 
   useEffect(() => {
@@ -527,7 +557,24 @@ export default function MensajesPage() {
                               <img src={msg.contenido.startsWith('http') ? msg.contenido : `${API}${msg.contenido}`} alt="imagen" />
                             ) : (msg.contenido)}
                           </div>
-                          <span className="mp-msg__time">{formatFechaMensaje(msg.fecha)}</span>
+                          <div className="mp-msg__footer">
+                            <span className="mp-msg__time">{formatFechaMensaje(msg.fecha)}</span>
+                            {esMio && msg.id !== undefined && (
+                              <button
+                                className="mp-msg__delete"
+                                onClick={() => handleDeleteMessage(msg.id!)}
+                                disabled={eliminando.has(msg.id!)}
+                                title="Eliminar mensaje"
+                                aria-label="Eliminar mensaje"
+                              >
+                                {eliminando.has(msg.id!) ? (
+                                  <i className="bi bi-arrow-repeat rs-spin" />
+                                ) : (
+                                  <i className="bi bi-trash3" />
+                                )}
+                              </button>
+                            )}
+                          </div>
                         </div>
                       </div>
                     );
@@ -570,6 +617,15 @@ export default function MensajesPage() {
           </div>
         </div>
       </div>
+
+      <ConfirmModal
+        open={mensajePendienteDeEliminar !== null}
+        title="¿Eliminar mensaje?"
+        message="Este mensaje desaparecerá de la conversación y no podrás recuperarlo."
+        onCancel={() => setMensajePendienteDeEliminar(null)}
+        onConfirm={confirmarEliminacion}
+        confirming={mensajePendienteDeEliminar !== null && eliminando.has(mensajePendienteDeEliminar)}
+      />
       
       <AppFooter />
     </div>

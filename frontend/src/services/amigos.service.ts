@@ -84,4 +84,7 @@ export const chatsService = {
 
   getChatConUsuario: (userId: number) =>
     api.get<ChatCompleto>(`/chats/${userId}`).then(r => r.data),
+
+  eliminarMensaje: (mensajeId: number) =>
+    api.delete(`/chats/mensajes/${mensajeId}`).then(r => r.data),
 };

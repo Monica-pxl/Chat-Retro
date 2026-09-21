@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
+import { emitToUser } from "../helpers/socketStore";
 
 const prisma = new PrismaClient();
 
@@ -131,5 +132,66 @@ export const listarChats = async (req: Request, res: Response) => {
     return res.json(chats);
   } catch {
     return res.status(500).json({ error: "Error al listar los chats" });
+  }
+};
+
+
+
+
+/* ================================
+   ELIMINAR MENSAJE PRIVADO
+   Solo el emisor puede eliminar su propio mensaje.
+   Se elimina para siempre (emisor y receptor).
+================================ */
+export const eliminarMensajePrivado = async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user.userId;
+    const mensajeId = Number(req.params.id);
+
+    if (isNaN(mensajeId)) {
+      return res.status(400).json({ error: "ID de mensaje inválido" });
+    }
+
+    const mensaje = await prisma.mensajePrivado.findUnique({
+      where: { id: mensajeId },
+      include: {
+        chat: {
+          select: {
+            usuario1Id: true,
+            usuario2Id: true,
+          },
+        },
+      },
+    });
+
+    if (!mensaje) {
+      return res.status(404).json({ error: "Mensaje no encontrado" });
+    }
+
+    if (mensaje.emisorId !== userId) {
+      return res.status(403).json({ error: "No puedes eliminar mensajes de otros" });
+    }
+
+    await prisma.mensajePrivado.delete({ where: { id: mensajeId } });
+
+    // Notificar al receptor (y al emisor si tiene varias pestañas) en tiempo real
+    const destinatarioId =
+      mensaje.chat.usuario1Id === userId
+        ? mensaje.chat.usuario2Id
+        : mensaje.chat.usuario1Id;
+
+    emitToUser(destinatarioId, "private-message-deleted", {
+      mensajeId,
+      chatId: mensaje.chatId,
+    });
+
+    emitToUser(userId, "private-message-deleted", {
+      mensajeId,
+      chatId: mensaje.chatId,
+    });
+
+    return res.json({ message: "Mensaje eliminado correctamente" });
+  } catch {
+    return res.status(500).json({ error: "Error al eliminar el mensaje" });
   }
 };

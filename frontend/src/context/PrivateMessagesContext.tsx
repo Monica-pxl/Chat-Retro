@@ -24,7 +24,7 @@ export interface IncomingPrivateMsg {
   contenido: string;
   tipo: string;
   fecha: string;
-  fromRoomId?: number | null; // 🔥 NUEVO
+  fromRoomId?: number | null;
 }
 
 export type SolicitudEvento = 'nueva' | 'aceptada' | 'rechazada' | 'cancelada';
@@ -35,13 +35,16 @@ export type FriendStatus = 'ninguno' | 'amigo' | 'enviada' | 'recibida';
 interface PMContextValue {
   unreadChats: Set<number>;
   totalUnread: number;
-  // 🔥 NUEVO: notificaciones para el navbar (excluye mensajes de la misma sala)
+  // 🔥 notificaciones para el navbar (excluye mensajes de la misma sala)
   navbarUnread: number;
   clearUnread: (chatId: number) => void;
   markChatRead: (chatId: number, messageId: number | undefined) => void;
   clearAll: () => void;
   subscribe: (handler: (data: IncomingPrivateMsg) => void) => () => void;
   subscribeSolicitud: (handler: SolicitudHandler) => () => void;
+  // 🔥 eliminar mensajes privados
+  deletePrivateMessage: (mensajeId: number) => Promise<void>;
+  subscribeDeleted: (handler: (mensajeId: number, chatId: number) => void) => () => void;
   emitMessage: (destinatarioId: number, contenido: string, tipo: string) => void;
   friends: Set<number>;
   getFriendStatus: (userId: number) => FriendStatus;
@@ -52,7 +55,7 @@ interface PMContextValue {
   cancelFriendRequest: (userId: number) => Promise<void>;
   acceptFriendRequest: (userId: number) => Promise<void>;
   removeFriend: (userId: number) => Promise<void>;
-  // 🔥 NUEVO: sala actual
+  // 🔥 sala actual
   setCurrentRoomId: (roomId: number | null) => void;
   currentRoomId: number | null;
 }
@@ -66,6 +69,8 @@ const PMContext = createContext<PMContextValue>({
   clearAll: () => {},
   subscribe: () => () => {},
   subscribeSolicitud: () => () => {},
+  deletePrivateMessage: async () => {},
+  subscribeDeleted: () => () => {},
   emitMessage: () => {},
   friends: new Set(),
   getFriendStatus: () => 'ninguno',
@@ -85,16 +90,18 @@ export function PrivateMessagesProvider({ children }: { children: ReactNode }) {
   const socketRef = useRef<Socket | null>(null);
   const [unreadChats, setUnreadChats] = useState<Set<number>>(new Set());
   
-  // 🔥 NUEVO: chats que deben mostrar la bolita del navbar
+  // 🔥 chats que deben mostrar la bolita del navbar
   const [navbarUnreadChats, setNavbarUnreadChats] = useState<Set<number>>(new Set());
   
-  // 🔥 NUEVO: sala actual donde está el usuario
+  // 🔥 sala actual donde está el usuario
   const [currentRoomId, setCurrentRoomId] = useState<number | null>(null);
   const currentRoomIdRef = useRef<number | null>(null);
   useEffect(() => { currentRoomIdRef.current = currentRoomId; }, [currentRoomId]);
 
   const handlersRef = useRef<Set<(data: IncomingPrivateMsg) => void>>(new Set());
   const solicitudHandlersRef = useRef<Set<SolicitudHandler>>(new Set());
+  // 🔥 handlers para mensajes eliminados
+  const deletedHandlersRef = useRef<Set<(mensajeId: number, chatId: number) => void>>(new Set());
 
   const [friends, setFriends] = useState<Set<number>>(new Set());
   const [sentPending, setSentPending] = useState<Map<number, number>>(new Map());
@@ -162,6 +169,11 @@ export function PrivateMessagesProvider({ children }: { children: ReactNode }) {
       }));
     });
 
+    // 🔥 NUEVO: escuchar eliminación de mensajes
+    socket.on('private-message-deleted', (data: { mensajeId: number; chatId: number }) => {
+      deletedHandlersRef.current.forEach(h => h(data.mensajeId, data.chatId));
+    });
+
     socket.on('online-users', (ids: number[]) => {
       setOnlineUserIds(new Set(ids));
     });
@@ -208,7 +220,7 @@ export function PrivateMessagesProvider({ children }: { children: ReactNode }) {
       socket.disconnect();
       socketRef.current = null;
     };
-  }, [isAuthenticated, token]);
+  }, [isAuthenticated, token, user]);
 
   const refreshAmistades = useCallback(async () => {
     const t = tokenRef.current;
@@ -271,6 +283,24 @@ export function PrivateMessagesProvider({ children }: { children: ReactNode }) {
     return () => { solicitudHandlersRef.current.delete(handler); };
   }, []);
 
+  // 🔥 NUEVO: subscribe a mensajes eliminados
+  const subscribeDeleted = useCallback((handler: (mensajeId: number, chatId: number) => void) => {
+    deletedHandlersRef.current.add(handler);
+    return () => { deletedHandlersRef.current.delete(handler); };
+  }, []);
+
+  // 🔥 NUEVO: eliminar mensaje privado
+  const deletePrivateMessage = useCallback(async (mensajeId: number) => {
+    try {
+      await chatsService.eliminarMensaje(mensajeId);
+    } catch (error: any) {
+      const mensaje = error.response?.data?.error || 'Error al eliminar el mensaje';
+      window.dispatchEvent(new CustomEvent('show-toast', {
+        detail: { type: 'error', message: mensaje }
+      }));
+    }
+  }, []);
+
   const emitMessage = useCallback((destinatarioId: number, contenido: string, tipo: string) => {
     const contenidoSanitizado = sanitizeMessage(contenido);
 
@@ -286,7 +316,7 @@ export function PrivateMessagesProvider({ children }: { children: ReactNode }) {
       destinatarioId,
       contenido: contenidoSanitizado,
       tipo,
-      fromRoomId: currentRoomIdRef.current // 👈 NUEVO
+      fromRoomId: currentRoomIdRef.current
     });
   }, []);
 
@@ -334,12 +364,14 @@ export function PrivateMessagesProvider({ children }: { children: ReactNode }) {
     <PMContext.Provider value={{
       unreadChats,
       totalUnread: unreadChats.size,
-      navbarUnread: navbarUnreadChats.size, // 🔥 NUEVO
+      navbarUnread: navbarUnreadChats.size,
       clearUnread,
       markChatRead,
       clearAll,
       subscribe,
       subscribeSolicitud,
+      deletePrivateMessage,
+      subscribeDeleted,
       emitMessage,
       friends,
       getFriendStatus,
@@ -350,8 +382,8 @@ export function PrivateMessagesProvider({ children }: { children: ReactNode }) {
       cancelFriendRequest,
       acceptFriendRequest,
       removeFriend,
-      setCurrentRoomId, // 🔥 NUEVO
-      currentRoomId, // 🔥 NUEVO
+      setCurrentRoomId,
+      currentRoomId,
     }}>
       {children}
     </PMContext.Provider>
