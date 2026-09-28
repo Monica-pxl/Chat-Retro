@@ -111,8 +111,6 @@ export default function SalaPage() {
 
   // 🔥 MÚSICA
   const [audio, setAudio] = useState<HTMLAudioElement | null>(null);
-  const [currentSongIndex, setCurrentSongIndex] = useState(0);
-  const [playlist, setPlaylist] = useState<string[]>([]);
 
   const socketRef = useRef<Socket | null>(null);
   const messagesEnd = useRef<HTMLDivElement>(null);
@@ -292,10 +290,8 @@ export default function SalaPage() {
     }
     
     console.log('🎵 Playlist cargada:', songs);
-    setPlaylist(songs);
     
     const randomIndex = Math.floor(Math.random() * songs.length);
-    setCurrentSongIndex(randomIndex);
     
     const audioElement = new Audio(songs[randomIndex]);
     audioElement.loop = false;
@@ -320,7 +316,6 @@ export default function SalaPage() {
     
     audioElement.onended = () => {
       const nextIndex = (randomIndex + 1) % songs.length;
-      setCurrentSongIndex(nextIndex);
       audioElement.src = songs[nextIndex];
       if (musicOn) {
         audioElement.play().catch(() => {});
@@ -508,10 +503,12 @@ export default function SalaPage() {
         tipo: 'imagen',
         fromRoomId: salaId // 🔥 NUEVO
       });
-    } catch {
-      window.dispatchEvent(new CustomEvent('show-toast', {
-        detail: { type: 'error', message: 'No se pudo subir la imagen.' },
-      }));
+    } catch (error: any) {
+      if (error.response?.status !== 400) {
+        window.dispatchEvent(new CustomEvent('show-toast', {
+          detail: { type: 'error', message: 'No se pudo subir la imagen.' },
+        }));
+      }
     } finally {
       setSubiendo(false);
       e.target.value = '';

@@ -104,7 +104,9 @@ export default function PerfilPage() {
       updateUser({ avatar: updated.avatar });
       setAvatarMsg({ text: 'Avatar actualizado', ok: true });
     } catch (err: any) {
-      setAvatarMsg({ text: err.response?.data?.error || 'Error al subir', ok: false });
+      if (err.response?.status !== 400) {
+        setAvatarMsg({ text: err.response?.data?.error || 'Error al subir', ok: false });
+      }
     } finally {
       setAvatarUploading(false);
       e.target.value = '';
