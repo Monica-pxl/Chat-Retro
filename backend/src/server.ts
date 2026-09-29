@@ -22,7 +22,23 @@ const prisma = new PrismaClient();
 
 const app = express();
 
-app.use(cors());
+// CORS dinámico: solo orígenes permitidos
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://chatretro.vercel.app', // ← actualizarás cuando tengas la URL real de Vercel
+];
+
+app.use(cors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+}));
+
 app.use(express.json());
 
 // Aplicar límite general a todas las rutas
@@ -30,6 +46,16 @@ app.use(generalLimiter);
 
 // Rutas públicas con límite más estricto
 app.use("/auth", authLimiter);
+
+//HEALTH CHECK (Antes de las rutas y del listen):
+app.get('/health', async (req, res) => {
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    res.status(200).json({ status: 'ok' });
+  } catch {
+    res.status(500).json({ status: 'error' });
+  }
+});
 
 app.use("/auth", authRoutes);
 app.use("/salas", salaRoutes);
@@ -43,9 +69,12 @@ app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 // HTTP server
 const server = http.createServer(app);
 
-// Socket.IO
+// Socket.IO con CORS dinámico:
 const io = new Server(server, {
-  cors: { origin: "*" },
+  cors: {
+    origin: allowedOrigins,
+    credentials: true,
+  },
 });
 
 setIo(io);
@@ -57,8 +86,11 @@ const startServer = async () => {
     data: { estado: "desconectado" },
   });
 
-  server.listen(3000, () => {
-    console.log("🚀 Backend con Socket.IO funcionando");
+  //Puerto dinámico: Railway asigna process.env.PORT, en local usa 3000
+  const PORT = Number(process.env.PORT) || 3000;
+
+  server.listen(PORT, () => {
+    console.log(`🚀 Backend con Socket.IO funcionando en puerto ${PORT}`);
   });
 };
 

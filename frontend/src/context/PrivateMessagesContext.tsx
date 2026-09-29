@@ -14,7 +14,7 @@ import { useAuth } from './AuthContext';
 import { amigosService, chatsService } from '../services/amigos.service';
 import { sanitizeMessage } from '../utils/sanitize';
 
-const API = 'http://localhost:3000';
+const API = import.meta.env.VITE_API_URL;
 
 export interface IncomingPrivateMsg {
   chatId: number;

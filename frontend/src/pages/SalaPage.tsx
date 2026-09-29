@@ -33,7 +33,7 @@ interface MensajePrivadoUI {
   tipo?: 'texto' | 'imagen' | 'gif' | 'audio';
 }
 
-const API = 'http://localhost:3000';
+const API = import.meta.env.VITE_API_URL;
 
 function getIconoPorAnio(ano: number): string {
   const iconos: Record<number, string> = {
@@ -336,7 +336,7 @@ export default function SalaPage() {
 
   /* ── Socket ── */
   useEffect(() => {
-    const socket = io('http://localhost:3000', { auth: token ? { token } : {}, forceNew: true });
+    const socket = io(API, { auth: token ? { token } : {}, forceNew: true });
     socketRef.current = socket;
 
     socket.on('receive-message', (msg: { user: { nickname: string; avatar: string | null }; contenido: string; tipo: string; fecha: string }) => {

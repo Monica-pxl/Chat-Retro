@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { io } from 'socket.io-client';
 
-const API = 'http://localhost:3000';
+const API = import.meta.env.VITE_API_URL;
 
 export default function SocketListener() {
   const { isAuthenticated, token, logout, updateUser } = useAuth();

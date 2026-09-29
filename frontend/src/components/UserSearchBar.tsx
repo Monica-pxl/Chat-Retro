@@ -5,7 +5,7 @@ import { usePrivateMessages } from '../context/PrivateMessagesContext';
 import { userService, type UserSearch } from '../services/user.service';
 import '../styles/search.css';
 
-const API = 'http://localhost:3000';
+const API = import.meta.env.VITE_API_URL;
 
 // 🔥 Esta interfaz define que el modal acepta CUALQUIER usuario que tenga estos campos
 interface ModalUser {

@@ -6,7 +6,7 @@ import AppFooter from '../components/AppFooter';
 import { userService, type UserProfile } from '../services/user.service';
 import '../styles/perfil.css';
 
-const API = 'http://localhost:3000';
+const API = import.meta.env.VITE_API_URL;
 
 export default function PerfilPage() {
   const { token, isAuthenticated, user, updateUser } = useAuth();

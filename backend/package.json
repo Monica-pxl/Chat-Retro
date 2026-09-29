@@ -1,12 +1,10 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "main": "index.js",
-  "type": "module",
   "scripts": {
     "dev": "tsx src/server.ts",
-    "build": "tsc",
-    "start": "node src/server.js"
+    "build": "prisma generate && tsc",
+    "start": "node dist/server.js"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

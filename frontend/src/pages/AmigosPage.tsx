@@ -8,7 +8,7 @@ import { amigosService, type AmigoItem } from '../services/amigos.service';
 import { UserProfileModal } from '../components/UserSearchBar';
 import '../styles/amigos.css';
 
-const API = 'http://localhost:3000';
+const API = import.meta.env.VITE_API_URL;
 
 function Avatar({ src, nick }: { src: string | null; nick: string }) {
   if (src) {

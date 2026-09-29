@@ -1,5 +1,4 @@
 import { Component, ReactNode } from 'react';
-import { Navigate } from 'react-router-dom';
 
 interface Props {
   children: ReactNode;
@@ -22,12 +21,12 @@ export default class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: any) {
     console.error('ErrorBoundary capturó un error:', error, errorInfo);
+    window.location.assign('/error/500');
   }
 
   render() {
     if (this.state.hasError) {
-      // 🔥 Redirigir a la página de error 500
-      return <Navigate to="/error/500" replace />;
+      return null;
     }
 
     return this.props.children;

@@ -6,7 +6,7 @@ import { adminService, type AdminUser } from '../services/admin.service';
 import { io, type Socket } from 'socket.io-client';
 import '../styles/admin.css';
 
-const API = 'http://localhost:3000';
+const API = import.meta.env.VITE_API_URL;
 
 const formatearFecha = (fechaStr: string | null) => {
   if (!fechaStr) return 'Nunca';
@@ -263,7 +263,7 @@ export default function AdminUsuariosPage() {
                         <td data-label="Nickname">
                           <div className="ad-user-info">
                             <div className="ad-user-avatar">
-                              {u.avatar ? <img src={`http://localhost:3000${u.avatar}`} alt="" /> : <i className="bi bi-person-fill" />}
+                              {u.avatar ? <img src={`${API}${u.avatar}`} alt="" /> : <i className="bi bi-person-fill" />}
                             </div>
                             <div className="ad-user-details">
                               <span className="ad-user-nick">

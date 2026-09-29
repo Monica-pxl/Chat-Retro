@@ -7,7 +7,7 @@ import AppFooter from '../components/AppFooter';
 import { amigosService, type Solicitud } from '../services/amigos.service';
 import '../styles/solicitudes.css';
 
-const API = 'http://localhost:3000';
+const API = import.meta.env.VITE_API_URL;
 
 type Tab = 'recibidas' | 'enviadas';
 
