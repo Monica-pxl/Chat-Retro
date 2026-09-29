@@ -25,7 +25,7 @@ const app = express();
 // CORS dinámico: solo orígenes permitidos
 const allowedOrigins = [
   'http://localhost:5173',
-  'https://chatretro.vercel.app', // ← actualizarás cuando tengas la URL real de Vercel
+  'https://https://chatretro-app.vercel.app', // ← actualizarás cuando tengas la URL real de Vercel
 ];
 
 app.use(cors({
