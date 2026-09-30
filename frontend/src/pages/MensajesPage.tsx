@@ -7,6 +7,7 @@ import AppFooter from '../components/AppFooter';
 import ConfirmModal from '../components/ConfirmModal';
 import { chatsService, type ChatResumen, type MensajePrivado } from '../services/amigos.service';
 import { uploadService } from '../services/upload.service';
+import { resolveAvatarUrl } from '../utils/avatar';
 import '../styles/mensajes.css';
 
 const API = import.meta.env.VITE_API_URL;
@@ -77,7 +78,7 @@ function Avatar({ src, nick, size = 42 }: { src: string | null; nick: string; si
   if (src) {
     return (
       <div className="mp-chat-item__avatar" style={{ width: size, height: size }}>
-        <img src={`${API}${src}`} alt={nick} />
+        <img src={resolveAvatarUrl(src)} alt={nick} />
       </div>
     );
   }
@@ -520,7 +521,7 @@ export default function MensajesPage() {
                 <div className="mp-chat-header">
                   <div className="mp-chat-header__avatar">
                     {interlocutorActivo?.avatar
-                      ? <img src={`${API}${interlocutorActivo.avatar}`} alt={interlocutorActivo.nickname} />
+                      ? <img src={resolveAvatarUrl(interlocutorActivo.avatar)} alt={interlocutorActivo.nickname} />
                       : <i className="bi bi-person-fill" />}
                   </div>
                   <span className="mp-chat-header__nick">{interlocutorActivo?.nickname}</span>

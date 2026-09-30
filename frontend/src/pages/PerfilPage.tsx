@@ -4,9 +4,8 @@ import { useAuth } from '../context/AuthContext';
 import AppHeader from '../components/AppHeader';
 import AppFooter from '../components/AppFooter';
 import { userService, type UserProfile } from '../services/user.service';
+import { resolveAvatarUrl } from '../utils/avatar';
 import '../styles/perfil.css';
-
-const API = import.meta.env.VITE_API_URL;
 
 export default function PerfilPage() {
   const { token, isAuthenticated, user, updateUser } = useAuth();
@@ -223,11 +222,7 @@ export default function PerfilPage() {
     );
   }
 
-  const avatarSrc = perfil.avatar
-    ? perfil.avatar.startsWith('http')
-      ? perfil.avatar
-      : `${API}${perfil.avatar}`
-    : null;
+  const avatarSrc = resolveAvatarUrl(perfil.avatar);
 
   return (
     <div className={`${isAdminRoute ? 'rp-page rp-page--admin' : 'rp-page'}`}>

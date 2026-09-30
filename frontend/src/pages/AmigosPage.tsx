@@ -6,15 +6,14 @@ import AppHeader from '../components/AppHeader';
 import AppFooter from '../components/AppFooter';
 import { amigosService, type AmigoItem } from '../services/amigos.service';
 import { UserProfileModal } from '../components/UserSearchBar';
+import { resolveAvatarUrl } from '../utils/avatar';
 import '../styles/amigos.css';
-
-const API = import.meta.env.VITE_API_URL;
 
 function Avatar({ src, nick }: { src: string | null; nick: string }) {
   if (src) {
     return (
       <div className="am-card__avatar">
-        <img src={`${API}${src}`} alt={nick} />
+        <img src={resolveAvatarUrl(src)} alt={nick} />
       </div>
     );
   }

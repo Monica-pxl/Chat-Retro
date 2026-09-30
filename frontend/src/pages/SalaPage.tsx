@@ -6,6 +6,7 @@ import { usePrivateMessages } from '../context/PrivateMessagesContext';
 import AppHeader from '../components/AppHeader';
 import ConfirmModal from '../components/ConfirmModal';
 import { salasService, type Sala, type MensajePrivadoAPI } from '../services/salas.service';
+import { resolveAvatarUrl } from '../utils/avatar';
 import '../styles/salas.css';
 import { uploadService } from "../services/upload.service";
 
@@ -844,7 +845,7 @@ export default function SalaPage() {
                   >
                     <div className="rs-sala-users__avatar">
                       {u.avatar ? (
-                        <img src={`${API}${u.avatar}`} alt={u.nickname} />
+                        <img src={resolveAvatarUrl(u.avatar)} alt={u.nickname} />
                       ) : (
                         u.nickname.charAt(0).toUpperCase()
                       )}
@@ -896,7 +897,7 @@ export default function SalaPage() {
               <div className="rs-sala-chat-privado__user">
                 <div className="rs-sala-chat-privado__avatar">
                   {usuarioSeleccionado.avatar ? (
-                    <img src={`${API}${usuarioSeleccionado.avatar}`} alt={usuarioSeleccionado.nickname} />
+                    <img src={resolveAvatarUrl(usuarioSeleccionado.avatar)} alt={usuarioSeleccionado.nickname} />
                   ) : (
                     usuarioSeleccionado.nickname.charAt(0).toUpperCase()
                   )}
@@ -1037,7 +1038,7 @@ export default function SalaPage() {
                   >
                     <div className="rs-msg__avatar" title={msg.nickname}>
                       {msg.avatar ? (
-                        <img src={`${API}${msg.avatar}`} alt={msg.nickname} />
+                        <img src={resolveAvatarUrl(msg.avatar)} alt={msg.nickname} />
                       ) : (
                         msg.nickname.charAt(0).toUpperCase()
                       )}

@@ -5,9 +5,8 @@ import { usePrivateMessages } from '../context/PrivateMessagesContext';
 import AppHeader from '../components/AppHeader';
 import AppFooter from '../components/AppFooter';
 import { amigosService, type Solicitud } from '../services/amigos.service';
+import { resolveAvatarUrl } from '../utils/avatar';
 import '../styles/solicitudes.css';
-
-const API = import.meta.env.VITE_API_URL;
 
 type Tab = 'recibidas' | 'enviadas';
 
@@ -15,7 +14,7 @@ function Avatar({ src, nick }: { src: string | null; nick: string }) {
   if (src) {
     return (
       <div className="sq-card__avatar">
-        <img src={`${API}${src}`} alt={nick} />
+        <img src={resolveAvatarUrl(src)} alt={nick} />
       </div>
     );
   }

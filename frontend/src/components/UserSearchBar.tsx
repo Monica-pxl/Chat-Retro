@@ -3,9 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { usePrivateMessages } from '../context/PrivateMessagesContext';
 import { userService, type UserSearch } from '../services/user.service';
+import { resolveAvatarUrl } from '../utils/avatar';
 import '../styles/search.css';
-
-const API = import.meta.env.VITE_API_URL;
 
 // 🔥 Esta interfaz define que el modal acepta CUALQUIER usuario que tenga estos campos
 interface ModalUser {
@@ -98,7 +97,7 @@ export function UserProfileModal({
         {/* Avatar */}
         <div className="rs-modal-avatar">
           {user.avatar
-            ? <img src={`${API}${user.avatar}`} alt={user.nickname} />
+            ? <img src={resolveAvatarUrl(user.avatar)} alt={user.nickname} />
             : <i className="bi bi-person-fill" />
           }
         </div>
@@ -285,7 +284,7 @@ export default function UserSearchBar() {
                 >
                   <div className="rs-search-result__avatar">
                     {u.avatar
-                      ? <img src={`${API}${u.avatar}`} alt={u.nickname} />
+                      ? <img src={resolveAvatarUrl(u.avatar)} alt={u.nickname} />
                       : <i className="bi bi-person-fill" />
                     }
                   </div>

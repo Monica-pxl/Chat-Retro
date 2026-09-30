@@ -4,6 +4,7 @@ import AppHeader from '../components/AppHeader';
 import AppFooter from '../components/AppFooter';
 import { adminService, type AdminUser } from '../services/admin.service';
 import { io, type Socket } from 'socket.io-client';
+import { resolveAvatarUrl } from '../utils/avatar';
 import '../styles/admin.css';
 
 const API = import.meta.env.VITE_API_URL;
@@ -263,7 +264,7 @@ export default function AdminUsuariosPage() {
                         <td data-label="Nickname">
                           <div className="ad-user-info">
                             <div className="ad-user-avatar">
-                              {u.avatar ? <img src={`${API}${u.avatar}`} alt="" /> : <i className="bi bi-person-fill" />}
+                              {u.avatar ? <img src={resolveAvatarUrl(u.avatar)} alt="" /> : <i className="bi bi-person-fill" />}
                             </div>
                             <div className="ad-user-details">
                               <span className="ad-user-nick">
