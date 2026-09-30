@@ -1,8 +1,7 @@
 import { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import { PrismaClient } from "@prisma/client";
-import path from "path";
-import fs from "fs";
+import cloudinary from "../config/cloudinary";
 import { validateImage } from "../helpers/uploadValidation";
 
 const prisma = new PrismaClient();
@@ -142,6 +141,7 @@ export const updatePassword = async (req: Request, res: Response) => {
 /* ─────────────────────────────
    POST /api/users/me/avatar
    Multipart: imagen
+   Sube el avatar a Cloudinary.
 ───────────────────────────── */
 export const uploadAvatar = async (req: Request, res: Response) => {
   try {
@@ -153,7 +153,6 @@ export const uploadAvatar = async (req: Request, res: Response) => {
 
     const validation = validateImage(req.file, 3 * 1024 * 1024);
     if (!validation.valid) {
-      fs.unlinkSync(req.file.path);
       return res.status(400).json({ error: validation.message });
     }
 
@@ -162,7 +161,19 @@ export const uploadAvatar = async (req: Request, res: Response) => {
       select: { avatar: true },
     });
 
-    const avatarUrl = `/uploads/avatars/${req.file.filename}`;
+    // Subir la imagen a Cloudinary en memoria (sin escribir en disco)
+    const uploadResult = await new Promise<any>((resolve, reject) => {
+      const stream = cloudinary.uploader.upload_stream(
+        { folder: "chatretro/avatars", resource_type: "image" },
+        (error, result) => {
+          if (error) reject(error);
+          else resolve(result);
+        },
+      );
+      stream.end(req.file!.buffer);
+    });
+
+    const avatarUrl = uploadResult.secure_url;
 
     const updated = await prisma.user.update({
       where: { id: userId },
@@ -180,14 +191,14 @@ export const uploadAvatar = async (req: Request, res: Response) => {
       },
     });
 
-    if (previousAvatar?.avatar) {
-      const previousAvatarPath = path.join(
-        req.file.destination,
-        path.basename(previousAvatar.avatar),
-      );
-
-      if (fs.existsSync(previousAvatarPath)) {
-        fs.unlinkSync(previousAvatarPath);
+    // Si el usuario tenía un avatar anterior alojado en Cloudinary, lo borramos de la nube.
+    // Si era una ruta antigua (/uploads/...), no hacemos nada.
+    if (previousAvatar?.avatar && previousAvatar.avatar.includes("res.cloudinary.com")) {
+      try {
+        const publicId = extractCloudinaryPublicId(previousAvatar.avatar);
+        if (publicId) await cloudinary.uploader.destroy(publicId);
+      } catch {
+        /* Si falla el borrado del anterior, no bloqueamos la respuesta */
       }
     }
 
@@ -199,15 +210,15 @@ export const uploadAvatar = async (req: Request, res: Response) => {
 
 /* ─────────────────────────────
    DELETE /api/users/me/avatar
+   Elimina el avatar del usuario (y de Cloudinary si está allí).
 ───────────────────────────── */
 export const deleteAvatar = async (req: Request, res: Response) => {
   try {
     const userId = (req as any).user.userId;
 
-    // Obtener el usuario para saber si tiene avatar
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: { avatar: true }
+      select: { avatar: true },
     });
 
     if (!user) {
@@ -218,16 +229,14 @@ export const deleteAvatar = async (req: Request, res: Response) => {
       return res.status(400).json({ error: "No tienes avatar para eliminar" });
     }
 
-    const avatarPath = path.join(
-      process.cwd(),
-      "uploads",
-      "avatars",
-      path.basename(user.avatar),
-    );
-
-    // El archivo puede haber sido eliminado manualmente; en ese caso solo se limpia la referencia.
-    if (fs.existsSync(avatarPath)) {
-      fs.unlinkSync(avatarPath);
+    // Si el avatar está en Cloudinary, lo borramos de la nube.
+    if (user.avatar.includes("res.cloudinary.com")) {
+      try {
+        const publicId = extractCloudinaryPublicId(user.avatar);
+        if (publicId) await cloudinary.uploader.destroy(publicId);
+      } catch {
+        /* Si falla, seguimos para limpiar la referencia en BD */
+      }
     }
 
     const updated = await prisma.user.update({
@@ -278,3 +287,22 @@ export const searchUsers = async (req: Request, res: Response) => {
     return res.status(500).json({ error: 'Error al buscar usuarios' });
   }
 };
+
+/* ───────────────────────────────
+   Helper: extrae el publicId de una URL de Cloudinary.
+   Ejemplo:
+   https://res.cloudinary.com/xxxx/image/upload/v123456/chatretro/avatars/abc.jpg
+   → chatretro/avatars/abc
+─────────────────────────────── */
+function extractCloudinaryPublicId(url: string): string | null {
+  try {
+    const parts = url.split("/upload/");
+    if (parts.length < 2) return null;
+    // Quitar la versión (v123456/) si existe
+    const afterUpload = parts[1].replace(/^v\d+\//, "");
+    // Quitar la extensión del archivo
+    return afterUpload.replace(/\.[^/.]+$/, "");
+  } catch {
+    return null;
+  }
+}

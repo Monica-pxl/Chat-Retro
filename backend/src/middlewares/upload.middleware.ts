@@ -1,50 +1,18 @@
 import multer from "multer";
-import path from "path";
-import fs from "fs";
 
-const uploadPath = path.join(process.cwd(), "uploads", "salas");
+// Con Cloudinary ya no guardamos en disco: usamos memoria y subimos el archivo directamente a la nube.
+const storage = multer.memoryStorage();
 
-
-if (!fs.existsSync(uploadPath)) {
-  fs.mkdirSync(uploadPath, { recursive: true });
-}
-
-const storage = multer.diskStorage({
-  destination(req, file, cb) {
-    cb(null, uploadPath);
-  },
-
-  filename(req, file, cb) {
-    const uniqueName =
-      Date.now() +
-      "-" +
-      Math.round(Math.random() * 1e9) +
-      path.extname(file.originalname);
-
-    cb(null, uniqueName);
-  },
-});
-
-const fileFilter: multer.Options["fileFilter"] = (req, file, cb) => {
-
-  const allowed = [
-    "image/jpeg",
-    "image/png",
-    "image/webp",
-    "image/gif",
-  ];
-
-  if (allowed.includes(file.mimetype)) {
-    cb(null, true);
-  } else {
-    cb(new Error("Formato no permitido"));
-  }
+const fileFilter: multer.Options["fileFilter"] = (_req, file, cb) => {
+  const allowed = ["image/jpeg", "image/png", "image/webp", "image/gif"];
+  if (allowed.includes(file.mimetype)) cb(null, true);
+  else cb(new Error("Formato no permitido"));
 };
 
 export const upload = multer({
   storage,
   fileFilter,
   limits: {
-    fileSize: 5 * 1024 * 1024,
+    fileSize: 5 * 1024 * 1024, // 5 MB
   },
 });

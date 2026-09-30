@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
-import fs from "fs";
+import cloudinary from "../config/cloudinary";
 import { validateImage } from "../helpers/uploadValidation";
 
-export const uploadImage = (req: Request, res: Response) => {
+export const uploadImage = async (req: Request, res: Response) => {
   try {
     if (!req.file) {
       return res.status(400).json({
@@ -13,14 +13,25 @@ export const uploadImage = (req: Request, res: Response) => {
     const validation = validateImage(req.file as Express.Multer.File);
 
     if (!validation.valid) {
-      fs.unlinkSync(req.file.path);
       return res.status(400).json({
         error: validation.message,
       });
     }
 
+    // Subir a Cloudinary en memoria (sin escribir en disco)
+    const uploadResult = await new Promise<any>((resolve, reject) => {
+      const stream = cloudinary.uploader.upload_stream(
+        { folder: "chatretro/salas", resource_type: "image" },
+        (error, result) => {
+          if (error) reject(error);
+          else resolve(result);
+        },
+      );
+      stream.end(req.file!.buffer);
+    });
+
     return res.status(200).json({
-      url: `/uploads/salas/${req.file!.filename}`,
+      url: uploadResult.secure_url,
     });
 
   } catch {

@@ -1,22 +1,7 @@
 import multer from "multer";
-import path from "path";
-import fs from "fs";
 
-const avatarPath = path.join(process.cwd(), "uploads", "avatars");
-
-if (!fs.existsSync(avatarPath)) {
-  fs.mkdirSync(avatarPath, { recursive: true });
-}
-
-const storage = multer.diskStorage({
-  destination(_req, _file, cb) {
-    cb(null, avatarPath);
-  },
-  filename(_req, file, cb) {
-    const unique = Date.now() + "-" + Math.round(Math.random() * 1e9) + path.extname(file.originalname);
-    cb(null, unique);
-  },
-});
+// Con Cloudinary ya no guardamos en disco: usamos memoria y subimos el archivo directamente a la nube.
+const storage = multer.memoryStorage();
 
 const fileFilter: multer.Options["fileFilter"] = (_req, file, cb) => {
   const allowed = ["image/jpeg", "image/png", "image/webp", "image/gif"];
