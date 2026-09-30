@@ -203,7 +203,8 @@ export const uploadAvatar = async (req: Request, res: Response) => {
     }
 
     return res.json({ avatar: avatarUrl, user: updated });
-  } catch {
+  } catch (error) {
+    console.error("Error al subir el avatar:", error);
     return res.status(500).json({ error: "Error al subir el avatar" });
   }
 };
