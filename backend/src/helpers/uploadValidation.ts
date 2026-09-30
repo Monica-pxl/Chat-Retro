@@ -1,5 +1,3 @@
-import fs from "fs";
-
 export const ALLOWED_IMAGE_TYPES = [
   "image/jpeg",
   "image/png",
@@ -12,7 +10,10 @@ export const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5 MB
 const MAX_AVATAR_SIZE = 3 * 1024 * 1024;
 
 function hasValidSignature(file: Express.Multer.File) {
-  const bytes = fs.readFileSync(file.path);
+  // Con memoryStorage el archivo está en file.buffer, no en disco.
+  const bytes = file.buffer;
+  if (!bytes) return false;
+
   const isJpeg = bytes.length >= 3 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff;
   const isPng = bytes.length >= 8 && bytes.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]));
   const isGif = bytes.length >= 6 && (bytes.subarray(0, 6).toString() === "GIF87a" || bytes.subarray(0, 6).toString() === "GIF89a");
