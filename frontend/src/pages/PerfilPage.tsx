@@ -223,7 +223,11 @@ export default function PerfilPage() {
     );
   }
 
-  const avatarSrc = perfil.avatar ? `${API}${perfil.avatar}` : null;
+  const avatarSrc = perfil.avatar
+    ? perfil.avatar.startsWith('http')
+      ? perfil.avatar
+      : `${API}${perfil.avatar}`
+    : null;
 
   return (
     <div className={`${isAdminRoute ? 'rp-page rp-page--admin' : 'rp-page'}`}>
