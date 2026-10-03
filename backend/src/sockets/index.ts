@@ -4,7 +4,7 @@ import { Server, Socket } from "socket.io";
 import jwt from "jsonwebtoken";
 import { JWT_SECRET } from "../config/jwt";
 import { PrismaClient } from "@prisma/client";
-import { canJoinRoom } from "../helpers/roomAvailability";
+import { isRoomClosed } from "../helpers/roomAvailability";
 import { setRoomCount, getRoomCount } from "../helpers/roomStore";
 import { addUserSocket, removeUserSocket, getOnlineUserIds, emitToUser } from "../helpers/socketStore";
 import { sanitizeMessage } from "../helpers/sanitize";
@@ -127,12 +127,8 @@ export const socketHandler = (io: Server) => {
           socket.emit("room-error", { message: "Sala no encontrada" });
           return;
         }
-        if (sala.cerrada) {
+        if (isRoomClosed(sala)) {
           socket.emit("room-error", { message: "Esta sala está cerrada" });
-          return;
-        }
-        if (!canJoinRoom(sala)) {
-          socket.emit("room-error", { message: "La sala no está disponible ahora mismo" });
           return;
         }
 
@@ -188,6 +184,12 @@ export const socketHandler = (io: Server) => {
       const roomName = `room-${roomId}`;
       if (!socket.rooms.has(roomName)) {
         socket.emit("room-error", { message: "No perteneces a esta sala" });
+        return;
+      }
+
+      const sala = await prisma.sala.findUnique({ where: { id: roomId } });
+      if (!sala || isRoomClosed(sala)) {
+        socket.emit("room-error", { message: "Esta sala está cerrada" });
         return;
       }
 

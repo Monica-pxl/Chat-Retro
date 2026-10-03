@@ -1,12 +1,27 @@
 import { Sala } from "@prisma/client";
 
-export const canJoinRoom = (sala: Sala): boolean => {
-  const now = new Date();
+const FIESTA_ROOMS = new Set(["Fiesta 90s", "Fiesta 2000s"]);
 
-  const day = now.getDay(); // 0 domingo - 6 sábado
-  const hour = now.getHours();
-  const month = now.getMonth() + 1; // 1-12
-  const date = now.getDate();
+export const isScheduledFiestaRoom = (sala: Pick<Sala, "nombre">): boolean =>
+  FIESTA_ROOMS.has(sala.nombre);
+
+export const canJoinRoom = (sala: Sala): boolean => {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: "Europe/Madrid",
+    weekday: "short",
+    month: "numeric",
+    day: "numeric",
+    hour: "numeric",
+    minute: "numeric",
+    hourCycle: "h23",
+  }).formatToParts(new Date());
+  const part = (type: Intl.DateTimeFormatPartTypes) =>
+    parts.find((value) => value.type === type)?.value ?? "";
+
+  const day = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].indexOf(part("weekday"));
+  const month = Number(part("month"));
+  const date = Number(part("day"));
+  const minutes = Number(part("hour")) * 60 + Number(part("minute"));
 
   switch (sala.nombre) {
 
@@ -19,17 +34,16 @@ export const canJoinRoom = (sala: Sala): boolean => {
     case "Fiesta 90s":
     case "Fiesta 2000s":
 
-      // Viernes: de 22:00 a 23:59
-      if (day === 5 && hour >= 22) return true;
+      // Viernes: desde las 22:00 hasta medianoche.
+      if (day === 5 && minutes >= 22 * 60) return true;
 
-      // Sábado: de 00:00 a 05:30 (madrugada del sábado, viene del viernes noche)
-      //          Y de 22:00 a 23:59 (sábado noche, va al domingo)
+      // Sábado: madrugada hasta las 05:30 y desde las 22:00.
       if (day === 6) {
-        if (hour < 6 || hour >= 22) return true;
+        if (minutes < 5 * 60 + 30 || minutes >= 22 * 60) return true;
       }
 
-      // Domingo: de 00:00 a 05:30 (madrugada del domingo, viene del sábado noche)
-      if (day === 0 && hour < 6) return true;
+      // Domingo: madrugada hasta las 05:30, continuación del sábado.
+      if (day === 0 && minutes < 5 * 60 + 30) return true;
 
       return false;
 
@@ -59,4 +73,12 @@ export const canJoinRoom = (sala: Sala): boolean => {
     default:
       return true;
   }
+};
+
+export const isRoomClosed = (sala: Sala): boolean => {
+  if (isScheduledFiestaRoom(sala)) {
+    return !canJoinRoom(sala);
+  }
+
+  return sala.cerrada || !canJoinRoom(sala);
 };

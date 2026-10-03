@@ -278,6 +278,7 @@ export default function AdminSalasPage() {
                     "Navidad 90s", "Navidad 2000s"
                   ];
                   const noSePuedeAbrir = salasConHorario.includes(sala.nombre);
+                  const fiestaPorHorario = sala.nombre === "Fiesta 90s" || sala.nombre === "Fiesta 2000s";
 
                   return (
                     <tr key={sala.id}>
@@ -299,11 +300,13 @@ export default function AdminSalasPage() {
                           <button
                             className={`ad-btn-accion ${sala.cerrada ? 'ad-btn-accion--activar' : 'ad-btn-accion--suspender'}`}
                             onClick={() => toggleSala(sala)}
-                            disabled={ocupado || (noSePuedeAbrir && sala.cerrada)}
-                            title={sala.cerrada ? 'Abrir sala' : 'Cerrar sala'}
+                            disabled={ocupado || fiestaPorHorario || (noSePuedeAbrir && sala.cerrada)}
+                            title={fiestaPorHorario ? 'El horario controla la apertura de esta sala' : sala.cerrada ? 'Abrir sala' : 'Cerrar sala'}
                           >
                             {ocupado
                               ? <i className="bi bi-arrow-repeat rs-spin" />
+                              : fiestaPorHorario
+                                ? <><i className="bi bi-clock" /> Por horario</>
                               : sala.cerrada
                                 ? <><i className="bi bi-unlock" /> Abrir</>
                                 : <><i className="bi bi-lock" /> Cerrar</>

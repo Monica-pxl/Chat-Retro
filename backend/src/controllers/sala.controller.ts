@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
 import { getRoomCount } from "../helpers/roomStore";
-import { canJoinRoom } from "../helpers/roomAvailability";
+import { isRoomClosed } from "../helpers/roomAvailability";
 
 const prisma = new PrismaClient();
 
@@ -15,10 +15,10 @@ export const getSalas = async (req: Request, res: Response) => {
       include: { epoca: true, tematica: true },
     });
 
-    // Aplicar disponibilidad en tiempo real
+    // En las salas Fiesta, el horario prevalece sobre el estado guardado en BD.
     const salasConDisponibilidad = salas.map(sala => ({
       ...sala,
-      cerrada: sala.cerrada || !canJoinRoom(sala),
+      cerrada: isRoomClosed(sala),
     }));
 
     return res.json(salasConDisponibilidad);
@@ -52,7 +52,7 @@ export const getMensajesSala = async (req: Request, res: Response) => {
       }
     }
 
-    if (sala.cerrada) {
+    if (isRoomClosed(sala)) {
       const requesterId = (req as any).user?.userId;
       const requester = requesterId
         ? await prisma.user.findUnique({
@@ -120,7 +120,10 @@ export const getSalaById = async (req: Request, res: Response) => {
       });
     }
 
-    return res.json(sala);
+    return res.json({
+      ...sala,
+      cerrada: isRoomClosed(sala),
+    });
   } catch {
     return res.status(500).json({
       error: "Error al obtener la sala",
