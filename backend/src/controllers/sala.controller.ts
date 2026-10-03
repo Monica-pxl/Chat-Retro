@@ -15,7 +15,7 @@ export const getSalas = async (req: Request, res: Response) => {
       include: { epoca: true, tematica: true },
     });
 
-    // En las salas Fiesta, el horario prevalece sobre el estado guardado en BD.
+    // En las salas con horario, este prevalece sobre el estado guardado en BD.
     const salasConDisponibilidad = salas.map(sala => ({
       ...sala,
       cerrada: isRoomClosed(sala),

@@ -1,9 +1,14 @@
 import { Sala } from "@prisma/client";
 
-const FIESTA_ROOMS = new Set(["Fiesta 90s", "Fiesta 2000s"]);
+const SCHEDULED_ROOMS = new Set([
+  "Fiesta 90s",
+  "Fiesta 2000s",
+  "Navidad 90s",
+  "Navidad 2000s",
+]);
 
-export const isScheduledFiestaRoom = (sala: Pick<Sala, "nombre">): boolean =>
-  FIESTA_ROOMS.has(sala.nombre);
+export const isScheduledRoom = (sala: Pick<Sala, "nombre">): boolean =>
+  SCHEDULED_ROOMS.has(sala.nombre);
 
 export const canJoinRoom = (sala: Sala): boolean => {
   const parts = new Intl.DateTimeFormat("en-US", {
@@ -76,7 +81,7 @@ export const canJoinRoom = (sala: Sala): boolean => {
 };
 
 export const isRoomClosed = (sala: Sala): boolean => {
-  if (isScheduledFiestaRoom(sala)) {
+  if (isScheduledRoom(sala)) {
     return !canJoinRoom(sala);
   }
 

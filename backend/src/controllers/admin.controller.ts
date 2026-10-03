@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { PrismaClient } from "@prisma/client";
 import { emitToUser, getIo } from "../helpers/socketStore";
 import { getOnlineUserIds } from "../helpers/socketStore";
-import { isScheduledFiestaRoom } from "../helpers/roomAvailability";
+import { isScheduledRoom } from "../helpers/roomAvailability";
 
 const prisma = new PrismaClient();
 
@@ -197,9 +197,9 @@ export const cerrarSala = async (req: Request, res: Response) => {
       return res.status(404).json({ error: "Sala no encontrada" });
     }
 
-    if (isScheduledFiestaRoom(sala)) {
+    if (isScheduledRoom(sala)) {
       return res.status(403).json({
-        error: "Las salas Fiesta se abren y cierran automáticamente según su horario",
+        error: "Esta sala se abre y cierra automáticamente según su horario",
       });
     }
 
